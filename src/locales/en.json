@@ -14,6 +14,8 @@
     "languages": "Instance language(s)",
     "languages_filter": "Filter languages",
     "languages_hint": "Tip: if none is checked, all languages are included.",
+    "select_all": "Select all",
+    "clear_all": "Clear all",
     "size": "Community size",
     "size_small": "Small",
     "size_medium": "Medium",

@@ -32,6 +32,17 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false, langua
       >
         <fieldset>
           <legend className="label">{t('wizard.languages')}</legend>
+          <div className="row" style={{ marginBottom: '.5rem' }}>
+            <button
+              type="button"
+              onClick={() => update('languages', Array.from(new Set([...(languagesList ?? ['fr','en'])].map((l) => l.toLowerCase()))))}
+            >
+              {t('wizard.select_all')}
+            </button>
+            <button type="button" onClick={() => update('languages', [])}>
+              {t('wizard.clear_all')}
+            </button>
+          </div>
           <CheckboxList
             label={t('wizard.languages')}
             filterPlaceholder={t('wizard.languages_filter')}

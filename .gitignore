@@ -10,6 +10,8 @@ pnpm-debug.log*
 src-tauri/target/
 src-tauri/target/**
 src-tauri/.cargo/
+xtask/target/
+xtask/target/**
 
 # Bundles / artifacts
 *.AppImage

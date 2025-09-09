@@ -6,6 +6,12 @@ NPM := npm
 XTASK_BIN_POSIX := ./xtask/target/release/xtask
 XTASK_BIN_WIN := ./xtask/target/release/xtask.exe
 XTASK := $(if $(wildcard $(XTASK_BIN_WIN)),$(XTASK_BIN_WIN),$(if $(wildcard $(XTASK_BIN_POSIX)),$(XTASK_BIN_POSIX),cargo run --manifest-path xtask/Cargo.toml --))
+XTASK_BANNER = @if [ -x ./xtask/target/release/xtask ] || [ -x ./xtask/target/release/xtask.exe ]; then echo "[xtask] Using prebuilt binary"; else echo "[xtask] Using cargo run (no prebuilt binary)"; fi
+
+# Prefer prebuilt xtask binary if available; fallback to cargo run.
+XTASK_BIN_POSIX := ./xtask/target/release/xtask
+XTASK_BIN_WIN := ./xtask/target/release/xtask.exe
+XTASK := $(if $(wildcard $(XTASK_BIN_WIN)),$(XTASK_BIN_WIN),$(if $(wildcard $(XTASK_BIN_POSIX)),$(XTASK_BIN_POSIX),cargo run --manifest-path xtask/Cargo.toml --))
 
 .PHONY: help help-all check check-js check-rust check-js-type check-js-fmt check-rust-fmt ci-checks fix dev build appimage deb linux build-linux cross-prep-win win-exe win-nsis win-zip clean release-tag release-gh fmt fmt-js fmt-rust lint lint-fix clippy clippy-install ensure-cli doctor xtask-release
 
@@ -62,42 +68,53 @@ help-all: help
 	@echo "  fmt, fmt:js, fmt:rust - Formatage"
 
 dev:
+	$(XTASK_BANNER)
 	$(XTASK) dev
 
 build:
+	$(XTASK_BANNER)
 	$(XTASK) build web
 
 appimage:
+	$(XTASK_BANNER)
 	$(XTASK) build appimage
 
 deb:
+	$(XTASK_BANNER)
 	$(XTASK) build deb
 
 linux:
+	$(XTASK_BANNER)
 	$(XTASK) build linux
 
 build-linux: linux
 
 cross-prep-win:
+	$(XTASK_BANNER)
 	$(XTASK) prep win
 
 win-exe:
+	$(XTASK_BANNER)
 	$(XTASK) build win-exe
 
 win-nsis:
+	$(XTASK_BANNER)
 	$(XTASK) build win-nsis
 
 win-zip:
+	$(XTASK_BANNER)
 	$(XTASK) build win-zip
 
 # Usage: make release-tag VERSION=v0.1.0
 release-tag:
 	@if [ -z "$$VERSION" ]; then echo "Set VERSION=vX.Y.Z"; exit 1; fi
+	$(XTASK_BANNER)
 	$(XTASK) release tag $$VERSION
 
 # Usage: make release-gh VERSION=v0.1.0 NOTES="..."
 release-gh:
 	@if [ -z "$$VERSION" ]; then echo "Set VERSION=vX.Y.Z"; exit 1; fi
+	$(XTASK_BANNER)
 	$(XTASK) release gh $$VERSION --notes "$$NOTES"
 
 clean:
@@ -106,15 +123,19 @@ clean:
 fmt: fmt-js fmt-rust
 
 fmt-js:
+	$(XTASK_BANNER)
 	$(XTASK) fmt js
 
 fmt-rust:
+	$(XTASK_BANNER)
 	$(XTASK) fmt rust
 
 lint:
+	$(XTASK_BANNER)
 	$(XTASK) lint
 
 lint-fix:
+	$(XTASK_BANNER)
 	$(XTASK) lint --fix
 
 clippy-install:
@@ -125,33 +146,42 @@ clippy: clippy-install
 
 # Vérifications rapides avant PR (checks ciblés)
 check-js:
+	$(XTASK_BANNER)
 	$(XTASK) lint
 
 check-rust: clippy
 
 check:
+	$(XTASK_BANNER)
 	$(XTASK) check
 
 check-js-type:
+	$(XTASK_BANNER)
 	$(XTASK) ts-check
 
 check-js-fmt:
+	$(XTASK_BANNER)
 	$(XTASK) fmt-check js
 
 check-rust-fmt:
+	$(XTASK_BANNER)
 	$(XTASK) fmt-check rust
 
 ci-checks:
+	$(XTASK_BANNER)
 	$(XTASK) ci-checks
 
 fix:
+	$(XTASK_BANNER)
 	$(XTASK) fix
 
 # Assure que la CLI Tauri locale est disponible (sans installer en global)
 ensure-cli:
+	$(XTASK_BANNER)
 	$(XTASK) ensure-cli
 
 doctor:
+	$(XTASK_BANNER)
 	$(XTASK) doctor
 
 xtask-release:

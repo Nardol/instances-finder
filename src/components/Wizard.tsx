@@ -9,9 +9,10 @@ type Props = {
   onApply: (p: Preferences) => void;
   expert?: boolean;
   languagesList?: string[];
+  brailleRefresh?: boolean;
 };
 
-export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false, languagesList }) => {
+export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false, languagesList, brailleRefresh = false }) => {
   const { t } = useI18n();
   const [local, setLocal] = useState<Preferences>(prefs);
   const titleId = useId();
@@ -47,6 +48,7 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false, langua
             label={t('wizard.languages')}
             filterPlaceholder={t('wizard.languages_filter')}
             announcementLabels={{ selected: t('wizard.selected'), notSelected: t('wizard.not_selected') }}
+            brailleRefresh={brailleRefresh}
             items={(languagesList ?? ['fr', 'en']).map((code) => ({
               id: `lang-${code}`,
               label: languageDisplayName(code, (t('header.fr') ? 'fr' : 'en') as 'fr' | 'en') + ` (${code.toUpperCase()})`,

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useI18n } from '../i18n';
 import type { Lang } from '../i18n';
 
 type Props = {
@@ -8,9 +9,12 @@ type Props = {
   onChangeLang: (l: Lang) => void;
   expert: boolean;
   onToggleExpert: (v: boolean) => void;
+  brailleRefresh: boolean;
+  onToggleBrailleRefresh: (v: boolean) => void;
 };
 
-export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChangeLang, expert, onToggleExpert }) => {
+export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChangeLang, expert, onToggleExpert, brailleRefresh, onToggleBrailleRefresh }) => {
+  const { t } = useI18n();
   const backdropRef = useRef<HTMLDivElement | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const lastFocusRef = useRef<HTMLElement | null>(null);
@@ -127,6 +131,15 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChang
             <div className="row" style={{ marginTop: '.5rem' }}>
               <label>
                 <input type="checkbox" checked={expert} onChange={(e) => onToggleExpert(e.target.checked)} /> Mode expert (expérimental)
+              </label>
+            </div>
+            <div className="row" style={{ marginTop: '.5rem' }}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={brailleRefresh}
+                  onChange={(e) => onToggleBrailleRefresh(e.target.checked)}
+                /> {t('prefs.braille_refresh')}
               </label>
             </div>
           </section>

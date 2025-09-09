@@ -12,22 +12,27 @@ type Props = {
   items: CheckboxItem[];
   filterPlaceholder?: string;
   announcementLabels?: { selected: string; notSelected: string };
+  brailleRefresh?: boolean;
 };
 
-export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder, announcementLabels }) => {
+export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder, announcementLabels, brailleRefresh = false }) => {
   const [active, setActive] = React.useState(0);
-  const refs = React.useRef<Array<HTMLLIElement | null>>([]);
+  const listboxRef = React.useRef<HTMLUListElement | null>(null);
   const listId = React.useId();
   const hintId = React.useId();
   const filterId = React.useId();
   const [query, setQuery] = React.useState('');
-  const announceRef = React.useRef<HTMLParagraphElement | null>(null);
   const labels = announcementLabels || { selected: 'selected', notSelected: 'not selected' };
+  // Activedescendant proxy (optional) to nudge braille refresh when enabled in prefs
+  const [adRefresh, setAdRefresh] = React.useState(false);
+  const proxyId = React.useId();
 
   const focusIndex = (idx: number) => {
-    const clamped = Math.max(0, Math.min(items.length - 1, idx));
+    const max = Math.max(0, visible.length - 1);
+    const clamped = Math.max(0, Math.min(max, idx));
     setActive(clamped);
-    refs.current[clamped]?.focus();
+    // Keep focus on the listbox to maintain Orca focus mode
+    listboxRef.current?.focus();
   };
 
   const visible = React.useMemo(() => {
@@ -40,23 +45,7 @@ export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder,
     if (active > visible.length - 1) setActive(0);
   }, [visible.length, active]);
 
-  const activeAnnouncement = React.useMemo(() => {
-    const it = visible[active];
-    if (!it) return '';
-    return `${it.label} — ${it.checked ? labels.selected : labels.notSelected}`;
-  }, [visible, active, labels.selected, labels.notSelected]);
-
-  // Force screen reader announcement even when focus stays on the listbox
-  React.useEffect(() => {
-    const el = announceRef.current;
-    if (!el) return;
-    el.textContent = '';
-    // Delay to ensure DOM mutation is detected
-    const id = window.setTimeout(() => {
-      el.textContent = activeAnnouncement;
-    }, 0);
-    return () => window.clearTimeout(id);
-  }, [activeAnnouncement]);
+  // No live announcements here; rely on listbox/option semantics.
 
   return (
     <div>
@@ -77,60 +66,79 @@ export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder,
       <p id={hintId} className="sr-only">
         Utilisez Haut/Bas pour naviguer, Espace pour cocher/décocher. Tab pour quitter la liste.
       </p>
-      {/* Live status for SR (outside the listbox focus to avoid mode switches) */}
-      <p ref={announceRef} className="sr-only" role="status" aria-live="polite">
-        {activeAnnouncement}
-      </p>
       <ul
-        role="group"
+        ref={listboxRef}
+        role="listbox"
+        aria-multiselectable="true"
         aria-labelledby={listId}
         aria-describedby={hintId}
+        aria-activedescendant={
+          (brailleRefresh && adRefresh)
+            ? proxyId
+            : (visible[active] ? `opt-${visible[active].id}` : undefined)
+        }
+        tabIndex={0}
         className="roving-list"
         style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: '0.25rem' }}
+        onKeyDown={(e) => {
+          if (visible.length === 0) return;
+          switch (e.key) {
+            case 'ArrowDown':
+              e.preventDefault();
+              focusIndex(active + 1);
+              break;
+            case 'ArrowUp':
+              e.preventDefault();
+              focusIndex(active - 1);
+              break;
+            case 'Home':
+              e.preventDefault();
+              focusIndex(0);
+              break;
+            case 'End':
+              e.preventDefault();
+              focusIndex(visible.length - 1);
+              break;
+            case ' ': // Space
+            case 'Enter': {
+              e.preventDefault();
+              const it = visible[active];
+              if (it) {
+                it.onToggle(!it.checked);
+                if (brailleRefresh) {
+                  setAdRefresh(true);
+                  requestAnimationFrame(() => setAdRefresh(false));
+                }
+              }
+              break; }
+            default:
+              break;
+          }
+        }}
       >
+        
         {visible.map((it, idx) => {
           const labelId = `lbl-${it.id}`;
+          const stateId = `st-${it.id}`;
           return (
             <li
               key={it.id}
-              role="checkbox"
+              id={`opt-${it.id}`}
+              role="option"
+              aria-selected={it.checked}
               aria-checked={it.checked}
-              aria-labelledby={labelId}
+              aria-labelledby={`${labelId} ${stateId}`}
               aria-posinset={idx + 1}
               aria-setsize={visible.length}
-              tabIndex={active === idx ? 0 : -1}
-              ref={(el) => (refs.current[idx] = el)}
-              onFocus={() => setActive(idx)}
+              onMouseEnter={() => setActive(idx)}
               onClick={(e) => {
                 e.preventDefault();
+                setActive(idx);
                 it.onToggle(!it.checked);
-                focusIndex(idx);
-              }}
-              onKeyDown={(e) => {
-                switch (e.key) {
-                  case 'ArrowDown':
-                    e.preventDefault();
-                    focusIndex(idx + 1);
-                    break;
-                  case 'ArrowUp':
-                    e.preventDefault();
-                    focusIndex(idx - 1);
-                    break;
-                  case 'Home':
-                    e.preventDefault();
-                    focusIndex(0);
-                    break;
-                  case 'End':
-                    e.preventDefault();
-                    focusIndex(visible.length - 1);
-                    break;
-                  case ' ': // Space
-                  case 'Enter':
-                    e.preventDefault();
-                    it.onToggle(!it.checked);
-                    break;
-                  default:
-                    break;
+                listboxRef.current?.focus();
+                if (brailleRefresh) {
+                  setAdRefresh(true);
+                  requestAnimationFrame(() => setAdRefresh(false));
                 }
               }}
               style={{
@@ -147,6 +155,9 @@ export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder,
                 {it.checked ? '☑' : '☐'}
               </span>
               <span id={labelId}>{it.label}</span>
+              <span id={stateId} className="sr-only">
+                {it.checked ? labels.selected : labels.notSelected}
+              </span>
             </li>
           );
         })}

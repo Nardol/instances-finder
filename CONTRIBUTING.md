@@ -7,6 +7,8 @@ Merci de votre intérêt pour ce projet. Cette page complète le README et décr
 - Lisez le [README](./README.md) pour l’installation et les commandes.
 - Respectez les règles ci‑dessous (style, accessibilité, sécurité, PR).
 
+Note transparence: la base du code a été produite par un assistant IA. Merci d’accorder une attention particulière aux revues accessibilité (a11y), sécurité Tauri (IPC/allowlist), et robustesse (gestion d’erreurs, états limites).
+
 ## Code de conduite
 
 - Soyez bienveillant·e et précis·e. Donnez du contexte et des repros courts.

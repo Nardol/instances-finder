@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { Instance } from '../types';
 import { useI18n } from '../i18n';
 
@@ -52,7 +52,7 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
   const [announce, setAnnounce] = useState('');
   const [active, setActive] = useState(0); // active row index
   const [col, setCol] = useState(0); // active column index within the grid
-  const [controlsIdx, setControlsIdx] = useState<number | null>(null);
+  // Using roving tabindex: keep the DOM focus on the active grid cell
 
   // Ensure screen readers re-announce identical messages by clearing first
   const announcePolite = (msg: string) => {
@@ -67,13 +67,24 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
     setCol(0);
   }, [items.length]);
 
+  // Ensure a focus target exists when items load the first time
+  useEffect(() => {
+    if (!items.length) return;
+    const idSafe = items[Math.max(0, Math.min(items.length - 1, active))]?.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
+    const cell = document.getElementById(`cell-${idSafe}-${col}`) as HTMLElement | null;
+    if (cell && document.activeElement === document.body) {
+      cell.focus();
+    }
+  }, [items, active, col]);
+
   const focusIndex = (idx: number) => {
     const clamped = Math.max(0, Math.min(items.length - 1, idx));
     setActive(clamped);
-    // Keep focus on the listbox to maintain Orca focus mode
-    if (listRef && typeof listRef !== 'function') {
-      listRef.current?.focus();
-    }
+    setTimeout(() => {
+      const idSafe = items[clamped]?.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
+      const cell = document.getElementById(`cell-${idSafe}-${col}`) as HTMLElement | null;
+      cell?.focus();
+    }, 0);
   };
 
   const handleListKeyDown = async (e: React.KeyboardEvent<HTMLUListElement>) => {
@@ -84,9 +95,11 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
       return;
     }
     if (e.key === 'Escape') {
+      // When in buttons, Esc should return to current cell
       e.preventDefault();
-      setControlsIdx(null);
-      if (listRef && typeof listRef !== 'function') listRef.current?.focus();
+      const idSafe = items[active]?.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
+      const cell = document.getElementById(`cell-${idSafe}-${col}`) as HTMLElement | null;
+      cell?.focus();
       return;
     }
     const colCount = 3;
@@ -97,25 +110,9 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
 
     switch (key) {
       case 'Tab': {
-        if (e.shiftKey) {
-          // Allow Shift+Tab to escape the listbox naturally
-          return;
-        }
-        // Move focus into the active item's controls (Copy/Open)
-        // so users can access buttons without leaving the widget context.
-        e.preventDefault();
-        setControlsIdx(active);
-        // Defer focus to let buttons become tabbable
-        setTimeout(() => {
-          if (listRef && typeof listRef !== 'function') {
-            const root = listRef.current;
-            const btn = root?.querySelector(
-              `li:nth-child(${active + 2}) .card-actions button`
-            ) as HTMLButtonElement | null;
-            btn?.focus();
-          }
-        }, 0);
-        break; }
+        // Let Tab flow naturally between focusable elements inside the row.
+        return;
+      }
       case 'ArrowDown':
         // Move to next row; let Orca Ctrl+Alt+Down pass through
         if (ctrlAlt) return;
@@ -141,23 +138,27 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
       case 'Home':
         e.preventDefault();
         if (e.ctrlKey) {
-          // Ctrl+Home: first cell of first row
           focusIndex(0);
           setCol(0);
         } else {
-          // Home: first cell of current row
           setCol(0);
+          setTimeout(() => {
+            const idSafe = items[active]?.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
+            document.getElementById(`cell-${idSafe}-0`)?.focus();
+          }, 0);
         }
         break;
       case 'End':
         e.preventDefault();
         if (e.ctrlKey) {
-          // Ctrl+End: last cell of last row
           focusIndex(items.length - 1);
           setCol(colCount - 1);
         } else {
-          // End: last cell of current row
           setCol(colCount - 1);
+          setTimeout(() => {
+            const idSafe = items[active]?.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
+            document.getElementById(`cell-${idSafe}-${colCount - 1}`)?.focus();
+          }, 0);
         }
         break;
       case 'PageDown':
@@ -203,11 +204,6 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
         aria-rowcount={items.length + 1}
         aria-colcount={3}
         aria-label={t('results.list_label', { count: items.length })}
-        aria-activedescendant={
-          items.length
-            ? `cell-${items[active]?.domain.replace(/[^a-zA-Z0-9_-]/g, '-')}-${col}`
-            : undefined
-        }
         ref={listRef}
         data-active-col={col}
         tabIndex={0}
@@ -245,6 +241,7 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
               aria-colindex={1}
               aria-selected={active === idx && col === 0}
               className="card-body col-0"
+              tabIndex={active === idx && col === 0 ? 0 : -1}
             >
               <h3 id={titleId}>
                 <a
@@ -268,6 +265,7 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
               aria-colindex={2}
               aria-selected={active === idx && col === 1}
               className="card-body col-1"
+              tabIndex={active === idx && col === 1 ? 0 : -1}
               aria-describedby={factsId}
             >
               <p id={factsId}>
@@ -285,6 +283,7 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
               aria-colindex={3}
               aria-selected={active === idx && col === 2}
               className="card-actions col-2"
+              tabIndex={active === idx && col === 2 ? 0 : -1}
             >
               {active === idx && (
                 <div className="kbd-hint" aria-hidden="true">
@@ -296,7 +295,6 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
                 </div>
               )}
               <button
-                tabIndex={controlsIdx === idx ? 0 : -1}
                 onClick={async () => {
                   const ok = await copyText(`https://${it.domain}`);
                   if (ok) {
@@ -308,7 +306,6 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
                 {t('results.copy')}
               </button>
               <button
-                tabIndex={controlsIdx === idx ? 0 : -1}
                 onClick={() => openExternal(`https://${it.domain}`)}
               >
                 {t('results.openBrowser')}

@@ -14,6 +14,8 @@
     "cross:prep:win": "rustup target add x86_64-pc-windows-gnu",
     "cross:build:win:exe": "bash scripts/cross-win-build.sh app",
     "cross:build:win:nsis": "bash scripts/cross-win-build.sh nsis",
+    "release:tag": "bash scripts/release-tag.sh",
+    "release:gh": "bash scripts/gh-create-release.sh",
     "tauri:build:win:exe": "tauri build --target x86_64-pc-windows-gnu --bundles app",
     "tauri:build:win:nsis": "TAURI_BUNDLE_TARGETS=nsis tauri build --target x86_64-pc-windows-gnu"
   },

@@ -48,6 +48,10 @@ Contribuer
 - Consultez le guide de contribution: [CONTRIBUTING.md](./CONTRIBUTING.md) 
 - Pour les règles détaillées (structure, style, accessibilité, PR): [AGENTS.md](./AGENTS.md)
 
+Releases
+- Via tags (CI auto): `npm run release:tag -- v0.1.0` (crée un tag et déclenche le workflow release qui attache l’AppImage et l’installeur NSIS à la release GitHub).
+- Via GitHub CLI (draft): `npm run release:gh -- v0.1.0 "Notes de version"` (crée une release brouillon; le workflow “release” l’enrichit avec les artefacts).
+
 Icône de l’application
 - Un pictogramme PNG minimal est auto‑généré au build si `src-tauri/icons/icon.png` est absent (pour éviter l’erreur Tauri).
 - Pour un meilleur rendu, remplacez‑le par votre propre `src-tauri/icons/icon.png` (recommandé: PNG 512×512).

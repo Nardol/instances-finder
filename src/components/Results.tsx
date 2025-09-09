@@ -143,11 +143,18 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
         ref={listRef}
         tabIndex={0}
         onKeyDown={(e) => {
+          // Only handle keys when the list container itself is focused,
+          // not when a listitem handles its own navigation.
+          if (e.currentTarget !== e.target) return;
           if (items.length === 0) return;
           switch (e.key) {
             case 'ArrowDown':
               e.preventDefault();
-              focusIndex(active >= 0 && active < items.length ? active : 0);
+              focusIndex(0);
+              break;
+            case 'ArrowUp':
+              e.preventDefault();
+              focusIndex(items.length - 1);
               break;
             case 'End':
               e.preventDefault();

@@ -1,11 +1,16 @@
 import React, { useEffect, useRef } from 'react';
+import type { Lang } from '../i18n';
 
 type Props = {
   open: boolean;
   onClose: () => void;
+  lang: Lang;
+  onChangeLang: (l: Lang) => void;
+  expert: boolean;
+  onToggleExpert: (v: boolean) => void;
 };
 
-export const PreferencesModal: React.FC<Props> = ({ open, onClose }) => {
+export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChangeLang, expert, onToggleExpert }) => {
   const backdropRef = useRef<HTMLDivElement | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const lastFocusRef = useRef<HTMLElement | null>(null);
@@ -89,6 +94,21 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose }) => {
           </button>
         </header>
         <div className="modal-body" tabIndex={0} role="document">
+          <section aria-labelledby="prefs-general-title" style={{ marginBottom: '1rem' }}>
+            <h3 id="prefs-general-title">Général</h3>
+            <div className="row">
+              <label className="label" htmlFor="prefs-lang">Langue de l’interface</label>
+              <select id="prefs-lang" value={lang} onChange={(e) => onChangeLang(e.target.value as Lang)}>
+                <option value="fr">Français</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+            <div className="row" style={{ marginTop: '.5rem' }}>
+              <label>
+                <input type="checkbox" checked={expert} onChange={(e) => onToggleExpert(e.target.checked)} /> Mode expert (expérimental)
+              </label>
+            </div>
+          </section>
           <section aria-labelledby="prefs-shortcuts-title">
             <h3 id="prefs-shortcuts-title">Raccourcis clavier</h3>
             <ul>

@@ -211,7 +211,14 @@ const App: React.FC = () => {
 
         <LiveRegion ref={liveRef} />
       </div>
-      <PreferencesModal open={prefsOpen} onClose={() => setPrefsOpen(false)} />
+      <PreferencesModal
+        open={prefsOpen}
+        onClose={() => setPrefsOpen(false)}
+        lang={lang}
+        onChangeLang={setLang}
+        expert={expert}
+        onToggleExpert={setExpert}
+      />
     </AppShell>
   );
 };

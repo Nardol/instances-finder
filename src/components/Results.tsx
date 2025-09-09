@@ -77,6 +77,22 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
     }
   }, [items, active, col]);
 
+  // Listen for App request to focus the first cell after results load
+  useEffect(() => {
+    const handler = () => {
+      if (!items.length) return;
+      const idSafe = items[0]?.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
+      const cell = document.getElementById(`cell-${idSafe}-0`) as HTMLElement | null;
+      if (cell) {
+        setActive(0);
+        setCol(0);
+        cell.focus();
+      }
+    };
+    window.addEventListener('results:focus-first', handler);
+    return () => window.removeEventListener('results:focus-first', handler);
+  }, [items]);
+
   const focusIndex = (idx: number) => {
     const clamped = Math.max(0, Math.min(items.length - 1, idx));
     setActive(clamped);
@@ -190,7 +206,8 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
         aria-label={t('results.list_label', { count: items.length })}
         ref={listRef}
         data-active-col={col}
-        tabIndex={0}
+        // Keep the container out of the tab order to avoid double focus
+        tabIndex={-1}
       >
         {/* Header row for screen readers and sighted users */}
         <li role="row" className="grid-header" aria-rowindex={1}>

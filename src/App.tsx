@@ -84,9 +84,11 @@ const App: React.FC = () => {
             new CustomEvent('app:flash', { detail: t('status.done', { count: ranked.length }) })
           );
         } catch (_) {}
-        // After results load, focus the grid container to keep Orca in focus mode
+        // After results load, request focus on the first cell (handled by Results)
         setTimeout(() => {
-          resultsListRef.current?.focus();
+          try {
+            window.dispatchEvent(new CustomEvent('results:focus-first'));
+          } catch (_) {}
         }, 0);
       } catch (e) {
         if (!cancelled) {

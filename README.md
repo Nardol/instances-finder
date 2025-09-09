@@ -2,7 +2,7 @@
 
 Objectif: aider à choisir une instance Mastodon/Fediverse via l’API `instances.social`, avec une interface accessible (lecteurs d’écran) et des actions rapides (copier l’URL, ouvrir dans le navigateur).
 
-Statut: prototype fonctionnel et accessible. Intégration de l’API `instances.social` (jeton requis). Packaging AppImage opérationnel; cross‑build Windows disponible.
+Statut: prototype fonctionnel et accessible. Intégration de l’API `instances.social` (jeton requis). Packaging AppImage opérationnel; cross-build Windows disponible.
 
 Sommaire
 
@@ -51,10 +51,10 @@ Important: aucune installation globale de `tauri` n’est requise. La CLI est fo
 
 Installation (développement):
 
-1. Installer les dépendances système et outils ci‑dessus.
+1. Installer les dépendances système et outils ci-dessus.
 2. Installer les dépendances du projet: `npm ci` (ou `npm install`).
-   - Option tout‑en‑un (recommandée): `make setup` → exécute `npm ci` et précompile `xtask` en release pour des commandes plus rapides.
-   - Assurez‑vous d’installer les devDependencies (ne pas installer en mode production). Si vous avez `NODE_ENV=production` ou `npm config set production true`, réactivez les devDependencies avec `npm config set production false` puis relancez `npm ci`.
+   - Option tout-en-un (recommandée): `make setup` → exécute `npm ci` et précompile `xtask` en release pour des commandes plus rapides.
+   - Assurez-vous d’installer les devDependencies (ne pas installer en mode production). Si vous avez `NODE_ENV=production` ou `npm config set production true`, réactivez les devDependencies avec `npm config set production false` puis relancez `npm ci`.
 3. Vérifier la CLI si besoin: `npx --no-install @tauri-apps/cli -v` (devrait afficher la version locale).
 4. Démarrer en dev (du plus simple au plus rapide):
    - Simple: `make dev` (alias qui appelle xtask)
@@ -66,7 +66,7 @@ Installation (développement):
 
 1. Au premier lancement, ouvrez la page de création de jeton Instances.social, collez le jeton, puis lancez le test.
 2. Choisissez vos préférences (langue, taille, modération…).
-3. Parcourez les résultats, copiez l’URL de l’instance ou ouvrez‑la dans le navigateur.
+3. Parcourez les résultats, copiez l’URL de l’instance ou ouvrez-la dans le navigateur.
 4. Optionnel: activez le “Mode expert” pour afficher le filtre Région (expérimental).
 
 Stockage du jeton:
@@ -91,7 +91,7 @@ Paquet Debian (.deb):
 - Installation: `sudo apt install ./<fichier>.deb`
   - Dépendances runtime: WebKitGTK, GTK, Ayatana AppIndicator, librsvg, libssl (prises en charge via le paquet). Compatible Debian 12 (webkit 4.0) et systèmes avec 4.1.
 
-Build Windows depuis Linux (cross‑build):
+Build Windows depuis Linux (cross-build):
 
 - Prérequis (Debian/Ubuntu):
   - `sudo apt update && sudo apt install -y mingw-w64 gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 binutils-mingw-w64-x86-64 nsis`
@@ -130,8 +130,8 @@ Build Windows depuis macOS (portable .zip):
 
 Icône de l’application:
 
-- Un PNG minimal est auto‑généré si `src-tauri/icons/icon.png` est absent (pour éviter l’erreur Tauri).
-- Le build Windows a besoin d’un `.ico`. Le script de cross‑build génère automatiquement `src-tauri/icons/icon.ico` à partir du PNG via `tauri icon` si le fichier n’existe pas.
+- Un PNG minimal est auto-généré si `src-tauri/icons/icon.png` est absent (pour éviter l’erreur Tauri).
+- Le build Windows a besoin d’un `.ico`. Le script de cross-build génère automatiquement `src-tauri/icons/icon.ico` à partir du PNG via `tauri icon` si le fichier n’existe pas.
 - Pour un meilleur rendu: fournissez votre propre `src-tauri/icons/icon.png` (512×512 conseillé) et, optionnellement, un `src-tauri/icons/icon.ico` dédié. À défaut, l’ICO sera régénéré depuis le PNG.
 
 ## Accessibilité
@@ -159,7 +159,7 @@ Limites / compromis:
   - Exécutez d’abord `npm ci` (ou `npm install`) pour installer les devDependencies, dont `@tauri-apps/cli`.
   - Vérifiez que vous n’êtes pas en mode production: `npm config get production` doit être `false`.
   - Option de vérification: `npx --no-install @tauri-apps/cli -v` doit afficher la version locale.
-  - Après un grand ménage (`make clean-all`), lancez `make setup` pour réinstaller les dépendances et re‑précompiler `xtask`.
+  - Après un grand ménage (`make clean-all`), lancez `make setup` pour réinstaller les dépendances et re-précompiler `xtask`.
 
 ### Diagnostic rapide (doctor)
 

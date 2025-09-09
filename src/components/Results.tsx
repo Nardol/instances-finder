@@ -4,7 +4,7 @@ import { useI18n } from '../i18n';
 
 function isValidDomain(domain: string): boolean {
   const d = domain.trim().toLowerCase();
-  // Basic hostname validation (RFC‑1123 style, no trailing dot)
+  // Basic hostname validation (RFC-1123 style, no trailing dot)
   const re =
     /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$/i;
   return re.test(d);

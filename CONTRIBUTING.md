@@ -1,11 +1,11 @@
 # Contributing Guide
 
-Merci de votre intérêt pour ce projet. Cette page complète le README et décrit comment contribuer efficacement.
+ Merci de votre intérêt pour ce projet. Cette page complète le README et décrit comment contribuer efficacement.
 
 ## Start Here
 
 - Lisez le [README](./README.md) pour l’installation et les commandes.
-- Respectez les règles ci‑dessous (style, accessibilité, sécurité, PR).
+- Respectez les règles ci-dessous (style, accessibilité, sécurité, PR).
 
 Note transparence: la base du code a été produite par un assistant IA. Merci d’accorder une attention particulière aux revues accessibilité (a11y), sécurité Tauri (IPC/allowlist), et robustesse (gestion d’erreurs, états limites).
 
@@ -22,7 +22,7 @@ Note transparence: la base du code a été produite par un assistant IA. Merci d
 - Dev: `npm run tauri:dev`
 - Build AppImage: `npm run tauri:build:appimage`
 - Build Debian (.deb): `npm run tauri:build:deb`
-- Cross‑build Windows (depuis Linux):
+- Cross-build Windows (depuis Linux):
   - Prérequis: `sudo apt install -y mingw-w64 gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 binutils-mingw-w64-x86-64 nsis`
   - Préparer la cible Rust: `npm run cross:prep:win`
   - `.exe`: `npm run cross:build:win:exe` | `nsis`: `npm run cross:build:win:nsis`
@@ -35,7 +35,7 @@ Note transparence: la base du code a été produite par un assistant IA. Merci d
 - Notre script `scripts/cross-win-build.sh` (aide locale):
   - Génère `src-tauri/icons/icon.ico` depuis `icon.png` si absent (`tauri icon`).
   - Force l’option `--bundles <app|nsis>`.
-  - Fallback Windows “portable”: si `bundle/` n’est pas créé en cross‑build, crée `bundle/app/` et y copie `Instances Finder.exe` + `WebView2Loader.dll`.
+  - Fallback Windows “portable”: si `bundle/` n’est pas créé en cross-build, crée `bundle/app/` et y copie `Instances Finder.exe` + `WebView2Loader.dll`.
   - Important: ce fallback ne s’applique qu’au portable Windows. L’installateur `nsis` dépend du bundler Tauri et de `nsis`.
 
 ### Debian package (.deb)
@@ -105,7 +105,7 @@ Checklist PR rapide:
 
 Tests:
 
-- Si vous ajoutez des tests, placez‑les sous `src/__tests__/`.
+- Si vous ajoutez des tests, placez-les sous `src/__tests__/`.
 - Ciblez d’abord la logique (`lib/score.ts`, filtrage API), puis ajoutez des tests DOM avec `@axe-core/react`.
 
 ## Sécurité & Confidentialité
@@ -133,7 +133,7 @@ Tests:
 
 - GitHub Actions: `.github/workflows/build.yml` exécute d’abord un job `checks` (ESLint, TypeScript `--noEmit`, Prettier `--check`, Clippy, rustfmt `--check`).
 - Optimisations:
-  - “Docs‑only”: si seulement des fichiers `.md` changent, les checks sont ignorés (log explicite) et les jobs de packaging ne tournent pas.
+  - “Docs-only”: si seulement des fichiers `.md` changent, les checks sont ignorés (log explicite) et les jobs de packaging ne tournent pas.
   - Packaging: ne s’exécute que sur les tags `v*` (pas sur les PR ni sur les pushes vers `main`).
   - Cache: npm et Rust mis en cache; exécutions concurrentes annulées automatiquement.
 - Release: `.github/workflows/release.yml` joint les artefacts aux tags `v*`. Utilisez `release-draft.yml` pour un lancement manuel.

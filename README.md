@@ -45,6 +45,7 @@ Makefile (raccourcis)
 - Linux: `make appimage` | `make deb` | `make linux`
 - Windows (cross-build): `make cross-prep-win` puis `make win-exe` ou `make win-nsis`
 - Release: `make release-tag VERSION=v0.1.0` ou `make release-gh VERSION=v0.1.0 NOTES="..."`
+- Qualité code: `make fmt` (JS+Rust), `make lint` / `make lint-fix`
 
 Notes accessibilité
 - Testé au clavier: Tab/Shift+Tab, focus visible renforcé.

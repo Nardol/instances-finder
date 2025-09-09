@@ -146,6 +146,17 @@ const App: React.FC = () => {
     };
   }, []);
 
+  // Mirror status and flash into a live region for Orca
+  useEffect(() => {
+    if (!liveRef.current) return;
+    liveRef.current.textContent = statusText || '';
+  }, [statusText]);
+
+  useEffect(() => {
+    if (!liveRef.current) return;
+    if (flash) liveRef.current.textContent = flash;
+  }, [flash]);
+
   // React to native Refresh
   useEffect(() => {
     if (!isTauri()) return;

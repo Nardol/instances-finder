@@ -18,6 +18,13 @@ jobs:
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
         with:
           fetch-depth: 0
+      - name: Prepare Tauri dist dir (stub)
+        if: steps.changes.outputs.docs_only != 'true'
+        run: |
+          # Tauri's generate_context!() requires distDir to exist at compile-time.
+          # Create a minimal stub so Clippy can compile src-tauri without building the web app.
+          mkdir -p dist
+          test -f dist/index.html || echo "<!doctype html><title>stub</title>" > dist/index.html
       - name: Forbid forbidden Unicode punctuation
         shell: bash
         run: bash scripts/check-forbidden-unicode.sh

@@ -73,6 +73,7 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false, langua
             value={local.size}
             onChange={(e) => update('size', e.target.value as Preferences['size'])}
           >
+            <option value="any">{t('wizard.indifferent')}</option>
             <option value="small">{t('wizard.size_small')}</option>
             <option value="medium">{t('wizard.size_medium')}</option>
             <option value="large">{t('wizard.size_large')}</option>
@@ -88,6 +89,7 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false, langua
             value={local.moderation}
             onChange={(e) => update('moderation', e.target.value as Preferences['moderation'])}
           >
+            <option value="any">{t('wizard.indifferent')}</option>
             <option value="open">{t('wizard.moderation_open')}</option>
             <option value="balanced">{t('wizard.moderation_balanced')}</option>
             <option value="strict">{t('wizard.moderation_strict')}</option>
@@ -103,6 +105,7 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false, langua
             value={local.signups}
             onChange={(e) => update('signups', e.target.value as Preferences['signups'])}
           >
+            <option value="any">{t('wizard.indifferent')}</option>
             <option value="open">{t('wizard.signups_open')}</option>
             <option value="approval">{t('wizard.signups_approval')}</option>
           </select>
@@ -118,6 +121,7 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false, langua
               value={local.region}
               onChange={(e) => update('region', e.target.value as Preferences['region'])}
             >
+              <option value="any">{t('wizard.indifferent')}</option>
               <option value="eu">{t('wizard.region_eu')}</option>
               <option value="na">{t('wizard.region_na')}</option>
               <option value="other">{t('wizard.region_other')}</option>
@@ -134,6 +138,7 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false, langua
             value={local.nsfw}
             onChange={(e) => update('nsfw', e.target.value as Preferences['nsfw'])}
           >
+            <option value="any">{t('wizard.indifferent')}</option>
             <option value="allowed">{t('wizard.nsfw_allowed')}</option>
             <option value="limited">{t('wizard.nsfw_limited')}</option>
           </select>

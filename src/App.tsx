@@ -17,11 +17,11 @@ const App: React.FC = () => {
   const { t, lang, setLang } = useI18n();
   const [prefs, setPrefs] = useState<Preferences>({
     languages: ['fr'],
-    size: 'medium',
-    moderation: 'balanced',
-    signups: 'open',
-    region: 'eu',
-    nsfw: 'allowed',
+    size: 'any',
+    moderation: 'any',
+    signups: 'any',
+    region: 'any',
+    nsfw: 'any',
   });
   const [results, setResults] = useState<Instance[]>([]);
   const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error' | 'needs_token'>(
@@ -51,13 +51,13 @@ const App: React.FC = () => {
     const run = async () => {
       try {
         const items = await fetchInstances({
-          language: prefs.languages[0],
+          language: prefs.languages.length ? prefs.languages[0] : undefined,
           include_closed: false,
           include_down: false,
           max: 200,
-          signups: prefs.signups,
-          region: expert ? prefs.region : undefined,
-          size: prefs.size,
+          signups: prefs.signups === 'any' ? undefined : (prefs.signups as 'open' | 'approval'),
+          region: expert && prefs.region !== 'any' ? prefs.region : undefined,
+          size: prefs.size === 'any' ? undefined : prefs.size,
         }, import.meta.env.DEV || refreshTick > 0);
         if (cancelled) return;
         const normalized: Instance[] = items.map((it) => {

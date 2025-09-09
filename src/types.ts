@@ -1,10 +1,10 @@
 export type Preferences = {
   languages: string[];
-  size: 'small' | 'medium' | 'large';
-  moderation: 'open' | 'balanced' | 'strict';
-  signups: 'open' | 'approval';
-  region: 'eu' | 'na' | 'other';
-  nsfw: 'allowed' | 'limited';
+  size: 'any' | 'small' | 'medium' | 'large';
+  moderation: 'any' | 'open' | 'balanced' | 'strict';
+  signups: 'any' | 'open' | 'approval';
+  region: 'any' | 'eu' | 'na' | 'other';
+  nsfw: 'any' | 'allowed' | 'limited';
 };
 
 export type Instance = {

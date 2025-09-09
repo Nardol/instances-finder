@@ -1,11 +1,17 @@
 # Contributing Guide
 
-Merci de votre intérêt pour ce projet. Cette courte page complète le README et AGENTS.md.
+Merci de votre intérêt pour ce projet. Cette page complète le README et décrit comment contribuer efficacement.
 
 ## Start Here
 
 - Lisez le [README](./README.md) pour l’installation et les commandes.
-- Suivez les pratiques dans [AGENTS.md](./AGENTS.md) (structure, style, a11y, PRs).
+- Respectez les règles ci‑dessous (style, accessibilité, sécurité, PR).
+
+## Code de conduite
+
+- Soyez bienveillant·e et précis·e. Donnez du contexte et des repros courts.
+- Pas de contenu nuisible, discriminatoire ou agressif.
+- Les mainteneurs peuvent fermer des issues/PR qui ne respectent pas ces règles.
 
 ## Development Quickstart
 
@@ -30,6 +36,11 @@ Merci de votre intérêt pour ce projet. Cette courte page complète le README e
 - Branches: `feat/<sujet-court>`, `fix/<bug-id>`, `chore/<tache>`.
 - Messages: au présent + type: `feat:`, `fix:`, `docs:`, `chore:`. Ajoutez `Closes #<num>` si pertinent.
 
+Exemples:
+
+- `feat: add region filter to expert mode`
+- `fix: announce token test result via aria-live`
+
 ## Pull Requests
 
 - Décrivez le but et le contexte (issue liée, motivation).
@@ -40,6 +51,14 @@ Merci de votre intérêt pour ce projet. Cette courte page complète le README e
   - Test rapide avec Orca (Linux) ou NVDA (Windows) si modifs UI.
 - Vérifications: build passe, aucun avertissement critique.
 
+Checklist PR rapide:
+
+- But clair et issue liée si possible.
+- Commandes de test listées et passantes.
+- A11y vérifiée (clavier, annonces, labels).
+- Lint/format exécutés; pas d’`any` non justifié.
+- Changements limités au scope annoncé.
+
 ## Style & Qualité
 
 - TypeScript strict; pas d’`any` non justifié. Composants en PascalCase.
@@ -47,6 +66,11 @@ Merci de votre intérêt pour ce projet. Cette courte page complète le README e
 - Tests (si ajoutés): placez-les sous `src/__tests__/` et ciblez d’abord `lib/`.
 - Lint/format: `npm run lint` (ou `make lint`) et `npm run fmt` (ou `make fmt`) avant toute PR.
 - Rust lint: exécutez `make clippy` (ou `cargo clippy -- -D warnings`) et corrigez les avertissements.
+
+Tests:
+
+- Si vous ajoutez des tests, placez‑les sous `src/__tests__/`.
+- Ciblez d’abord la logique (`lib/score.ts`, filtrage API), puis ajoutez des tests DOM avec `@axe-core/react`.
 
 ## Sécurité & Confidentialité
 
@@ -65,3 +89,9 @@ Merci de votre intérêt pour ce projet. Cette courte page complète le README e
 ## Intégration Continue
 
 - GitHub Actions: `.github/workflows/build.yml` build Linux (AppImage) et Windows (NSIS), et publie les artefacts.
+- Release: `.github/workflows/release.yml` joint les artefacts aux tags `v*`. Utilisez `release-draft.yml` pour un lancement manuel.
+
+## Versionnage & Release
+
+- Versionnage: SemVer (vX.Y.Z). Bumps manuels via `make release-tag VERSION=vX.Y.Z`.
+- Notes: fournissez des notes concises; les artefacts (AppImage/NSIS) sont joints par la CI.

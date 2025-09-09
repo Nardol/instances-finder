@@ -38,7 +38,16 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChang
       else dialog?.focus();
     };
     focusFirst();
+    const onWinKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' || ((e.ctrlKey || e.metaKey) && (e.key === 'w' || e.key === 'W'))) {
+        e.preventDefault();
+        e.stopPropagation();
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', onWinKey, true);
     return () => {
+      window.removeEventListener('keydown', onWinKey, true);
       lastFocusRef.current?.focus();
     };
   }, [open, onClose]);

@@ -9,7 +9,7 @@
 - `npm run tauri:dev`: lance l’app en dev (Vite sur `:5173`, Tauri).
 - `npm run build`: build frontend statique dans `dist/`.
 - `npm run tauri:build:appimage`: produit un AppImage Linux.
-- Cross‑build Windows depuis Linux:
+- Cross‑build Windows depuis Linux (prérequis Debian/Ubuntu): `mingw-w64 gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 binutils-mingw-w64-x86-64 nsis`
   - `npm run cross:prep:win` (cible Rust) puis
   - `.exe portable`: `npm run cross:build:win:exe`
   - Installeur NSIS: `npm run cross:build:win:nsis`

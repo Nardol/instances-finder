@@ -126,6 +126,7 @@ Tests:
 
 - Hook local recommandé: activez les hooks du dépôt: `git config core.hooksPath .githooks`.
 - `commit-msg`: (1) ASCII uniquement (anglais), (2) style Conventional Commits minimal.
+- `pre-commit`: interdit le caractère "non-breaking hyphen" (U+2011). Utilisez le tiret ASCII `-` pour garantir la compatibilité des outils.
 - `pre-push`: exécute `make check` (lint JS/TS + Clippy). Si ça échoue, corrigez et relancez.
 - Bypass temporaire possible (`git commit -n`), mais la CI refusera une PR non conforme.
 

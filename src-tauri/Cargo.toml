@@ -1,0 +1,22 @@
+[package]
+name = "instances-finder"
+version = "0.1.0"
+description = "Accessible Mastodon instances finder"
+authors = ["You"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "1.5", features = [] }
+png = "0.17"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+keyring = "2"
+instances-social = "2"
+tauri = { version = "1.5", features = [ "clipboard-all", "shell-open"] }
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]

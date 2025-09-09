@@ -1,0 +1,63 @@
+{
+  "app": {
+    "title": "Find a Mastodon instance"
+  },
+  "header": {
+    "language": "Language",
+    "fr": "French",
+    "en": "English",
+    "expert": "Expert mode"
+  },
+  "wizard": {
+    "title": "Your preferences",
+    "languages": "Instance language(s)",
+    "size": "Community size",
+    "size_small": "Small",
+    "size_medium": "Medium",
+    "size_large": "Large",
+    "moderation": "Moderation style",
+    "moderation_open": "Open",
+    "moderation_balanced": "Balanced",
+    "moderation_strict": "Strict",
+    "signups": "Sign-ups",
+    "signups_open": "Open",
+    "signups_approval": "Approval required",
+    "region": "Region",
+    "region_experimental": "Region (experimental)",
+    "region_eu": "Europe",
+    "region_na": "North America",
+    "region_other": "Other",
+    "nsfw": "Sensitive content",
+    "nsfw_allowed": "Allowed",
+    "nsfw_limited": "Limited",
+    "apply": "Apply preferences"
+  },
+  "results": {
+    "title": "Results",
+    "open": "Open sign-ups",
+    "approval": "Approval required",
+    "copy": "Copy URL",
+    "openBrowser": "Open in browser",
+    "copied": "URL copied to clipboard"
+  },
+  "status": {
+    "loading": "Loading results…",
+    "done": "{count} result(s) shown.",
+    "needs_token": "An Instances.social token is required to search.",
+    "error": "An error occurred."
+  },
+  "token": {
+    "title": "Connect to Instances.social",
+    "desc": "Get an access token from Instances.social for full results.",
+    "get": "Get a token",
+    "input": "Token",
+    "help": "Your token is only used locally to query instances.social.",
+    "persist": "Securely remember (system keychain)",
+    "test": "Test token",
+    "save": "Save and continue",
+    "testing": "Testing token…",
+    "valid": "Token valid.",
+    "invalid": "Token invalid.",
+    "save_error": "Could not save token."
+  }
+}

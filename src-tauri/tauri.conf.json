@@ -1,0 +1,53 @@
+{
+  "package": {
+    "productName": "Instances Finder",
+    "version": "0.1.0"
+  },
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devPath": "http://localhost:5173",
+    "distDir": "../dist"
+  },
+  "tauri": {
+    "allowlist": {
+      "shell": {
+        "all": false,
+        "open": true
+      },
+      "clipboard": { "all": true }
+    },
+    "bundle": {
+      "active": true,
+      "targets": ["appimage"],
+      "identifier": "org.instances.finder",
+      "icon": ["icons/icon.png"],
+      "category": "Utility",
+      "deb": {
+        "depends": [
+          "libwebkit2gtk-4.1-0",
+          "libgtk-3-0",
+          "libayatana-appindicator3-1",
+          "librsvg2-2",
+          "libssl3"
+        ]
+      },
+      "appimage": {},
+      "windows": {
+        "webviewInstallMode": "downloadBootstrapper"
+      }
+    },
+    "security": {
+      "csp": null
+    },
+    "windows": [
+      {
+        "title": "Instances Finder",
+        "width": 960,
+        "height": 720,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ]
+  }
+}

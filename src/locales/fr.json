@@ -1,0 +1,63 @@
+{
+  "app": {
+    "title": "Recherche d'instance Mastodon"
+  },
+  "header": {
+    "language": "Langue",
+    "fr": "Français",
+    "en": "Anglais",
+    "expert": "Mode expert"
+  },
+  "wizard": {
+    "title": "Vos préférences",
+    "languages": "Langue(s) de l'instance",
+    "size": "Taille de la communauté",
+    "size_small": "Petite",
+    "size_medium": "Moyenne",
+    "size_large": "Grande",
+    "moderation": "Style de modération",
+    "moderation_open": "Ouverte",
+    "moderation_balanced": "Équilibrée",
+    "moderation_strict": "Stricte",
+    "signups": "Inscriptions",
+    "signups_open": "Ouvertes",
+    "signups_approval": "Sur demande",
+    "region": "Région",
+    "region_experimental": "Région (expérimental)",
+    "region_eu": "Europe",
+    "region_na": "Amérique du Nord",
+    "region_other": "Autre",
+    "nsfw": "Contenu sensible",
+    "nsfw_allowed": "Autorisé",
+    "nsfw_limited": "Limité",
+    "apply": "Appliquer les préférences"
+  },
+  "results": {
+    "title": "Résultats",
+    "open": "Inscriptions ouvertes",
+    "approval": "Inscriptions sur demande",
+    "copy": "Copier l'URL",
+    "openBrowser": "Ouvrir dans le navigateur",
+    "copied": "URL copiée dans le presse-papiers"
+  },
+  "status": {
+    "loading": "Chargement des résultats…",
+    "done": "{count} résultat(s) affiché(s).",
+    "needs_token": "Un jeton Instances.social est requis pour lancer la recherche.",
+    "error": "Une erreur est survenue."
+  },
+  "token": {
+    "title": "Connexion à Instances.social",
+    "desc": "Obtenez un jeton d’accès Instances.social pour des résultats complets.",
+    "get": "Obtenir un jeton",
+    "input": "Jeton",
+    "help": "Votre jeton n’est utilisé que localement pour interroger instances.social.",
+    "persist": "Mémoriser de façon sécurisée (trousseau système)",
+    "test": "Tester le jeton",
+    "save": "Enregistrer et continuer",
+    "testing": "Vérification du jeton…",
+    "valid": "Jeton valide.",
+    "invalid": "Jeton invalide.",
+    "save_error": "Impossible d’enregistrer le jeton."
+  }
+}

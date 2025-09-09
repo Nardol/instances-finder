@@ -44,6 +44,20 @@ Merci de votre intérêt pour ce projet. Cette page complète le README et décr
 - Outils requis: `dpkg-deb`, `ar` (présents par défaut sur Debian/Ubuntu via `dpkg` et `binutils`).
 - Pas de fallback spécifique: si le `.deb` n’est pas généré, vérifiez les paquets système et les permissions d’écriture dans `src-tauri/target/release/bundle/`.
 
+### CLI Tauri: scripts npm vs npx
+
+- Préférez les scripts npm fournis (ils injectent `node_modules/.bin` dans le PATH):
+  - Dev: `npm run tauri:dev`
+  - Linux: `npm run tauri:build:linux` (AppImage + Deb)
+  - Windows (cross depuis Linux): `npm run cross:build:win:exe` | `npm run cross:build:win:nsis`
+- En ligne de commande directe, utilisez `npx @tauri-apps/cli` pour garantir la version locale du projet:
+  - Exemple icônes: `npx @tauri-apps/cli icon src-tauri/icons/icon.png`
+  - Exemple build ciblé: `npx @tauri-apps/cli build --bundles appimage,deb`
+- Évitez un `tauri` global (risque de décalage de versions entre la CLI et les crates Rust `tauri-build`).
+- Si vous voyez une erreur de schéma (ex: “unknown field … in bundle”), alignez les versions:
+  - Mettez à jour les crates Rust dans `src-tauri/`: `cargo update`
+  - Ou alignez la CLI via `package.json` (`@tauri-apps/cli`).
+
 ### Makefile (optionnel)
 
 - `make dev`, `make appimage`, `make deb`, `make linux`

@@ -69,13 +69,9 @@ jobs:
         run: |
           set -euxo pipefail
           sudo apt-get update
-          # Common deps
-          sudo apt-get install -y libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev libsoup2.4-dev
-          # Try WebKitGTK/JavaScriptCore 4.1 (Ubuntu 24.04), fallback to 4.0 (Ubuntu 22.04)
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libjavascriptcoregtk-4.1-dev || \
-            sudo apt-get install -y libwebkit2gtk-4.0-dev libjavascriptcoregtk-4.0-dev
-          # Newer stacks may use libsoup3 as a transitive dependency (install alongside soup2)
-          sudo apt-get install -y libsoup-3.0-dev || true
+          # On ubuntu-22.04, ensure WebKitGTK/JSC 4.0 (what javascriptcore-rs-sys expects)
+          sudo apt-get install -y libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev \
+            libsoup2.4-dev libwebkit2gtk-4.0-dev libjavascriptcoregtk-4.0-dev
       - name: Ensure Clippy
         if: steps.changes.outputs.docs_only != 'true'
         run: rustup component add clippy
@@ -109,10 +105,8 @@ jobs:
         run: |
           set -euxo pipefail
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev libsoup2.4-dev
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libjavascriptcoregtk-4.1-dev || \
-            sudo apt-get install -y libwebkit2gtk-4.0-dev libjavascriptcoregtk-4.0-dev
-          sudo apt-get install -y libsoup-3.0-dev || true
+          sudo apt-get install -y libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev \
+            libsoup2.4-dev libwebkit2gtk-4.0-dev libjavascriptcoregtk-4.0-dev
       - name: Install JS deps
         run: npm ci || npm install
       - name: Build xtask (release)

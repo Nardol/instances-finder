@@ -25,6 +25,25 @@ Merci de votre intérêt pour ce projet. Cette page complète le README et décr
   - Préparer la cible Rust: `npm run cross:prep:win`
   - `.exe`: `npm run cross:build:win:exe` | `nsis`: `npm run cross:build:win:nsis`
 
+### Bundling: qui fait quoi ?
+
+- Tauri bundler (officiel):
+  - Linux: AppImage (`bundle/appimage`) et Debian `.deb` (`bundle/deb`).
+  - Windows: portable `app` (`bundle/app`) et installateur `nsis` (`bundle/nsis`).
+- Notre script `scripts/cross-win-build.sh` (aide locale):
+  - Génère `src-tauri/icons/icon.ico` depuis `icon.png` si absent (`tauri icon`).
+  - Force l’option `--bundles <app|nsis>`.
+  - Fallback Windows “portable”: si `bundle/` n’est pas créé en cross‑build, crée `bundle/app/` et y copie `Instances Finder.exe` + `WebView2Loader.dll`.
+  - Important: ce fallback ne s’applique qu’au portable Windows. L’installateur `nsis` dépend du bundler Tauri et de `nsis`.
+
+### Debian package (.deb)
+
+- Produit par le bundler Tauri (natif Linux), sous `src-tauri/target/release/bundle/deb/`.
+- Dépendances runtime (extraites de `tauri.conf.json`):
+  - `libwebkit2gtk-4.0-37 | libwebkit2gtk-4.1-0`, `libgtk-3-0`, `libayatana-appindicator3-1`, `librsvg2-2`, `libssl3`.
+- Outils requis: `dpkg-deb`, `ar` (présents par défaut sur Debian/Ubuntu via `dpkg` et `binutils`).
+- Pas de fallback spécifique: si le `.deb` n’est pas généré, vérifiez les paquets système et les permissions d’écriture dans `src-tauri/target/release/bundle/`.
+
 ### Makefile (optionnel)
 
 - `make dev`, `make appimage`, `make deb`, `make linux`

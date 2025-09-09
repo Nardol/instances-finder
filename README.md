@@ -93,10 +93,26 @@ Build Windows depuis Linux (cross‑build):
   - Sortie: `src-tauri/target/x86_64-pc-windows-gnu/release/bundle/nsis/Instances-Finder_x64-setup.exe`
 - Notes: WebView2 est téléchargé via bootstrapper; binaires non signés (alerte SmartScreen possible).
 
+### Bundler Windows et fallback
+
+- Ce que fait Tauri (par défaut):
+  - Compile l’exécutable: `src-tauri/target/x86_64-pc-windows-gnu/release/Instances Finder.exe`.
+  - Bundles Windows:
+    - `app` (portable): `.../bundle/app/Instances Finder.exe` (+ DLLs nécessaires).
+    - `nsis` (installateur): `.../bundle/nsis/Instances-Finder_x64-setup.exe`.
+- Ce que fait notre script `scripts/cross-win-build.sh` en plus:
+  - Génère `src-tauri/icons/icon.ico` si manquant via `tauri icon`.
+  - Force `--bundles <app|nsis>` côté CLI.
+  - Fallback: si le bundler ne crée pas `bundle/` (certains environnements cross), crée `.../bundle/app/` et y copie l’`.exe` et `WebView2Loader.dll` pour un portable minimal.
+- À retenir:
+  - Le bundling `app`/`nsis` est fourni par Tauri; le “fallback portable” est une aide locale du script.
+  - L’installateur NSIS ne dispose pas de fallback (il dépend du bundler Tauri et de `nsis`).
+
 Icône de l’application:
 
 - Un PNG minimal est auto‑généré si `src-tauri/icons/icon.png` est absent (pour éviter l’erreur Tauri).
-- Pour un meilleur rendu: remplacez‑le par votre propre `src-tauri/icons/icon.png` (recommandé: PNG 512×512).
+- Le build Windows a besoin d’un `.ico`. Le script de cross‑build génère automatiquement `src-tauri/icons/icon.ico` à partir du PNG via `tauri icon` si le fichier n’existe pas.
+- Pour un meilleur rendu: fournissez votre propre `src-tauri/icons/icon.png` (512×512 conseillé) et, optionnellement, un `src-tauri/icons/icon.ico` dédié. À défaut, l’ICO sera régénéré depuis le PNG.
 
 ## Accessibilité
 

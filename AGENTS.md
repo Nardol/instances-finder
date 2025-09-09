@@ -64,6 +64,7 @@ This file is for the AI assistant working on this repository via Codex CLI. It i
 ## Git & PR Etiquette
 
 - Commits: concise, present tense: `feat:`, `fix:`, `docs:`, `chore:`.
+- Language: commit messages must be written in English only.
 - PRs: include description, test steps, screenshots for UI, and note a11y/perf impacts. Link issues (e.g., `Closes #123`).
 
 ## Expert Mode Rules

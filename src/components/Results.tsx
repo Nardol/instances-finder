@@ -51,7 +51,6 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
   const { t } = useI18n();
   const [announce, setAnnounce] = useState('');
   const [active, setActive] = useState(0);
-  const itemRefs = useRef<Array<HTMLLIElement | null>>([]);
   const [controlsIdx, setControlsIdx] = useState<number | null>(null);
 
   // Ensure screen readers re-announce identical messages by clearing first
@@ -68,28 +67,53 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
   const focusIndex = (idx: number) => {
     const clamped = Math.max(0, Math.min(items.length - 1, idx));
     setActive(clamped);
-    const el = itemRefs.current[clamped];
-    el?.focus();
+    // Keep focus on the listbox to maintain Orca focus mode
+    if (listRef && typeof listRef !== 'function') {
+      listRef.current?.focus();
+    }
   };
 
-  const onItemKeyDown = async (
-    e: React.KeyboardEvent<HTMLLIElement>,
-    index: number,
-    domain: string
-  ) => {
+  const handleListKeyDown = async (e: React.KeyboardEvent<HTMLUListElement>) => {
+    if (items.length === 0) return;
     const isMod = e.ctrlKey || e.metaKey;
+    // Allow Tab navigation when focus is already inside interactive controls
+    if (e.key === 'Tab' && e.currentTarget !== e.target) {
+      return;
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      setControlsIdx(null);
+      if (listRef && typeof listRef !== 'function') listRef.current?.focus();
+      return;
+    }
     switch (e.key) {
-      case 'Tab':
-        // Reveal controls so the next focus lands on the Copy button
-        setControlsIdx(index);
-        break;
+      case 'Tab': {
+        if (e.shiftKey) {
+          // Allow Shift+Tab to escape the listbox naturally
+          return;
+        }
+        // Move focus into the active item's controls (Copy/Open)
+        // so users can access buttons without leaving the widget context.
+        e.preventDefault();
+        setControlsIdx(active);
+        // Defer focus to let buttons become tabbable
+        setTimeout(() => {
+          if (listRef && typeof listRef !== 'function') {
+            const root = listRef.current;
+            const btn = root?.querySelector(
+              `li:nth-child(${active + 1}) .card-actions button`
+            ) as HTMLButtonElement | null;
+            btn?.focus();
+          }
+        }, 0);
+        break; }
       case 'ArrowDown':
         e.preventDefault();
-        focusIndex(index + 1);
+        focusIndex(active + 1);
         break;
       case 'ArrowUp':
         e.preventDefault();
-        focusIndex(index - 1);
+        focusIndex(active - 1);
         break;
       case 'Home':
         e.preventDefault();
@@ -101,28 +125,28 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
         break;
       case 'PageDown':
         e.preventDefault();
-        focusIndex(index + 10);
+        focusIndex(active + 10);
         break;
       case 'PageUp':
         e.preventDefault();
-        focusIndex(index - 10);
+        focusIndex(active - 10);
         break;
       case 'Enter':
         e.preventDefault();
-        openExternal(`https://${domain}`);
+        openExternal(`https://${items[active]?.domain}`);
         break;
       case 'o':
       case 'O':
         if (isMod) {
           e.preventDefault();
-          openExternal(`https://${domain}`);
+          openExternal(`https://${items[active]?.domain}`);
         }
         break;
       case 'c':
       case 'C':
         if (isMod && e.shiftKey) {
           e.preventDefault();
-          const ok = await copyText(`https://${domain}`);
+          const ok = await copyText(`https://${items[active]?.domain}`);
           if (ok) announcePolite(t('results.copied'));
         }
         break;
@@ -138,59 +162,32 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
       </p>
       <ul
         className="result-list"
-        role="list"
+        role="listbox"
         aria-label={t('results.list_label', { count: items.length })}
+        aria-activedescendant={items.length ? `opt-${items[active]?.domain.replace(/[^a-zA-Z0-9_-]/g, '-')}` : undefined}
         ref={listRef}
         tabIndex={0}
-        onKeyDown={(e) => {
-          // Only handle keys when the list container itself is focused,
-          // not when a listitem handles its own navigation.
-          if (e.currentTarget !== e.target) return;
-          if (items.length === 0) return;
-          switch (e.key) {
-            case 'ArrowDown':
-              e.preventDefault();
-              focusIndex(0);
-              break;
-            case 'ArrowUp':
-              e.preventDefault();
-              focusIndex(items.length - 1);
-              break;
-            case 'End':
-              e.preventDefault();
-              focusIndex(items.length - 1);
-              break;
-            case 'Home':
-              e.preventDefault();
-              focusIndex(0);
-              break;
-            default:
-              break;
-          }
-        }}
+        onKeyDown={handleListKeyDown}
       >
         {items.map((it, idx) => {
           const idSafe = it.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
           const titleId = `title-${idSafe}`;
           const descId = `desc-${idSafe}`;
           const factsId = `facts-${idSafe}`;
+          const optId = `opt-${idSafe}`;
           return (
           <li
             key={it.domain}
+            id={optId}
             className="card"
-            role="listitem"
-            tabIndex={active === idx ? 0 : -1}
+            role="option"
+            aria-selected={active === idx}
             aria-posinset={idx + 1}
             aria-setsize={items.length}
             aria-labelledby={`${titleId} ${descId}`}
             aria-describedby={factsId}
             aria-keyshortcuts="Enter, Control+O, Meta+O, Control+C, Meta+C, ArrowUp, ArrowDown, Home, End"
-            ref={(el) => (itemRefs.current[idx] = el)}
-            onKeyDown={(e) => onItemKeyDown(e, idx, it.domain)}
-            onFocus={() => {
-              setActive(idx);
-              setControlsIdx(null);
-            }}
+            onMouseEnter={() => setActive(idx)}
           >
             <div className="card-body">
               <h3 id={titleId}>
@@ -198,7 +195,6 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
                   href={`https://${it.domain}`}
                   aria-describedby={factsId}
                   tabIndex={-1}
-                  onFocus={() => setControlsIdx(idx)}
                   onClick={(e) => {
                     e.preventDefault();
                     openExternal(`https://${it.domain}`);

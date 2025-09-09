@@ -84,7 +84,7 @@ const App: React.FC = () => {
             new CustomEvent('app:flash', { detail: t('status.done', { count: ranked.length }) })
           );
         } catch (_) {}
-        // After results load, move focus to the list for faster nav
+        // After results load, focus the listbox container to keep Orca in focus mode
         setTimeout(() => {
           resultsListRef.current?.focus();
         }, 0);

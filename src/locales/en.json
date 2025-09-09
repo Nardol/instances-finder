@@ -43,6 +43,9 @@
   "results": {
     "title": "Results",
     "list_label": "Results list ({count})",
+    "col_domain": "Domain",
+    "col_details": "Details",
+    "col_actions": "Actions",
     "open": "Open sign-ups",
     "approval": "Approval required",
     "copy": "Copy URL",

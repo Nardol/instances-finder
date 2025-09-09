@@ -110,7 +110,7 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
           if (listRef && typeof listRef !== 'function') {
             const root = listRef.current;
             const btn = root?.querySelector(
-              `li:nth-child(${active + 1}) .card-actions button`
+              `li:nth-child(${active + 2}) .card-actions button`
             ) as HTMLButtonElement | null;
             btn?.focus();
           }
@@ -197,7 +197,7 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
       <ul
         className="result-list"
         role="grid"
-        aria-rowcount={items.length}
+        aria-rowcount={items.length + 1}
         aria-colcount={3}
         aria-label={t('results.list_label', { count: items.length })}
         aria-activedescendant={
@@ -209,6 +209,18 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
         tabIndex={0}
         onKeyDown={handleListKeyDown}
       >
+        {/* Header row for screen readers and sighted users */}
+        <li role="row" className="grid-header" aria-rowindex={1}>
+          <div role="columnheader" id="colhdr-domain" aria-colindex={1} className="cell">
+            {t('results.col_domain')}
+          </div>
+          <div role="columnheader" id="colhdr-details" aria-colindex={2} className="cell">
+            {t('results.col_details')}
+          </div>
+          <div role="columnheader" id="colhdr-actions" aria-colindex={3} className="cell">
+            {t('results.col_actions')}
+          </div>
+        </li>
         {items.map((it, idx) => {
           const idSafe = it.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
           const titleId = `title-${idSafe}`;
@@ -217,14 +229,15 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
           return (
           <li
             key={it.domain}
-            className="card"
+            className={`card ${active === idx ? 'is-active' : ''}`}
             role="row"
-            aria-rowindex={idx + 1}
+            aria-rowindex={idx + 2}
             onMouseEnter={() => setActive(idx)}
           >
             <div
               id={`cell-${idSafe}-0`}
-              role="gridcell"
+              role="rowheader"
+              aria-labelledby={`colhdr-domain ${titleId}`}
               aria-colindex={1}
               aria-selected={active === idx && col === 0}
               className="card-body"
@@ -247,6 +260,7 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
             <div
               id={`cell-${idSafe}-1`}
               role="gridcell"
+              aria-labelledby={`colhdr-details ${titleId}`}
               aria-colindex={2}
               aria-selected={active === idx && col === 1}
               className="card-body"
@@ -263,6 +277,7 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
             <div
               id={`cell-${idSafe}-2`}
               role="gridcell"
+              aria-labelledby={`colhdr-actions ${titleId}`}
               aria-colindex={3}
               aria-selected={active === idx && col === 2}
               className="card-actions"

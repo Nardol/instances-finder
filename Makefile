@@ -2,7 +2,7 @@
 
 NPM := npm
 
-.PHONY: help dev build appimage deb linux cross-prep-win win-exe win-nsis clean release-tag release-gh
+.PHONY: help dev build appimage deb linux cross-prep-win win-exe win-nsis clean release-tag release-gh fmt fmt-js fmt-rust lint lint-fix
 
 help:
 	@echo "Targets:"
@@ -55,3 +55,16 @@ release-gh:
 clean:
 	rm -rf dist src-tauri/target
 
+fmt: fmt-js fmt-rust
+
+fmt-js:
+	$(NPM) run fmt:js
+
+fmt-rust:
+	$(NPM) run fmt:rust
+
+lint:
+	$(NPM) run lint
+
+lint-fix:
+	$(NPM) run lint:fix

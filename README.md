@@ -53,6 +53,7 @@ Installation (développement):
 
 1) Installer les dépendances système et outils ci‑dessus.
 2) Installer les dépendances du projet: `npm ci` (ou `npm install`).
+   - Option tout‑en‑un (recommandée): `make setup` → exécute `npm ci` et précompile `xtask` en release pour des commandes plus rapides.
    - Assurez‑vous d’installer les devDependencies (ne pas installer en mode production). Si vous avez `NODE_ENV=production` ou `npm config set production true`, réactivez les devDependencies avec `npm config set production false` puis relancez `npm ci`.
 3) Vérifier la CLI si besoin: `npx --no-install @tauri-apps/cli -v` (devrait afficher la version locale).
 4) Démarrer en dev (du plus simple au plus rapide):
@@ -158,6 +159,7 @@ Limites / compromis:
   - Exécutez d’abord `npm ci` (ou `npm install`) pour installer les devDependencies, dont `@tauri-apps/cli`.
   - Vérifiez que vous n’êtes pas en mode production: `npm config get production` doit être `false`.
   - Option de vérification: `npx --no-install @tauri-apps/cli -v` doit afficher la version locale.
+  - Après un grand ménage (`make clean-all`), lancez `make setup` pour réinstaller les dépendances et re‑précompiler `xtask`.
 
 ### Diagnostic rapide (doctor)
 
@@ -196,6 +198,8 @@ Limites / compromis:
 - CI locale: `make ci-checks` (réplique des checks CI)
 - Corrections automatiques: `make fix` (formatage + lint --fix)
 - Formatage/Lint: `make fmt`, `make lint`, `make lint-fix`
+ - Setup complet: `make setup` (installe les deps via `npm ci` et précompile `xtask` en release)
+ - Nettoyage: `make clean` (rapide), `make clean-xtask` (supprime le binaire `xtask`), `make clean-deps` (supprime `node_modules`), `make clean-all` (tout nettoyer)
 
 ## Transparence IA
 

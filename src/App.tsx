@@ -82,19 +82,16 @@ const App: React.FC = () => {
         const ranked = rankInstances(normalized, prefs);
         setResults(ranked);
         setStatus('done');
-        // First, focus the listbox (after render) to keep SR in focus mode,
-        // then announce the status a moment later to avoid mode switches.
+        try {
+          window.dispatchEvent(
+            new CustomEvent('app:flash', { detail: t('status.done', { count: ranked.length }) })
+          );
+        } catch (_) {
+          /* no-op: UI flash is optional */
+        }
+        // After results load, focus the listbox container to keep SR focus mode
         setTimeout(() => {
-          window.dispatchEvent(new CustomEvent('results:focus-first'));
-          setTimeout(() => {
-            try {
-              window.dispatchEvent(
-                new CustomEvent('app:flash', { detail: t('status.done', { count: ranked.length }) })
-              );
-            } catch (_) {
-              /* no-op */
-            }
-          }, 150);
+          resultsListRef.current?.focus();
         }, 0);
       } catch (e) {
         if (!cancelled) {

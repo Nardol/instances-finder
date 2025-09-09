@@ -1,4 +1,4 @@
-# Instances Finder v0.1.0
+# Instances Finder <VERSION>
 
 Highlights
 - Accessible results list with desktop-like keyboard navigation (Enter, Tab, Ctrl/Cmd+Shift+C).
@@ -20,4 +20,3 @@ Security & Privacy
 - Network restricted to instances.social (no new hosts).
 
 Thanks for trying the prototype! Feedback welcome, especially on a11y and performance.
-

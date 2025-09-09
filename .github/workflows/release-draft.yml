@@ -44,8 +44,9 @@ jobs:
       - name: Read release notes template
         id: notes
         run: |
+          sed "s/<VERSION>/${{ github.event.inputs.version }}/g" .github/release-notes.md > notes.txt
           echo "body<<EOF" >> "$GITHUB_OUTPUT"
-          cat .github/release-notes.md >> "$GITHUB_OUTPUT"
+          cat notes.txt >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
       - name: Create/Update draft release (Linux)
         uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3
@@ -78,8 +79,9 @@ jobs:
       - name: Read release notes template
         id: notes_win
         run: |
+          sed "s/<VERSION>/${{ github.event.inputs.version }}/g" .github/release-notes.md > notes.txt
           echo "body<<EOF" >> "$GITHUB_OUTPUT"
-          cat .github/release-notes.md >> "$GITHUB_OUTPUT"
+          cat notes.txt >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
       - name: Update draft release (Windows)
         uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3

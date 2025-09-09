@@ -1,6 +1,5 @@
 blank_issues_enabled: false
 contact_links:
   - name: Security vulnerability report
-    url: https://github.com/OWNER/REPO/security/policy
+    url: https://github.com/Nardol/instances-finder/security/policy
     about: Please read our Security Policy for how to report vulnerabilities privately.
-

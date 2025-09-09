@@ -8,7 +8,7 @@
   "scripts": {
     "prebuild": "node scripts/gen-i18n-keys.mjs",
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc --noEmit --incremental --tsBuildInfoFile ./dist/.tsbuildinfo && vite build",
     "preview": "vite preview",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix",

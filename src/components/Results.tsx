@@ -94,6 +94,19 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
     return () => window.removeEventListener('results:focus-first', handler);
   }, [items.length]);
 
+  // Also focus first item automatically when the list becomes non-empty
+  useEffect(() => {
+    if (!items.length) return;
+    setActive(0);
+    setControlsIdx(null);
+    setTimeout(() => {
+      if (listRef && typeof listRef !== 'function') {
+        listRef.current?.focus();
+      }
+    }, 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length]);
+
   const focusIndex = (idx: number) => {
     const clamped = Math.max(0, Math.min(items.length - 1, idx));
     setActive(clamped);

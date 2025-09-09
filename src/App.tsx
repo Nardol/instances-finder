@@ -82,18 +82,19 @@ const App: React.FC = () => {
         const ranked = rankInstances(normalized, prefs);
         setResults(ranked);
         setStatus('done');
-        try {
-          window.dispatchEvent(
-            new CustomEvent('app:flash', { detail: t('status.done', { count: ranked.length }) })
-          );
-        } catch (_) {
-          /* no-op: UI flash is optional */
-        }
-        // After results load, ask Results to focus-first via its own handler.
-        // This ensures aria-activedescendant points to a rendered option before focus,
-        // which helps Orca stay in focus mode instead of switching to browse mode.
+        // First, focus the listbox (after render) to keep SR in focus mode,
+        // then announce the status a moment later to avoid mode switches.
         setTimeout(() => {
           window.dispatchEvent(new CustomEvent('results:focus-first'));
+          setTimeout(() => {
+            try {
+              window.dispatchEvent(
+                new CustomEvent('app:flash', { detail: t('status.done', { count: ranked.length }) })
+              );
+            } catch (_) {
+              /* no-op */
+            }
+          }, 150);
         }, 0);
       } catch (e) {
         if (!cancelled) {

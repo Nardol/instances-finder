@@ -21,6 +21,14 @@ src-tauri/.cargo/
 *.rpm
 src-tauri/target/**/bundle/**
 
+# Generated icons (from `tauri icon`)
+src-tauri/icons/32x32.png
+src-tauri/icons/128x128.png
+src-tauri/icons/128x128@2x.png
+src-tauri/icons/Square*Logo.png
+src-tauri/icons/StoreLogo.png
+src-tauri/icons/icon.icns
+
 # OS/IDE
 .DS_Store
 .idea/
@@ -30,4 +38,3 @@ Thumbs.db
 # Env/Secrets
 .env
 .env.*
-

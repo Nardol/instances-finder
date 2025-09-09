@@ -155,6 +155,15 @@ Limites / compromis:
   - Vérifiez que vous n’êtes pas en mode production: `npm config get production` doit être `false`.
   - Option de vérification: `npx --no-install @tauri-apps/cli -v` doit afficher la version locale.
 
+### Diagnostic rapide (doctor)
+
+- Lancez `make doctor` pour vérifier l’environnement de développement:
+  - Node/npm (Node ≥ 18), Rust/cargo, présence de `clippy` et `rustfmt`.
+  - CLI Tauri locale (via `node_modules/.bin/tauri`).
+  - Dépendances Linux (WebKitGTK/GTK et associés) via `pkg-config` et, sur Debian/Ubuntu, `dpkg`.
+- Le script affiche OK/WARN/FAIL et retourne un code d’erreur si un FAIL est détecté.
+- En cas de CLI Tauri manquante, exécutez `make ensure-cli` puis relancez `make doctor`.
+
 ## Contribuer
 
 - Lisez le guide: [CONTRIBUTING.md](./CONTRIBUTING.md)

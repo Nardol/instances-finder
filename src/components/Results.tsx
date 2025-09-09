@@ -49,17 +49,27 @@ export const Results: React.FC<Props> = ({ items }) => {
   const [announce, setAnnounce] = useState('');
 
   return (
-    <div className="results" role="region" aria-live="polite" aria-atomic="false">
+    <div
+      className="results"
+      role="region"
+      aria-labelledby="results-title"
+      aria-live="polite"
+      aria-atomic="false"
+    >
       <p className="sr-only" aria-live="polite">
         {announce}
       </p>
       <ul className="result-list">
-        {items.map((it) => (
+        {items.map((it) => {
+          const idSafe = it.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
+          const factsId = `facts-${idSafe}`;
+          return (
           <li key={it.domain} className="card">
             <div className="card-body">
               <h3>
                 <a
                   href={`https://${it.domain}`}
+                  aria-describedby={factsId}
                   onClick={(e) => {
                     e.preventDefault();
                     openExternal(`https://${it.domain}`);
@@ -69,7 +79,7 @@ export const Results: React.FC<Props> = ({ items }) => {
                 </a>
               </h3>
               <p>{it.description}</p>
-              <p>
+              <p id={factsId}>
                 <span>{it.languages.join(', ').toUpperCase()}</span>
                 {' · '}
                 <span>{it.signups === 'open' ? t('results.open') : t('results.approval')}</span>
@@ -91,7 +101,7 @@ export const Results: React.FC<Props> = ({ items }) => {
               </button>
             </div>
           </li>
-        ))}
+          );})}
       </ul>
     </div>
   );

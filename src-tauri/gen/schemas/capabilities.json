@@ -1,1 +1,9 @@
-{"main":{"identifier":"main","description":"Main window capabilities","local":true,"windows":["main"],"permissions":["core:default","shell:allow-open","clipboard-manager:allow-write-text"]}}
+{
+  "main": {
+    "identifier": "main",
+    "description": "Main window capabilities",
+    "local": true,
+    "windows": ["main"],
+    "permissions": ["core:default", "shell:allow-open", "clipboard-manager:allow-write-text"]
+  }
+}

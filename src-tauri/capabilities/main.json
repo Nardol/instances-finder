@@ -3,9 +3,5 @@
   "identifier": "main",
   "description": "Main window capabilities",
   "windows": ["main"],
-  "permissions": [
-    "core:default",
-    "shell:allow-open",
-    "clipboard-manager:allow-write-text"
-  ]
+  "permissions": ["core:default", "shell:allow-open", "clipboard-manager:allow-write-text"]
 }

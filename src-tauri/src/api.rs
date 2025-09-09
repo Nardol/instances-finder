@@ -293,7 +293,8 @@ pub fn fetch_instances(
 pub fn fetch_languages(state: tauri::State<'_, AppState>) -> Result<Vec<String>, String> {
     let t = get_token(&state).ok_or_else(|| ApiError::NoToken.to_string())?;
     let client = Client::new(&t);
-    let mut req = client.instances().list();
+    let inst = client.instances();
+    let mut req = inst.list();
     // Fetch a larger sample to discover languages
     let resp = req.count(500).send().map_err(|e| e.to_string())?;
     use std::collections::BTreeSet;

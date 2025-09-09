@@ -9,7 +9,7 @@ repository = "https://github.com/Nardol/instances-finder"
 edition = "2021"
 
 [build-dependencies]
-tauri-build = { version = "1.5", features = [] }
+tauri-build = { version = "2.2", features = [] }
 png = "0.17"
 
 [dependencies]

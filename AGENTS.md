@@ -18,6 +18,12 @@
 
 ## CI
 - Workflow GitHub Actions: `.github/workflows/build.yml` (Linux AppImage + Windows NSIS). Artefacts publiés dans l’onglet “Actions”.
+- Workflow release: `.github/workflows/release.yml` (tags v* → artefacts attachés). `release-draft.yml` pour lancement manuel.
+
+## Makefile Shortcuts
+- `make dev`, `make appimage`, `make deb`, `make linux`
+- `make cross-prep-win`, `make win-exe`, `make win-nsis`
+- `make release-tag VERSION=vX.Y.Z`, `make release-gh VERSION=vX.Y.Z NOTES="..."`
 
 ## Coding Style & Naming Conventions
 - TypeScript: strict, indent 2 espaces, pas d’`any` non justifié; `import type` pour les types.

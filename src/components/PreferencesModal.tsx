@@ -107,18 +107,7 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChang
           }
         }}
       >
-        <div
-          tabIndex={0}
-          aria-hidden="true"
-          onFocus={() => {
-            const dialog = dialogRef.current;
-            const list = dialog?.querySelectorAll<HTMLElement>(
-              'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-            );
-            const arr = list ? Array.from(list) : [];
-            arr[arr.length - 1]?.focus();
-          }}
-        />
+        
         <header className="modal-header">
           <h2 id="prefs-title">Préférences</h2>
           <button type="button" onClick={onClose} aria-label="Fermer les préférences">
@@ -153,18 +142,7 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChang
             </ul>
           </section>
         </div>
-        <div
-          tabIndex={0}
-          aria-hidden="true"
-          data-sentinel
-          onFocus={() => {
-            const dialog = dialogRef.current;
-            const first = dialog?.querySelector<HTMLElement>(
-              'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-            );
-            first?.focus();
-          }}
-        />
+        
       </div>
     </div>
   );

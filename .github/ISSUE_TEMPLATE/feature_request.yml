@@ -1,0 +1,32 @@
+name: Feature request
+description: Suggest an idea or improvement
+title: "feat: <short description>"
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please describe the problem this feature solves and the user impact.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      placeholder: As a user, I want … because …
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      placeholder: A high-level approach and any alternatives considered
+  - type: checkboxes
+    id: a11y
+    attributes:
+      label: Accessibility considerations
+      options:
+        - label: Keyboard navigation and focus order remain logical
+        - label: Live regions/announcements are correct
+        - label: Contrast and semantics preserved
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional context (screenshots, references)
+

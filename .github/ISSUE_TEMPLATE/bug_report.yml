@@ -1,0 +1,59 @@
+name: Bug report
+description: Report a reproducible problem
+title: "fix: <short description>"
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please include clear steps to reproduce and environment details.
+  - type: checkboxes
+    id: prechecks
+    attributes:
+      label: Pre-checks
+      options:
+        - label: I ran `make setup` and `make doctor` without errors
+          required: true
+        - label: I searched existing issues and couldn't find this problem
+          required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Minimal steps, expected vs actual result
+      placeholder: |
+        1. …
+        2. …
+        Expected: …
+        Actual: …
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version / Commit
+      description: Output of `git rev-parse --short HEAD` or version tag
+  - type: dropdown
+    id: os
+    attributes:
+      label: OS
+      options:
+        - Linux (Debian/Ubuntu)
+        - Linux (Other)
+        - Windows
+        - macOS
+  - type: input
+    id: screenreader
+    attributes:
+      label: Screen reader (if applicable)
+      placeholder: Orca 44, NVDA 2024.2, VoiceOver, …
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Console output (optional)
+      render: shell
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional context
+

@@ -8,7 +8,7 @@ XTASK_BIN_WIN := ./xtask/target/release/xtask.exe
 XTASK := $(if $(wildcard $(XTASK_BIN_WIN)),$(XTASK_BIN_WIN),$(if $(wildcard $(XTASK_BIN_POSIX)),$(XTASK_BIN_POSIX),cargo run --manifest-path xtask/Cargo.toml --))
 XTASK_BANNER = @if [ -x ./xtask/target/release/xtask ] || [ -x ./xtask/target/release/xtask.exe ]; then echo "[xtask] Using prebuilt binary"; else echo "[xtask] Using cargo run (no prebuilt binary)"; fi
 
-.PHONY: help help-all check check-js check-rust check-js-type check-js-fmt check-rust-fmt ci-checks fix dev build appimage deb linux build-linux cross-prep-win win-exe win-nsis win-zip clean clean-xtask clean-deps clean-all release-tag release-gh fmt fmt-js fmt-rust lint lint-fix clippy clippy-install ensure-cli doctor xtask-release
+.PHONY: help help-all check check-js check-rust check-js-type check-js-fmt check-rust-fmt ci-checks fix dev build appimage deb linux build-linux cross-prep-win win-exe win-nsis win-zip clean clean-xtask clean-deps clean-all release-tag release-gh fmt fmt-js fmt-rust lint lint-fix clippy clippy-install ensure-cli doctor xtask-release setup
 
 help:
 	@echo "Cibles Make disponibles :"
@@ -45,6 +45,7 @@ help:
 	@echo "  clean-xtask    - Supprimer le binaire xtask précompilé (xtask/target)"
 	@echo "  clean-deps     - Supprimer node_modules (re-installation nécessaire)"
 	@echo "  clean-all      - clean + clean-xtask + clean-deps"
+	@echo "  setup          - npm ci + (option) build xtask --release"
 
 help-all: help
 	@echo
@@ -126,6 +127,10 @@ clean-deps:
 	rm -rf node_modules
 
 clean-all: clean clean-xtask clean-deps
+
+setup:
+	$(XTASK_BANNER)
+	$(XTASK) setup --xtask-release
 
 fmt: fmt-js fmt-rust
 

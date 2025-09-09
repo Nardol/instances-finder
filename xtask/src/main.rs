@@ -53,6 +53,12 @@ enum Cmd {
     Fix,
     /// Clean build artifacts
     Clean,
+    /// Install project dependencies (npm ci) and optional xtask release build
+    Setup {
+        /// Also precompile xtask in release for faster subsequent runs
+        #[arg(long)]
+        xtask_release: bool,
+    },
     /// Release helpers (tag or GH draft)
     Release {
         #[command(subcommand)]
@@ -116,6 +122,7 @@ fn main() -> Result<()> {
         Cmd::CiChecks => ci_checks_cmd(),
         Cmd::Fix => fix_cmd(),
         Cmd::Clean => clean_cmd(),
+        Cmd::Setup { xtask_release } => setup_cmd(xtask_release),
         Cmd::Release { action } => release_cmd(action),
     }
 }
@@ -405,6 +412,37 @@ fn release_cmd(action: ReleaseAction) -> Result<()> {
             npm_run("release:gh", &["--", &ver, &nts])
         }
     }
+}
+
+fn npm_ci() -> Result<()> {
+    let mut cmd = Command::new("npm");
+    cmd.arg("ci");
+    cmd.env("NPM_CONFIG_PRODUCTION", "false");
+    let st = cmd.status().context("npm ci failed")?;
+    if !st.success() {
+        // explicit fallback, just in case
+        let mut inst = Command::new("npm");
+        inst.arg("install");
+        inst.env("NPM_CONFIG_PRODUCTION", "false");
+        let st2 = inst.status().context("npm install failed")?;
+        if !st2.success() { return Err(anyhow!("npm install failed")); }
+    }
+    Ok(())
+}
+
+fn setup_cmd(xtask_release: bool) -> Result<()> {
+    println!("[setup] Installing npm dependencies (npm ci)…");
+    npm_ci()?;
+    if xtask_release {
+        println!("[setup] Building xtask in release…");
+        let st = Command::new("cargo")
+            .args(["build", "--manifest-path", "xtask/Cargo.toml", "--release"]) 
+            .status()
+            .context("cargo build (xtask --release) failed")?;
+        if !st.success() { return Err(anyhow!("xtask release build failed")); }
+    }
+    println!("[setup] Done.");
+    Ok(())
 }
 
 fn ts_check_cmd() -> Result<()> {

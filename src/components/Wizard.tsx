@@ -1,6 +1,7 @@
 import React, { useId, useState } from 'react';
 import { useI18n } from '../i18n';
 import type { Preferences } from '../types';
+import { CheckboxList } from './CheckboxList';
 
 type Props = {
   prefs: Preferences;
@@ -29,40 +30,35 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false }) => {
       >
         <fieldset>
           <legend className="label">{t('wizard.languages')}</legend>
-          <div className="row">
-            <label>
-              <input
-                type="checkbox"
-                checked={local.languages.includes('fr')}
-                onChange={(e) => {
-                  const checked = e.target.checked;
+          <CheckboxList
+            label={t('wizard.languages')}
+            items={[
+              {
+                id: 'lang-fr',
+                label: 'FR',
+                checked: local.languages.includes('fr'),
+                onToggle: (next) =>
                   update(
                     'languages',
-                    checked
+                    next
                       ? Array.from(new Set([...local.languages, 'fr']))
                       : local.languages.filter((l) => l !== 'fr')
-                  );
-                }}
-              />
-              FR
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={local.languages.includes('en')}
-                onChange={(e) => {
-                  const checked = e.target.checked;
+                  ),
+              },
+              {
+                id: 'lang-en',
+                label: 'EN',
+                checked: local.languages.includes('en'),
+                onToggle: (next) =>
                   update(
                     'languages',
-                    checked
+                    next
                       ? Array.from(new Set([...local.languages, 'en']))
                       : local.languages.filter((l) => l !== 'en')
-                  );
-                }}
-              />
-              EN
-            </label>
-          </div>
+                  ),
+              },
+            ]}
+          />
         </fieldset>
 
         <div className="row">

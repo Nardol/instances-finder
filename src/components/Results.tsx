@@ -133,10 +133,31 @@ export const Results: React.FC<Props> = ({ items }) => {
       <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
         {announce}
       </p>
-      <p id="results-count" className="sr-only" role="status" aria-live="polite">
-        {t('results.list_label', { count: items.length })}
-      </p>
-      <ul className="result-list" aria-labelledby="results-title" aria-describedby="results-count">
+      <ul
+        className="result-list"
+        role="list"
+        aria-label={t('results.list_label', { count: items.length })}
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (items.length === 0) return;
+          switch (e.key) {
+            case 'ArrowDown':
+              e.preventDefault();
+              focusIndex(active >= 0 && active < items.length ? active : 0);
+              break;
+            case 'End':
+              e.preventDefault();
+              focusIndex(items.length - 1);
+              break;
+            case 'Home':
+              e.preventDefault();
+              focusIndex(0);
+              break;
+            default:
+              break;
+          }
+        }}
+      >
         {items.map((it, idx) => {
           const idSafe = it.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
           const titleId = `title-${idSafe}`;
@@ -150,8 +171,8 @@ export const Results: React.FC<Props> = ({ items }) => {
             tabIndex={active === idx ? 0 : -1}
             aria-posinset={idx + 1}
             aria-setsize={items.length}
-            aria-labelledby={titleId}
-            aria-describedby={`${descId} ${factsId}`}
+            aria-labelledby={`${titleId} ${descId}`}
+            aria-describedby={factsId}
             aria-keyshortcuts="Enter, Control+O, Meta+O, Control+C, Meta+C, ArrowUp, ArrowDown, Home, End"
             ref={(el) => (itemRefs.current[idx] = el)}
             onKeyDown={(e) => onItemKeyDown(e, idx, it.domain)}

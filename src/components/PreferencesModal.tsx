@@ -6,6 +6,7 @@ type Props = {
 };
 
 export const PreferencesModal: React.FC<Props> = ({ open, onClose }) => {
+  const backdropRef = useRef<HTMLDivElement | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const lastFocusRef = useRef<HTMLElement | null>(null);
 
@@ -15,6 +16,11 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose }) => {
 
     const dialog = dialogRef.current;
     const focusFirst = () => {
+      const body = dialog?.querySelector<HTMLElement>('.modal-body');
+      if (body) {
+        body.focus();
+        return;
+      }
       const focusables = dialog?.querySelectorAll<HTMLElement>(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       );
@@ -52,21 +58,21 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose }) => {
       }
     };
     const onClickBackdrop = (e: MouseEvent) => {
-      if (e.target === dialog) onClose();
+      if (e.target === backdropRef.current) onClose();
     };
     document.addEventListener('keydown', onKey, true);
-    dialog?.addEventListener('mousedown', onClickBackdrop);
+    backdropRef.current?.addEventListener('mousedown', onClickBackdrop);
     focusFirst();
     return () => {
       document.removeEventListener('keydown', onKey, true);
-      dialog?.removeEventListener('mousedown', onClickBackdrop);
+      backdropRef.current?.removeEventListener('mousedown', onClickBackdrop);
       lastFocusRef.current?.focus();
     };
   }, [open, onClose]);
 
   if (!open) return null;
   return (
-    <div className="modal-backdrop" aria-hidden="false">
+    <div ref={backdropRef} className="modal-backdrop" aria-hidden="false">
       <div
         ref={dialogRef}
         className="modal"
@@ -80,7 +86,7 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose }) => {
             ✕
           </button>
         </header>
-        <div className="modal-body">
+        <div className="modal-body" tabIndex={0} role="document">
           <section aria-labelledby="prefs-shortcuts-title">
             <h3 id="prefs-shortcuts-title">Raccourcis clavier</h3>
             <ul>
@@ -93,13 +99,7 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose }) => {
             </ul>
           </section>
         </div>
-        <footer className="modal-footer">
-          <button type="button" className="primary" onClick={onClose}>
-            Fermer
-          </button>
-        </footer>
       </div>
     </div>
   );
 };
-

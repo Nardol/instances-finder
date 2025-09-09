@@ -174,7 +174,7 @@ const App: React.FC = () => {
 
   return (
     <AppShell statusText={statusText} flashText={flash}>
-      <div className="app" aria-labelledby="app-title">
+      <div className="app" aria-labelledby="app-title" aria-hidden={prefsOpen}>
         <Header lang={lang} onChangeLang={setLang} expert={expert} onToggleExpert={setExpert} />
 
         <main id="main" className="main" role="main">
@@ -193,8 +193,8 @@ const App: React.FC = () => {
         </main>
 
         <LiveRegion ref={liveRef} />
-        <PreferencesModal open={prefsOpen} onClose={() => setPrefsOpen(false)} />
       </div>
+      <PreferencesModal open={prefsOpen} onClose={() => setPrefsOpen(false)} />
     </AppShell>
   );
 };

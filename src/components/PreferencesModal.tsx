@@ -45,9 +45,20 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChang
         onClose();
       }
     };
+    const onFocusIn = (e: FocusEvent) => {
+      const dialog = dialogRef.current;
+      if (!dialog) return;
+      if (open && dialog && !dialog.contains(e.target as Node)) {
+        // keep focus trapped in dialog for Orca/WebKitGTK
+        e.stopPropagation();
+        focusFirst();
+      }
+    };
     window.addEventListener('keydown', onWinKey, true);
+    window.addEventListener('focusin', onFocusIn, true);
     return () => {
       window.removeEventListener('keydown', onWinKey, true);
+      window.removeEventListener('focusin', onFocusIn, true);
       lastFocusRef.current?.focus();
     };
   }, [open, onClose]);

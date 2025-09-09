@@ -6,7 +6,8 @@
     "language": "Langue",
     "fr": "Français",
     "en": "Anglais",
-    "expert": "Mode expert"
+    "expert": "Mode expert",
+    "preferences": "Préférences…"
   },
   "wizard": {
     "title": "Vos préférences",

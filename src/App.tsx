@@ -192,7 +192,7 @@ const App: React.FC = () => {
         aria-labelledby="app-title"
         aria-hidden={prefsOpen}
       >
-        <Header lang={lang} onChangeLang={setLang} expert={expert} onToggleExpert={setExpert} />
+        <Header onOpenPrefs={() => setPrefsOpen(true)} />
 
         <main id="main" className="main" role="main">
           <h1 id="app-title" className="visually-hidden">

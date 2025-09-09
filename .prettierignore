@@ -2,9 +2,9 @@ dist/
 node_modules/
 src-tauri/target/
 src-tauri/**/bundle/**
+src-tauri/gen/schemas/*.json
 *.AppImage
 *.deb
 *.exe
 *.zip
 *.log
-

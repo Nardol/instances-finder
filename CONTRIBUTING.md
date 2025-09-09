@@ -40,6 +40,7 @@ Merci de votre intérêt pour ce projet. Cette courte page complète le README e
 - Rust: `cargo fmt`. Pas d’API Tauri supplémentaire sans justification (sécurité).
 - Tests (si ajoutés): placez-les sous `src/__tests__/` et ciblez d’abord `lib/`.
  - Lint/format: `npm run lint` (ou `make lint`) et `npm run fmt` (ou `make fmt`) avant toute PR.
+ - Rust lint: exécutez `make clippy` (ou `cargo clippy -- -D warnings`) et corrigez les avertissements.
 
 ## Sécurité & Confidentialité
 - Ne commitez jamais de secrets. Pas de télémétrie par défaut.

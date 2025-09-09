@@ -11,15 +11,18 @@ type Props = {
   label: string;
   items: CheckboxItem[];
   filterPlaceholder?: string;
+  announcementLabels?: { selected: string; notSelected: string };
 };
 
-export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder }) => {
+export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder, announcementLabels }) => {
   const [active, setActive] = React.useState(0);
   const listRef = React.useRef<HTMLUListElement | null>(null);
   const listId = React.useId();
   const hintId = React.useId();
   const filterId = React.useId();
+  const statusId = React.useId();
   const [query, setQuery] = React.useState('');
+  const labels = announcementLabels || { selected: 'selected', notSelected: 'not selected' };
 
   const focusIndex = (idx: number) => {
     const clamped = Math.max(0, Math.min(items.length - 1, idx));
@@ -36,6 +39,12 @@ export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder 
   React.useEffect(() => {
     if (active > visible.length - 1) setActive(0);
   }, [visible.length, active]);
+
+  const activeAnnouncement = React.useMemo(() => {
+    const it = visible[active];
+    if (!it) return '';
+    return `${it.label} — ${it.checked ? labels.selected : labels.notSelected}`;
+  }, [visible, active, labels.selected, labels.notSelected]);
 
   return (
     <div>
@@ -62,7 +71,7 @@ export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder 
         aria-multiselectable="true"
         aria-activedescendant={visible[active] ? visible[active].id : undefined}
         aria-labelledby={listId}
-        aria-describedby={hintId}
+        aria-describedby={`${hintId} ${statusId}`}
         tabIndex={0}
         className="roving-list"
         style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: '0.25rem' }}
@@ -95,6 +104,9 @@ export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder 
           }
         }}
       >
+        <p id={statusId} className="sr-only" role="status" aria-live="polite">
+          {activeAnnouncement}
+        </p>
         {visible.map((it, idx) => (
           <li
             key={it.id}

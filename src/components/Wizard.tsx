@@ -46,6 +46,7 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false, langua
           <CheckboxList
             label={t('wizard.languages')}
             filterPlaceholder={t('wizard.languages_filter')}
+            announcementLabels={{ selected: t('wizard.selected'), notSelected: t('wizard.not_selected') }}
             items={(languagesList ?? ['fr', 'en']).map((code) => ({
               id: `lang-${code}`,
               label: languageDisplayName(code, (t('header.fr') ? 'fr' : 'en') as 'fr' | 'en') + ` (${code.toUpperCase()})`,

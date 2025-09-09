@@ -16,6 +16,8 @@
     "languages_hint": "Astuce: si aucune langue n’est cochée, toutes les langues sont prises en compte.",
     "select_all": "Tout sélectionner",
     "clear_all": "Tout désélectionner",
+    "selected": "sélectionnée",
+    "not_selected": "non sélectionnée",
     "size": "Taille de la communauté",
     "indifferent": "Indifférent",
     "size_small": "Petite",

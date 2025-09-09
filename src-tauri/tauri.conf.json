@@ -23,8 +23,6 @@
       "identifier": "org.instances.finder",
       "icon": ["icons/icon.png", "icons/icon.ico"],
       "publisher": "Patrick Zajda <patrick@zajda.fr>",
-      "homepage": "https://github.com/Nardol/instances-finder",
-      "license": "MIT",
       "shortDescription": "Trouver une instance Mastodon accessible.",
       "longDescription": "Outil de bureau pour comparer et choisir des instances Mastodon via l'API instances.social, avec un accent sur l'accessibilité (lecteurs d'écran, navigation clavier).",
       "category": "Utility",

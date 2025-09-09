@@ -149,6 +149,7 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
                   <td headers="h-size">{it.sizeLabel}</td>
                   <td headers="h-actions" className="cell-actions">
                     <button
+                      tabIndex={-1}
                       onClick={async () => {
                         const ok = await copyText(`https://${it.domain}`);
                         if (ok) {
@@ -159,7 +160,7 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
                     >
                       {t('results.copy')}
                     </button>
-                    <button onClick={() => openExternal(`https://${it.domain}`)}>
+                    <button tabIndex={-1} onClick={() => openExternal(`https://${it.domain}`)}>
                       {t('results.openBrowser')}
                     </button>
                   </td>

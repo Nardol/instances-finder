@@ -25,7 +25,8 @@
     "release:tag": "bash scripts/release-tag.sh",
     "release:gh": "bash scripts/gh-create-release.sh",
     "tauri:build:win:exe": "tauri build --target x86_64-pc-windows-gnu --bundles app",
-    "tauri:build:win:nsis": "TAURI_BUNDLE_TARGETS=nsis tauri build --target x86_64-pc-windows-gnu"
+    "tauri:build:win:nsis": "TAURI_BUNDLE_TARGETS=nsis tauri build --target x86_64-pc-windows-gnu",
+    "test": "vitest run"
   },
   "dependencies": {
     "@tauri-apps/api": "^1.5.0",
@@ -37,9 +38,9 @@
     "@tauri-apps/cli": "^1.5.10",
     "@types/react": "^18.2.42",
     "@types/react-dom": "^18.2.17",
-    "@vitejs/plugin-react": "^4.3.1",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
+    "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-jsx-a11y": "^6.9.0",
@@ -47,6 +48,7 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "prettier": "^3.3.3",
     "typescript": "^5.4.5",
-    "vite": "^5.2.10"
+    "vite": "^5.2.10",
+    "vitest": "^2.1.9"
   }
 }

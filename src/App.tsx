@@ -31,6 +31,7 @@ const App: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState<string>('');
   const [errorLive, setErrorLive] = useState<string>('');
   const [expert, setExpert] = useState<boolean>(false);
+  const [brailleRefresh, setBrailleRefresh] = useState<boolean>(false);
   const [refreshTick, setRefreshTick] = useState<number>(0);
   const [flash, setFlash] = useState<string | null>(null);
   const [prefsOpen, setPrefsOpen] = useState<boolean>(false);
@@ -224,7 +225,13 @@ const App: React.FC = () => {
             {t('app.title')}
           </h1>
           {!tokenReady ? <TokenSetup onReady={() => setTokenReady(true)} /> : null}
-          <Wizard prefs={prefs} onApply={onApply} expert={expert} languagesList={availableLangs} />
+          <Wizard
+            prefs={prefs}
+            onApply={onApply}
+            expert={expert}
+            languagesList={availableLangs}
+            brailleRefresh={brailleRefresh}
+          />
           <section aria-labelledby="results-title">
             <h2 id="results-title">{t('results.title')}</h2>
             <div className="sr-only" role="alert" aria-live="assertive" aria-atomic="true">
@@ -243,6 +250,8 @@ const App: React.FC = () => {
         onChangeLang={setLang}
         expert={expert}
         onToggleExpert={setExpert}
+        brailleRefresh={brailleRefresh}
+        onToggleBrailleRefresh={setBrailleRefresh}
       />
     </AppShell>
   );

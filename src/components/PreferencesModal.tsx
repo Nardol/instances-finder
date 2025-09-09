@@ -8,9 +8,11 @@ type Props = {
   onChangeLang: (l: Lang) => void;
   expert: boolean;
   onToggleExpert: (v: boolean) => void;
+  brailleRefresh: boolean;
+  onToggleBrailleRefresh: (v: boolean) => void;
 };
 
-export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChangeLang, expert, onToggleExpert }) => {
+export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChangeLang, expert, onToggleExpert, brailleRefresh, onToggleBrailleRefresh }) => {
   const backdropRef = useRef<HTMLDivElement | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const lastFocusRef = useRef<HTMLElement | null>(null);
@@ -127,6 +129,15 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChang
             <div className="row" style={{ marginTop: '.5rem' }}>
               <label>
                 <input type="checkbox" checked={expert} onChange={(e) => onToggleExpert(e.target.checked)} /> Mode expert (expérimental)
+              </label>
+            </div>
+            <div className="row" style={{ marginTop: '.5rem' }}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={brailleRefresh}
+                  onChange={(e) => onToggleBrailleRefresh(e.target.checked)}
+                /> Rafraîchir la plage braille lors du changement d’état (peut provoquer une double annonce vocale) — expérimental
               </label>
             </div>
           </section>

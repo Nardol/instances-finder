@@ -99,8 +99,8 @@ button.primary {
 .result-list[role="table"] {
   /* container only */
 }
-.result-list[role="grid"] li[role="row"],
-.result-list[role="table"] li[role="row"] {
+.result-list[role="grid"] [role="row"],
+.result-list[role="table"] [role="row"] {
   display: grid;
   grid-template-columns: minmax(220px, 2fr) minmax(200px, 1.2fr) auto;
   align-items: start;

@@ -44,7 +44,7 @@ async function openExternal(url: string): Promise<void> {
 
 type Props = { items: Instance[] };
 
-export const Results = React.forwardRef<HTMLUListElement, Props>(function Results(
+export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
   { items },
   listRef
 ) {
@@ -198,7 +198,7 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
       <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
         {announce}
       </p>
-      <ul
+      <div
         className="result-list"
         role="table"
         aria-rowcount={items.length + 1}
@@ -210,7 +210,7 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
         tabIndex={-1}
       >
         {/* Header row for screen readers and sighted users */}
-        <li role="row" className="grid-header" aria-rowindex={1}>
+        <div role="row" className="grid-header" aria-rowindex={1}>
           <div role="columnheader" id="colhdr-domain" aria-colindex={1} className={`cell ${col === 0 ? 'is-active' : ''}`}>
             {t('results.col_domain')}
           </div>
@@ -220,14 +220,14 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
           <div role="columnheader" id="colhdr-actions" aria-colindex={3} className={`cell ${col === 2 ? 'is-active' : ''}`}>
             {t('results.col_actions')}
           </div>
-        </li>
+        </div>
         {items.map((it, idx) => {
           const idSafe = it.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
           const titleId = `title-${idSafe}`;
           const descId = `desc-${idSafe}`;
           const factsId = `facts-${idSafe}`;
           return (
-          <li
+          <div
             key={it.domain}
             className={`card ${active === idx ? 'is-active' : ''}`}
             role="row"
@@ -325,9 +325,9 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
                 {t('results.openBrowser')}
               </button>
             </div>
-          </li>
+          </div>
         );})}
-      </ul>
+      </div>
     </div>
   );
 });

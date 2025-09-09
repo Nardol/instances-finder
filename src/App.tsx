@@ -38,7 +38,7 @@ const App: React.FC = () => {
   const [availableLangs, setAvailableLangs] = useState<string[]>(['fr', 'en']);
   const liveRef = useRef<HTMLDivElement | null>(null);
   const appRef = useRef<HTMLDivElement | null>(null);
-  const resultsListRef = useRef<HTMLUListElement | null>(null);
+  const resultsListRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!tokenReady) {

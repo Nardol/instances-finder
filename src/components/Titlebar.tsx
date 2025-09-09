@@ -7,27 +7,28 @@ export const Titlebar: React.FC = () => {
 
   const handleMinimize = async () => {
     if (!isTauri()) return;
-    const { appWindow } = await import('@tauri-apps/api/window');
-    await appWindow.minimize();
+    const { getCurrentWindow } = await import('@tauri-apps/api/window');
+    await getCurrentWindow().minimize();
   };
 
   const handleToggleMaximize = async () => {
     if (!isTauri()) return;
-    const { appWindow } = await import('@tauri-apps/api/window');
-    const isMax = await appWindow.isMaximized();
+    const { getCurrentWindow } = await import('@tauri-apps/api/window');
+    const win = getCurrentWindow();
+    const isMax = await win.isMaximized();
     if (isMax) {
-      await appWindow.unmaximize();
+      await win.unmaximize();
       setMaximized(false);
     } else {
-      await appWindow.maximize();
+      await win.maximize();
       setMaximized(true);
     }
   };
 
   const handleClose = async () => {
     if (!isTauri()) return;
-    const { appWindow } = await import('@tauri-apps/api/window');
-    await appWindow.close();
+    const { getCurrentWindow } = await import('@tauri-apps/api/window');
+    await getCurrentWindow().close();
   };
 
   return (

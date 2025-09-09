@@ -24,7 +24,13 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChang
       const list = dialog?.querySelectorAll<HTMLElement>(
         'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
       );
-      return list ? Array.from(list).filter((el) => el.offsetParent !== null || el === dialog) : [];
+      const arr = list ? Array.from(list) : [];
+      return arr.filter(
+        (el) =>
+          el.getAttribute('aria-hidden') !== 'true' &&
+          !el.closest('[aria-hidden="true"]') &&
+          (el === dialog || el.getClientRects().length > 0)
+      );
     };
     const focusFirst = () => {
       const focusables = getFocusables();

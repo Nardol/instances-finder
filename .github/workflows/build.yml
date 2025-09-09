@@ -1,5 +1,9 @@
 name: build
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [main, master]
@@ -15,33 +19,32 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
       - name: Install JS deps
         run: npm ci || npm install
-      - name: ESLint (JS/TS lint)
-        run: npm run lint
-      - name: TypeScript (tsc --noEmit)
-        run: npx --no-install tsc --noEmit
-      - name: Prettier (format check)
-        run: npx --no-install prettier --check .
       - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
       - name: Ensure Clippy
         run: rustup component add clippy
-      - name: Clippy (Rust lint)
-        run: cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings
       - name: Ensure rustfmt
         run: rustup component add rustfmt
-      - name: Rustfmt (format check)
-        run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
+      - name: Run all CI checks
+        run: make ci-checks
 
   linux-appimage:
     runs-on: ubuntu-latest
     needs: [checks]
+    if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/heads/main') || startsWith(github.ref, 'refs/heads/master') || startsWith(github.ref, 'refs/tags/v'))
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
       - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
       - name: Install system deps (Tauri)
         run: |
           sudo apt-get update
@@ -66,12 +69,16 @@ jobs:
   windows-nsis:
     runs-on: windows-latest
     needs: [checks]
+    if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/heads/main') || startsWith(github.ref, 'refs/heads/master') || startsWith(github.ref, 'refs/tags/v'))
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
       - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
       - name: Install JS deps
         run: npm ci || npm install
       - name: Build NSIS installer

@@ -131,5 +131,6 @@ Icône de l’application:
   - `make check-js-type` (TypeScript `tsc --noEmit`)
   - `make check-js-fmt` (Prettier `--check`)
   - `make check-rust-fmt` (`cargo fmt --check`)
+- CI locale: `make ci-checks` (réplique des checks CI)
 - Corrections automatiques: `make fix` (formatage + lint --fix)
 - Formatage/Lint: `make fmt`, `make lint`, `make lint-fix`

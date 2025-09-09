@@ -1,72 +1,80 @@
-# Repository Guidelines
+# AI Agent Guide (Internal)
 
-## Project Structure & Module Organization
+This file is for the AI assistant working on this repository via Codex CLI. It is not user-facing documentation. Follow these rules first; defer to `README.md` and `CONTRIBUTING.md` for project-specific details.
+
+## Operating Model
+
+- Scope: Make minimal, surgical changes that solve the requested task.
+- Safety: Never introduce secrets, telemetry, or new network endpoints.
+- Approvals: Ask before running commands that need network or broader permissions.
+- Sandboxing: Prefer non-destructive commands; avoid removing or renaming files unless explicitly asked.
+
+## How To Work
+
+- Planning: Use the plan tool for multi-step tasks; keep one step in progress.
+- Edits: Use `apply_patch` for file changes; keep diffs focused and small.
+- Reading: Use `rg` to search; read files in chunks ≤250 lines.
+- Style: Match the existing codebase; do not reformat unrelated code.
+- Validation: When possible, run format/lint/build for changed areas only.
+
+## Repository Structure
 
 - `src/`: React + TypeScript UI (components/, lib/, mocks/, locales/).
-- `src-tauri/`: Tauri host (Rust). Contains `tauri.conf.json`, `src/main.rs`, `build.rs`, `icons/`.
-- `dist/`: Generated static frontend build. `index.html` is the Vite entry point.
+- `src-tauri/`: Tauri host (Rust) with `tauri.conf.json`, `src/main.rs`, `build.rs`, `icons/`.
+- `dist/`: Generated static frontend build. `index.html` is the Vite entry.
 
-## Build, Test, and Development Commands
+## Commands You May Use
 
-- `npm run tauri:dev`: Run the desktop app in development (Vite on `:5173`, plus Tauri).
-- `npm run build`: Build the static frontend into `dist/`.
-- `npm run tauri:build:appimage`: Produce a Linux AppImage.
-- `npm run tauri:build:deb`: Produce a Debian package (`.deb`).
-- Cross-build Windows from Linux (Debian/Ubuntu prerequisites): `mingw-w64 gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 binutils-mingw-w64-x86-64 nsis`
-  - `npm run cross:prep:win`: Configure the Rust target.
-  - Portable `.exe`: `npm run cross:build:win:exe`
+- Dev app: `npm run tauri:dev` (Vite on `:5173` + Tauri).
+- Build web: `npm run build` → outputs to `dist/`.
+- Linux builds: `npm run tauri:build:appimage`, `npm run tauri:build:deb`.
+- Windows cross-build (from Linux):
+  - Prep toolchain: `npm run cross:prep:win` (Rust target), requires `mingw-w64 ... nsis`.
+  - Portable exe: `npm run cross:build:win:exe`
   - NSIS installer: `npm run cross:build:win:nsis`
-- Rust only:
-  - `cargo fmt`: Format Rust code.
-  - `cargo build`: Build Rust crates when needed.
-- Rust lint:
-  - `make clippy` (installs Clippy if required), or `cargo clippy`.
+- Rust only: `cargo fmt`, `cargo build`; lint via `make clippy` or `cargo clippy`.
+- Make shortcuts: `make dev | appimage | deb | linux | cross-prep-win | win-exe | win-nsis | fmt | lint | lint-fix`.
 
-## CI
+## Code & Naming Conventions
 
-- Build workflow: `.github/workflows/build.yml` (Linux AppImage + Windows NSIS). Artifacts are published under the “Actions” tab.
-- Release workflow: `.github/workflows/release.yml` (tags `v*` → attached artifacts). Use `release-draft.yml` for manual runs.
+- TypeScript: strict; 2-space indent; avoid untyped `any`; prefer `import type`.
+- React: components/files in PascalCase (`Header.tsx`); utilities in kebab-case (`score.ts`).
+- CSS: global styles in `src/styles.css`; meet WCAG AA contrast.
+- Rust: use `rustfmt`; functions `snake_case`, types `PascalCase`.
+- Tooling: ESLint (TS/React/a11y) + Prettier; fix with `npm run lint:fix` and `npm run fmt`.
 
-## Makefile Shortcuts
+## Accessibility (Blocker Criteria)
 
-- `make dev`, `make appimage`, `make deb`, `make linux`
-- `make cross-prep-win`, `make win-exe`, `make win-nsis`
-- `make release-tag VERSION=vX.Y.Z`, `make release-gh VERSION=vX.Y.Z NOTES="..."`
-- `make fmt`, `make lint`, `make lint-fix`
+- Keyboard: full navigation, logical tab order, visible focus.
+- Live regions: use `role="status"`/`role="alert"` with `aria-live` (assertive for critical). Announce token test results.
+- Semantics: correct labels and native roles. Manually verify with Orca (Linux) and NVDA (Windows) when applicable.
 
-## Coding Style & Naming Conventions
+## Security & Privacy
 
-- TypeScript: strict mode; 2-space indentation; avoid untyped `any`; use `import type` for types.
-- React: component files in PascalCase (`Header.tsx`); utilities in kebab-case (`score.ts`).
-- CSS: global styles in `src/styles.css`; at least WCAG AA contrast.
-- Rust: default `rustfmt`; functions in `snake_case`, types in `PascalCase`.
-- Tooling: ESLint (TS/React/a11y) + Prettier. Fix with `npm run lint:fix` and `npm run fmt`.
+- Token handling: Instances.social token must be stored via OS keyring if user consents; otherwise keep only in volatile memory. Never log it.
+- Network: no new hosts. Only `instances.social` (optional proxy, never default).
+- Tauri: keep allowlist minimal (`shell.open`, `clipboard`). Any new native API requires justification and documentation.
 
-## Accessibility Standards (A11y)
+## Testing Guidance
 
-- Full keyboard navigation; logical tab order; visible focus states.
-- Announcements: use `role="status"`/`role="alert"` with `aria-live` (assertive for critical messages). The token check must be announced.
-- Correct HTML semantics (associated labels, native roles). Manual testing: Orca (Linux), NVDA (Windows). Any a11y regression blocks a PR.
+- None present yet. If adding tests, use Vitest + `@axe-core/react` in `src/__tests__/*.test.tsx`.
+- Prioritize logic tests (`lib/score.ts`, API filtering) before DOM a11y tests.
+- Error states: on API failure, show an error message (no fake data in production).
 
-## Commit & Pull Request Guidelines
+## Git & PR Etiquette
 
-- Concise, present-tense commits: `feat:`, `fix:`, `docs:`, `chore:`.
-- PRs: clear description, test steps, screenshot(s) for UI changes, note a11y/performance impacts.
-- Link the issue (`Closes #123`) and keep an informal changelog in the PR description.
+- Commits: concise, present tense: `feat:`, `fix:`, `docs:`, `chore:`.
+- PRs: include description, test steps, screenshots for UI, and note a11y/perf impacts. Link issues (e.g., `Closes #123`).
 
-## Security & Configuration Tips
+## Expert Mode Rules
 
-- Instances.social token: store via the system keyring if the user consents; otherwise keep it only in volatile memory. Never log the token.
-- No secrets in the repository; no telemetry. Network access: `instances.social` only (optional proxy, never default).
-- Tauri: keep the allowlist minimal (`shell.open`, `clipboard`). Any new native API must be justified and documented.
+- Region filter hidden by default; visible only in “Expert Mode” and labeled “(experimental)”.
+- Region is a heuristic from TLD; never block on it.
 
-## Testing Guidelines
+## Quick Checklist
 
-- No tests yet. If you add tests: use Vitest + `@axe-core/react`.
-- Location: `src/__tests__/*.test.tsx`. Start with core logic (`lib/score.ts`, API filtering) then add DOM a11y tests.
-- Error states: on API failure, the UI must display an error (no mock data in production).
-
-## Expert Mode
-
-- Region filter is hidden by default; only visible in “Expert Mode” and labeled “(experimental)”.
-- Region is inferred heuristically from TLD; do not make it a blocking rule.
+- Minimal change that solves the task.
+- Matches code style and naming conventions.
+- Keeps a11y intact or improved.
+- No new secrets, telemetry, or network calls.
+- Tests or manual steps updated as needed.

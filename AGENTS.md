@@ -15,6 +15,7 @@
   - `.exe portable`: `npm run cross:build:win:exe`
   - Installeur NSIS: `npm run cross:build:win:nsis`
 - Rust only: `cargo fmt` (formatage), `cargo build` si besoin.
+ - Rust lint: `make clippy` (installe Clippy si nécessaire), ou `cargo clippy`.
 
 ## CI
 - Workflow GitHub Actions: `.github/workflows/build.yml` (Linux AppImage + Windows NSIS). Artefacts publiés dans l’onglet “Actions”.

@@ -34,7 +34,8 @@ Merci de votre intérêt pour ce projet. Cette page complète le README et décr
 ## Branches & Commits
 
 - Branches: `feat/<sujet-court>`, `fix/<bug-id>`, `chore/<tache>`.
-- Messages: au présent + type: `feat:`, `fix:`, `docs:`, `chore:`. Ajoutez `Closes #<num>` si pertinent.
+- Messages: en anglais, au présent, style Conventional Commits. Types autorisés: `feat`, `fix`, `docs`, `build`, `ci`, `chore`, `refactor`, `perf`, `test`, `style`, `revert`. Exemple: `fix: announce token test via aria-live`.
+- Liez l’issue si possible: `Closes #<num>`.
 
 Exemples:
 
@@ -85,6 +86,12 @@ Tests:
 ## Communication
 
 - Français ou anglais bienvenus. Restez concis et orienté action.
+
+## Hooks Git (validation locale)
+
+- Hook local recommandé: activez les hooks du dépôt: `git config core.hooksPath .githooks`.
+- Le hook `commit-msg` applique deux règles: (1) ASCII uniquement (anglais), (2) style Conventional Commits minimal.
+- En cas de besoin ponctuel, vous pouvez passer outre avec `git commit -n`, mais la CI refusera une PR non conforme.
 
 ## Intégration Continue
 

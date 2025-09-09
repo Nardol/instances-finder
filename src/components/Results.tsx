@@ -116,6 +116,7 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
     const goTo = (r: number, c: number) => {
       const nr = Math.max(0, Math.min(items.length - 1, r));
       const nc = Math.max(0, Math.min(colCount - 1, c));
+      if (nr === active && nc === col) return; // no-op to avoid redundant focus/update
       setActive(nr);
       setCol(nc);
       setTimeout(() => {
@@ -127,21 +128,25 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
     switch (e.key) {
       case 'ArrowDown':
         if (ctrlAlt) return; // let Orca handle
+        if (rowIndex >= items.length - 1) return; // let SR announce boundary
         e.preventDefault();
         goTo(rowIndex + 1, colIndex);
         break;
       case 'ArrowUp':
         if (ctrlAlt) return;
+        if (rowIndex <= 0) return;
         e.preventDefault();
         goTo(rowIndex - 1, colIndex);
         break;
       case 'ArrowRight':
         if (ctrlAlt) return;
+        if (colIndex >= colCount - 1) return;
         e.preventDefault();
         goTo(rowIndex, colIndex + 1);
         break;
       case 'ArrowLeft':
         if (ctrlAlt) return;
+        if (colIndex <= 0) return;
         e.preventDefault();
         goTo(rowIndex, colIndex - 1);
         break;

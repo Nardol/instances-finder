@@ -7,9 +7,10 @@ type Props = {
   prefs: Preferences;
   onApply: (p: Preferences) => void;
   expert?: boolean;
+  languagesList?: string[];
 };
 
-export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false }) => {
+export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false, languagesList }) => {
   const { t } = useI18n();
   const [local, setLocal] = useState<Preferences>(prefs);
   const titleId = useId();
@@ -32,32 +33,18 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false }) => {
           <legend className="label">{t('wizard.languages')}</legend>
           <CheckboxList
             label={t('wizard.languages')}
-            items={[
-              {
-                id: 'lang-fr',
-                label: 'FR',
-                checked: local.languages.includes('fr'),
-                onToggle: (next) =>
-                  update(
-                    'languages',
-                    next
-                      ? Array.from(new Set([...local.languages, 'fr']))
-                      : local.languages.filter((l) => l !== 'fr')
-                  ),
-              },
-              {
-                id: 'lang-en',
-                label: 'EN',
-                checked: local.languages.includes('en'),
-                onToggle: (next) =>
-                  update(
-                    'languages',
-                    next
-                      ? Array.from(new Set([...local.languages, 'en']))
-                      : local.languages.filter((l) => l !== 'en')
-                  ),
-              },
-            ]}
+            items={(languagesList ?? ['fr', 'en']).map((code) => ({
+              id: `lang-${code}`,
+              label: code.toUpperCase(),
+              checked: local.languages.includes(code),
+              onToggle: (next: boolean) =>
+                update(
+                  'languages',
+                  next
+                    ? Array.from(new Set([...local.languages, code]))
+                    : local.languages.filter((l) => l !== code)
+                ),
+            }))}
           />
         </fieldset>
 

@@ -1,5 +1,5 @@
 export type Preferences = {
-  languages: Array<'fr' | 'en'>;
+  languages: string[];
   size: 'small' | 'medium' | 'large';
   moderation: 'open' | 'balanced' | 'strict';
   signups: 'open' | 'approval';
@@ -10,7 +10,7 @@ export type Preferences = {
 export type Instance = {
   domain: string;
   description: string;
-  languages: Array<'fr' | 'en'>;
+  languages: string[];
   signups: 'open' | 'approval';
   size: 1 | 2 | 3; // 1 small, 2 medium, 3 large
   sizeLabel: string;

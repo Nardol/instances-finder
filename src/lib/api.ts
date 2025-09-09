@@ -44,3 +44,7 @@ export async function fetchInstances(params: FetchParams, bypassCache?: boolean)
 export async function clearInstancesCache(): Promise<void> {
   await invoke('clear_instances_cache');
 }
+
+export async function fetchLanguages(): Promise<string[]> {
+  return invoke('fetch_languages');
+}

@@ -2,7 +2,7 @@
 
 mod api;
 
-use api::{clear_instances_cache, clear_token, fetch_instances, save_token, test_token, token_status, AppState};
+use api::{clear_instances_cache, clear_token, fetch_instances, fetch_languages, save_token, test_token, token_status, AppState};
 use tauri::{AboutMetadata, CustomMenuItem, Menu, MenuItem, Submenu};
 
 fn main() {
@@ -50,6 +50,7 @@ fn main() {
             clear_token,
             test_token,
             fetch_instances,
+            fetch_languages,
             clear_instances_cache
         ])
         .menu(menu)

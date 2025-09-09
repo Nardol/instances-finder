@@ -288,3 +288,26 @@ pub fn fetch_instances(
 
     Ok(items)
 }
+
+#[tauri::command]
+pub fn fetch_languages(state: tauri::State<'_, AppState>) -> Result<Vec<String>, String> {
+    let t = get_token(&state).ok_or_else(|| ApiError::NoToken.to_string())?;
+    let client = Client::new(&t);
+    let mut req = client.instances().list();
+    // Fetch a larger sample to discover languages
+    let resp = req.count(500).send().map_err(|e| e.to_string())?;
+    use std::collections::BTreeSet;
+    let mut set = BTreeSet::new();
+    for i in resp.instances {
+        if let Some(info) = i.info {
+            if let Some(langs) = info.languages {
+                for l in langs {
+                    if !l.trim().is_empty() {
+                        set.insert(l.to_lowercase());
+                    }
+                }
+            }
+        }
+    }
+    Ok(set.into_iter().collect())
+}

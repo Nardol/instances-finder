@@ -8,7 +8,7 @@ import { useI18n } from './i18n';
 import type { Instance, Preferences } from './types';
 import { rankInstances } from './lib/score';
 import { TokenSetup } from './components/TokenSetup';
-import { fetchInstances, clearInstancesCache } from './lib/api';
+import { fetchInstances, clearInstancesCache, fetchLanguages } from './lib/api';
 import { AppShell } from './components/AppShell';
 
 const isTauri = () => typeof window !== 'undefined' && '__TAURI_IPC__' in window;
@@ -34,6 +34,7 @@ const App: React.FC = () => {
   const [refreshTick, setRefreshTick] = useState<number>(0);
   const [flash, setFlash] = useState<string | null>(null);
   const [prefsOpen, setPrefsOpen] = useState<boolean>(false);
+  const [availableLangs, setAvailableLangs] = useState<string[]>(['fr', 'en']);
   const liveRef = useRef<HTMLDivElement | null>(null);
   const appRef = useRef<HTMLDivElement | null>(null);
   const resultsListRef = useRef<HTMLUListElement | null>(null);
@@ -66,7 +67,7 @@ const App: React.FC = () => {
           return {
             domain: it.domain,
             description: it.description,
-            languages: it.languages.includes('fr') ? ['fr'] : ['en'],
+            languages: Array.isArray(it.languages) ? it.languages.map((l) => l.toLowerCase()) : [],
             signups: it.signups,
             size: sz,
             sizeLabel: it.sizeLabel,
@@ -98,6 +99,19 @@ const App: React.FC = () => {
       cancelled = true;
     };
   }, [prefs, tokenReady, expert, t, refreshTick]);
+
+  // Fetch all available languages once token is ready
+  useEffect(() => {
+    if (!tokenReady) return;
+    (async () => {
+      try {
+        const langs = await fetchLanguages();
+        if (Array.isArray(langs) && langs.length) setAvailableLangs(langs);
+      } catch (_) {
+        // ignore
+      }
+    })();
+  }, [tokenReady]);
 
   const onApply = (p: Preferences) => setPrefs(p);
 
@@ -199,7 +213,7 @@ const App: React.FC = () => {
             {t('app.title')}
           </h1>
           {!tokenReady ? <TokenSetup onReady={() => setTokenReady(true)} /> : null}
-          <Wizard prefs={prefs} onApply={onApply} expert={expert} />
+          <Wizard prefs={prefs} onApply={onApply} expert={expert} languagesList={availableLangs} />
           <section aria-labelledby="results-title">
             <h2 id="results-title">{t('results.title')}</h2>
             <div className="sr-only" role="alert" aria-live="assertive" aria-atomic="true">

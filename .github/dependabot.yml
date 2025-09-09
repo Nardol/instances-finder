@@ -8,7 +8,7 @@ updates:
     groups:
       ts-eslint:
         patterns:
-          - "@typescript-eslint/*"
+          - '@typescript-eslint/*'
 
   - package-ecosystem: 'cargo'
     directory: '/src-tauri'

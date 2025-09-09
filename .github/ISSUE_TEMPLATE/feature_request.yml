@@ -1,6 +1,6 @@
 name: Feature request
 description: Suggest an idea or improvement
-title: "feat: <short description>"
+title: 'feat: <short description>'
 labels: [enhancement]
 body:
   - type: markdown
@@ -29,4 +29,3 @@ body:
     id: notes
     attributes:
       label: Additional context (screenshots, references)
-

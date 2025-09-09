@@ -1,6 +1,6 @@
 name: Bug report
 description: Report a reproducible problem
-title: "fix: <short description>"
+title: 'fix: <short description>'
 labels: [bug]
 body:
   - type: markdown
@@ -56,4 +56,3 @@ body:
     id: notes
     attributes:
       label: Additional context
-

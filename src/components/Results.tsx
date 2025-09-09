@@ -76,6 +76,28 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
 
   // No forced focus after load; let users/SR decide
 
+  const onTableKeyDown = async (e: React.KeyboardEvent<HTMLTableElement>) => {
+    const key = e.key;
+    const isMod = e.ctrlKey || e.metaKey;
+    const target = e.target as HTMLElement | null;
+    // Don't hijack when inside interactive controls
+    if (target && (target.closest('button') || target.closest('a'))) return;
+    const rowEl = target?.closest('tr');
+    const domain = rowEl?.getAttribute('data-domain');
+    if (!domain) return;
+    if (key === 'Enter') {
+      e.preventDefault();
+      openExternal(`https://${domain}`);
+      return;
+    }
+    if ((key === 'c' || key === 'C') && isMod && e.shiftKey) {
+      e.preventDefault();
+      const ok = await copyText(`https://${domain}`);
+      if (ok) announcePolite(t('results.copied'));
+      return;
+    }
+  };
+
 
   return (
     <div className="results" role="region" aria-labelledby="results-title">
@@ -84,7 +106,11 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
       </p>
       <a href="#after-results" className="skip-link">{t('results.skip_table')}</a>
       <div className="table-wrap" ref={listRef}>
-        <table className="results-table" aria-label={t('results.list_label', { count: items.length })}>
+        <table
+          className="results-table"
+          aria-label={t('results.list_label', { count: items.length })}
+          onKeyDown={onTableKeyDown}
+        >
           <caption className="sr-only">{t('results.table_caption')}</caption>
           <thead>
             <tr>
@@ -100,10 +126,21 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
               const idSafe = it.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
               const descId = `desc-${idSafe}`;
               return (
-                <tr key={it.domain} onMouseEnter={() => setActive(idx)}>
+                <tr key={it.domain} data-domain={it.domain} onMouseEnter={() => setActive(idx)}>
                   <td headers="h-domain">
                     <div className="cell-domain">
-                      <span className="domain-text">{it.domain}</span>
+                      <a
+                        href={`https://${it.domain}`}
+                        id={`link-${idSafe}`}
+                        tabIndex={-1}
+                        aria-describedby={descId}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          openExternal(`https://${it.domain}`);
+                        }}
+                      >
+                        {it.domain}
+                      </a>
                       <p id={descId} className="muted">{it.description}</p>
                     </div>
                   </td>

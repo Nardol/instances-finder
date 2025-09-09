@@ -32,7 +32,7 @@
     "gen:i18n:keys": "node scripts/gen-i18n-keys.mjs"
   },
   "dependencies": {
-    "@tauri-apps/api": "^1.5.0",
+    "@tauri-apps/api": "^2.8.0",
     "react": "^18.2.0",
     "react-dom": "^19.1.1"
   },

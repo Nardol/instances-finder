@@ -222,6 +222,21 @@ button.primary {
   }
 }
 
+/* New listbox option styles + transitions */
+.option-item {
+  transition: background-color 120ms ease, transform 120ms ease;
+}
+.option-item.is-selected {
+  background: rgba(59, 130, 246, 0.10);
+}
+.option-item.is-active {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .option-item { transition: none; }
+}
+
 .app-body {
   display: grid;
   grid-template-columns: 220px 1fr;

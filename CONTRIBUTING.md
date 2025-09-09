@@ -39,6 +39,7 @@ Merci de votre intérêt pour ce projet. Cette courte page complète le README e
 - TypeScript strict; pas d’`any` non justifié. Composants en PascalCase.
 - Rust: `cargo fmt`. Pas d’API Tauri supplémentaire sans justification (sécurité).
 - Tests (si ajoutés): placez-les sous `src/__tests__/` et ciblez d’abord `lib/`.
+ - Lint/format: `npm run lint` (ou `make lint`) et `npm run fmt` (ou `make fmt`) avant toute PR.
 
 ## Sécurité & Confidentialité
 - Ne commitez jamais de secrets. Pas de télémétrie par défaut.

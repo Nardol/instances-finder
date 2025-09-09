@@ -184,10 +184,9 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
       </p>
       <ul
         className="result-list"
-        role="grid"
+        role="table"
         aria-rowcount={items.length + 1}
         aria-colcount={3}
-        aria-readonly="true"
         aria-label={t('results.list_label', { count: items.length })}
         ref={listRef}
         data-active-col={col}
@@ -220,11 +219,10 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
           >
             <div
               id={`cell-${idSafe}-0`}
-              role="gridcell"
+              role="cell"
               aria-labelledby={`colhdr-domain ${titleId}`}
               aria-colindex={1}
-              aria-selected={active === idx && col === 0}
-              className="card-body col-0"
+              className={`card-body col-0 ${active === idx && col === 0 ? 'is-active' : ''}`}
               tabIndex={active === idx && col === 0 ? 0 : -1}
               onKeyDown={(e) => handleCellKeyDown(e, idx, 0)}
             >
@@ -245,11 +243,10 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
             </div>
             <div
               id={`cell-${idSafe}-1`}
-              role="gridcell"
+              role="cell"
               aria-labelledby={`colhdr-details ${titleId}`}
               aria-colindex={2}
-              aria-selected={active === idx && col === 1}
-              className="card-body col-1"
+              className={`card-body col-1 ${active === idx && col === 1 ? 'is-active' : ''}`}
               tabIndex={active === idx && col === 1 ? 0 : -1}
               aria-describedby={factsId}
               onKeyDown={(e) => handleCellKeyDown(e, idx, 1)}
@@ -264,11 +261,10 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
             </div>
             <div
               id={`cell-${idSafe}-2`}
-              role="gridcell"
+              role="cell"
               aria-labelledby={`colhdr-actions ${titleId}`}
               aria-colindex={3}
-              aria-selected={active === idx && col === 2}
-              className="card-actions col-2"
+              className={`card-actions col-2 ${active === idx && col === 2 ? 'is-active' : ''}`}
               tabIndex={active === idx && col === 2 ? 0 : -1}
               onKeyDown={(e) => handleCellKeyDown(e, idx, 2)}
             >

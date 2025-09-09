@@ -55,7 +55,11 @@ Installation (développement):
 2) Installer les dépendances du projet: `npm ci` (ou `npm install`).
    - Assurez‑vous d’installer les devDependencies (ne pas installer en mode production). Si vous avez `NODE_ENV=production` ou `npm config set production true`, réactivez les devDependencies avec `npm config set production false` puis relancez `npm ci`.
 3) Vérifier la CLI si besoin: `npx --no-install @tauri-apps/cli -v` (devrait afficher la version locale).
-4) Démarrer en dev: `npm run tauri:dev` (ouvre la fenêtre applicative avec Vite + Tauri).
+4) Démarrer en dev (du plus simple au plus rapide):
+   - Simple: `make dev` (alias qui appelle xtask)
+   - Direct: `cargo run --manifest-path xtask/Cargo.toml -- dev`
+   - Ultra-rapide sessions longues: `make xtask-release` (précompile xtask) puis `make dev`
+   - Legacy (sans xtask): `npm run tauri:dev`
 
 ## Utilisation
 
@@ -157,7 +161,7 @@ Limites / compromis:
 
 ### Diagnostic rapide (doctor)
 
-- Lancez `make doctor` pour vérifier l’environnement de développement:
+- Lancez `make doctor` (ou `cargo run --manifest-path xtask/Cargo.toml -- doctor`) pour vérifier l’environnement de développement:
   - Node/npm (Node ≥ 18), Rust/cargo, présence de `clippy` et `rustfmt`.
   - CLI Tauri locale (via `node_modules/.bin/tauri`).
   - Dépendances Linux (WebKitGTK/GTK et associés) via `pkg-config` et, sur Debian/Ubuntu, `dpkg`.
@@ -167,6 +171,11 @@ Limites / compromis:
 ## Contribuer
 
 - Lisez le guide: [CONTRIBUTING.md](./CONTRIBUTING.md)
+
+### Performances & transparence
+
+- Make est l’interface principale et reste recommandée. Pour des sessions longues, lancez d’abord `make xtask-release`: Make détecte alors automatiquement le binaire xtask précompilé et l’utilise, ce qui réduit la latence des commandes (`dev`, `build`, `ci-checks`, etc.).
+- L’overhead de Make est négligeable; l’essentiel du temps est passé dans Vite/Tauri/Clippy. Utiliser Make ne “gâche” donc pas les perfs.
 
 ## Releases
 

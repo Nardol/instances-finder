@@ -117,9 +117,18 @@ Icône de l’application:
 
 ## Accessibilité
 
-- Clavier: Tab/Shift+Tab, focus toujours visible.
-- Annonces: statut (polite) et erreurs (assertive) via `aria-live`.
-- Toute régression a11y bloque une PR.
+Cette application vise une excellente accessibilité clavier et lecteur d’écran (notamment Orca/WebKitGTK).
+
+- Résultats: vraie liste (`role=list`/`listitem`) avec navigation type bureau (Flèches/Haut/Bas, Home/End, PageUp/PageDown). Les actions restent masquées pendant la navigation aux flèches et apparaissent au Tab.
+- Annonces: une seule région live polie globale (`role=status`) pour les statuts; erreurs en `role=alert` placé près du titre des résultats.
+- Préférences: vrai dialogue modal (`role=dialog` + `aria-modal`), piège de focus robuste, fond mis en état `inert`.
+- Langues: sélection multi via `role=listbox` + `aria-activedescendant` pour conserver le mode focus d’Orca; l’état “sélectionnée/non sélectionnée” est intégré au nom accessible.
+- Option expérimentale: “Rafraîchir la plage braille lors du changement d’état” (désactivée par défaut). Active un léger contournement pour pousser la mise à jour braille au toggle; compromis possible: double annonce vocale selon configuration Orca.
+
+Limites / compromis:
+
+- En mode listbox (focus sur le conteneur), la plage braille peut ne pas toujours refléter immédiatement un toggle si l’option expérimentale est désactivée; en contrepartie, Orca reste en mode focus et ne bascule pas en navigation.
+- Éviter les annonces live lors des toggles de sélection, sinon certains lecteurs basculent en mode navigation.
 
 ## Dépannage
 

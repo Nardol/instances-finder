@@ -113,27 +113,30 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChang
       >
         
         <header className="modal-header">
-          <h2 id="prefs-title">Préférences</h2>
-          <button type="button" onClick={onClose} aria-label="Fermer les préférences">
+          <h2 id="prefs-title">{t('prefs.title')}</h2>
+          <button type="button" onClick={onClose} aria-label={t('prefs.close')}>
             ✕
           </button>
         </header>
         <div className="modal-body" role="document">
           <section aria-labelledby="prefs-general-title" style={{ marginBottom: '1rem' }}>
-            <h3 id="prefs-general-title">Général</h3>
+            <h3 id="prefs-general-title">{t('prefs.general')}</h3>
             <div className="row">
-              <label className="label" htmlFor="prefs-lang">Langue de l’interface</label>
+              <label className="label" htmlFor="prefs-lang">{t('prefs.ui_language')}</label>
               <select id="prefs-lang" value={lang} onChange={(e) => onChangeLang(e.target.value as Lang)}>
-                <option value="fr">Français</option>
-                <option value="en">English</option>
+                <option value="fr">{t('header.fr')}</option>
+                <option value="en">{t('header.en')}</option>
               </select>
             </div>
             <div className="row" style={{ marginTop: '.5rem' }}>
               <label>
-                <input type="checkbox" checked={expert} onChange={(e) => onToggleExpert(e.target.checked)} /> Mode expert (expérimental)
+                <input type="checkbox" checked={expert} onChange={(e) => onToggleExpert(e.target.checked)} /> {t('prefs.expert_mode')}
               </label>
             </div>
-            <div className="row" style={{ marginTop: '.5rem' }}>
+          </section>
+          <section aria-labelledby="prefs-a11y-title" style={{ marginBottom: '1rem' }}>
+            <h3 id="prefs-a11y-title">{t('prefs.accessibility')}</h3>
+            <div className="row">
               <label>
                 <input
                   type="checkbox"
@@ -144,14 +147,14 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChang
             </div>
           </section>
           <section aria-labelledby="prefs-shortcuts-title">
-            <h3 id="prefs-shortcuts-title">Raccourcis clavier</h3>
+            <h3 id="prefs-shortcuts-title">{t('prefs.shortcuts')}</h3>
             <ul>
-              <li>Entrée: ouvrir l’instance</li>
-              <li>Tab: copier l’URL</li>
-              <li>Ctrl/Cmd+Maj+C: copier l’URL</li>
-              <li>Ctrl/Cmd+R: actualiser la liste</li>
-              <li>Ctrl/Cmd+,: ouvrir les préférences</li>
-              <li>Échap ou Ctrl/Cmd+W: fermer les préférences</li>
+              <li>{t('prefs.shortcut_enter_open')}</li>
+              <li>{t('prefs.shortcut_tab_copy')}</li>
+              <li>{t('prefs.shortcut_copy_shortcut')}</li>
+              <li>{t('prefs.shortcut_refresh')}</li>
+              <li>{t('prefs.shortcut_prefs')}</li>
+              <li>{t('prefs.shortcut_close_prefs')}</li>
             </ul>
           </section>
         </div>

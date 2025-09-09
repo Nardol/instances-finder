@@ -59,7 +59,21 @@
     "error": "Une erreur est survenue."
   },
   "prefs": {
+    "title": "Préférences",
+    "close": "Fermer les préférences",
+    "general": "Général",
+    "ui_language": "Langue de l’interface",
+    "expert_mode": "Mode expert (expérimental)",
+    "accessibility": "Accessibilité",
     "braille_refresh": "Rafraîchir la plage braille lors du changement d’état (peut provoquer une double annonce vocale) — expérimental"
+    ,
+    "shortcuts": "Raccourcis clavier",
+    "shortcut_enter_open": "Entrée : ouvrir l’instance",
+    "shortcut_tab_copy": "Tab : copier l’URL",
+    "shortcut_copy_shortcut": "Ctrl/Cmd+Maj+C : copier l’URL",
+    "shortcut_refresh": "Ctrl/Cmd+R : actualiser la liste",
+    "shortcut_prefs": "Ctrl/Cmd+, : ouvrir les préférences",
+    "shortcut_close_prefs": "Échap ou Ctrl/Cmd+W : fermer les préférences"
   },
   "token": {
     "title": "Connexion à Instances.social",

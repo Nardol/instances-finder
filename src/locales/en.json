@@ -59,7 +59,21 @@
     "error": "An error occurred."
   },
   "prefs": {
+    "title": "Preferences",
+    "close": "Close preferences",
+    "general": "General",
+    "ui_language": "UI language",
+    "expert_mode": "Expert mode (experimental)",
+    "accessibility": "Accessibility",
     "braille_refresh": "Refresh braille display on state change (may cause double speech) — experimental"
+    ,
+    "shortcuts": "Keyboard shortcuts",
+    "shortcut_enter_open": "Enter: open instance",
+    "shortcut_tab_copy": "Tab: copy URL",
+    "shortcut_copy_shortcut": "Ctrl/Cmd+Shift+C: copy URL",
+    "shortcut_refresh": "Ctrl/Cmd+R: refresh list",
+    "shortcut_prefs": "Ctrl/Cmd+,: open preferences",
+    "shortcut_close_prefs": "Esc or Ctrl/Cmd+W: close preferences"
   },
   "token": {
     "title": "Connect to Instances.social",

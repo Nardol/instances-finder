@@ -3,6 +3,7 @@ import { Header } from './components/Header';
 import { Wizard } from './components/Wizard';
 import { Results } from './components/Results';
 import { LiveRegion } from './components/LiveRegion';
+import { PreferencesModal } from './components/PreferencesModal';
 import { useI18n } from './i18n';
 import type { Instance, Preferences } from './types';
 import { rankInstances } from './lib/score';
@@ -32,6 +33,7 @@ const App: React.FC = () => {
   const [expert, setExpert] = useState<boolean>(false);
   const [refreshTick, setRefreshTick] = useState<number>(0);
   const [flash, setFlash] = useState<string | null>(null);
+  const [prefsOpen, setPrefsOpen] = useState<boolean>(false);
   const liveRef = useRef<HTMLDivElement | null>(null);
   const resultsListRef = useRef<HTMLUListElement | null>(null);
 
@@ -114,15 +116,14 @@ const App: React.FC = () => {
     }
   }, [status, errorMsg, t]);
 
-  // React to native "Preferences" menu: focus a relevant control as a placeholder.
+  // React to native "Preferences" menu: open modal preferences.
   useEffect(() => {
     if (!isTauri()) return;
     let unlisten: (() => void) | undefined;
     (async () => {
       const { listen } = await import('@tauri-apps/api/event');
       unlisten = await listen('menu://preferences', () => {
-        const el = document.getElementById('lang-select') as HTMLSelectElement | null;
-        el?.focus();
+        setPrefsOpen(true);
       });
     })();
     return () => {
@@ -192,6 +193,7 @@ const App: React.FC = () => {
         </main>
 
         <LiveRegion ref={liveRef} />
+        <PreferencesModal open={prefsOpen} onClose={() => setPrefsOpen(false)} />
       </div>
     </AppShell>
   );

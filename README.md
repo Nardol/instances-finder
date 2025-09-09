@@ -63,7 +63,9 @@ Jeton Instances.social (API)
 - Confidentialité: le jeton ne quitte jamais votre machine et n’est envoyé qu’à `instances.social`.
 
 Build Windows depuis Linux (cross-build)
-- Prérequis: `sudo apt install mingw-w64 nsis`.
+- Prérequis (Debian/Ubuntu):
+  - `sudo apt update && sudo apt install -y mingw-w64 gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 binutils-mingw-w64-x86-64 nsis`
+  - Optionnel: si votre préfixe diffère, exportez `MINGW_PREFIX` (ex.: `MINGW_PREFIX=x86_64-w64-mingw32`).
 - Préparer la cible Rust (auto si manquante): `npm run cross:prep:win`
 - .exe portable (automatisé): `npm run cross:build:win:exe`
   - Sortie: `src-tauri/target/x86_64-pc-windows-gnu/release/bundle/app/Instances Finder.exe`

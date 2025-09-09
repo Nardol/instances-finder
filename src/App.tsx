@@ -84,9 +84,9 @@ const App: React.FC = () => {
             new CustomEvent('app:flash', { detail: t('status.done', { count: ranked.length }) })
           );
         } catch (_) {}
-        // After results load, move focus to the list for faster nav
+        // After results load, ask Results to focus the first item
         setTimeout(() => {
-          resultsListRef.current?.focus();
+          try { window.dispatchEvent(new CustomEvent('results:focus-first')); } catch (_) {}
         }, 0);
       } catch (e) {
         if (!cancelled) {

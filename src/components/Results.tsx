@@ -65,6 +65,18 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
     if (active > items.length - 1) setActive(items.length ? 0 : 0);
   }, [items.length, active]);
 
+  // Focus first item on request from App
+  useEffect(() => {
+    const handler = () => {
+      if (!items.length) return;
+      setActive(0);
+      setControlsIdx(null);
+      setTimeout(() => itemRefs.current[0]?.focus(), 0);
+    };
+    window.addEventListener('results:focus-first', handler);
+    return () => window.removeEventListener('results:focus-first', handler);
+  }, [items.length]);
+
   const focusIndex = (idx: number) => {
     const clamped = Math.max(0, Math.min(items.length - 1, idx));
     setActive(clamped);
@@ -144,7 +156,7 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
         role="list"
         aria-label={t('results.list_label', { count: items.length })}
         ref={listRef}
-        tabIndex={0}
+        tabIndex={-1}
       >
         {items.map((it, idx) => {
           const idSafe = it.domain.replace(/[^a-zA-Z0-9_-]/g, '-');

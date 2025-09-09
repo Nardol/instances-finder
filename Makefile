@@ -2,10 +2,17 @@
 
 NPM := npm
 
-.PHONY: help help-all check check-js check-rust check-js-type check-js-fmt check-rust-fmt ci-checks fix dev build appimage deb linux build-linux cross-prep-win win-exe win-nsis win-zip clean release-tag release-gh fmt fmt-js fmt-rust lint lint-fix clippy clippy-install ensure-cli doctor
+# Prefer prebuilt xtask binary if available; fallback to cargo run.
+XTASK_BIN_POSIX := ./xtask/target/release/xtask
+XTASK_BIN_WIN := ./xtask/target/release/xtask.exe
+XTASK := $(if $(wildcard $(XTASK_BIN_WIN)),$(XTASK_BIN_WIN),$(if $(wildcard $(XTASK_BIN_POSIX)),$(XTASK_BIN_POSIX),cargo run --manifest-path xtask/Cargo.toml --))
+
+.PHONY: help help-all check check-js check-rust check-js-type check-js-fmt check-rust-fmt ci-checks fix dev build appimage deb linux build-linux cross-prep-win win-exe win-nsis win-zip clean release-tag release-gh fmt fmt-js fmt-rust lint lint-fix clippy clippy-install ensure-cli doctor xtask-release
 
 help:
 	@echo "Cibles Make disponibles :"
+	@echo "  (Astuce perf) Faites \"make xtask-release\" une fois par session longue ;"
+	@echo "  Make préférera automatiquement le binaire xtask précompilé."
 	@echo "  dev            - Lancer l'app en dev (Vite + Tauri)"
 	@echo "  build          - Builder le frontend (Vite)"
 	@echo "  ensure-cli     - Installer les devDeps si besoin (incl. Tauri CLI)"
@@ -54,44 +61,44 @@ help-all: help
 	@echo "  lint, lint:fix      - ESLint (JS/TS)"
 	@echo "  fmt, fmt:js, fmt:rust - Formatage"
 
-dev: ensure-cli
-	$(NPM) run tauri:dev
+dev:
+	$(XTASK) dev
 
 build:
-	$(NPM) run build
+	$(XTASK) build web
 
-appimage: ensure-cli
-	$(NPM) run tauri:build:appimage
+appimage:
+	$(XTASK) build appimage
 
-deb: ensure-cli
-	$(NPM) run tauri:build:deb
+deb:
+	$(XTASK) build deb
 
-linux: ensure-cli
-	$(NPM) run tauri:build:linux
+linux:
+	$(XTASK) build linux
 
 build-linux: linux
 
 cross-prep-win:
-	$(NPM) run cross:prep:win
+	$(XTASK) prep win
 
-win-exe: ensure-cli
-	$(NPM) run cross:build:win:exe
+win-exe:
+	$(XTASK) build win-exe
 
-win-nsis: ensure-cli
-	$(NPM) run cross:build:win:nsis
+win-nsis:
+	$(XTASK) build win-nsis
 
-win-zip: ensure-cli
-	$(NPM) run cross:build:win:zip
+win-zip:
+	$(XTASK) build win-zip
 
 # Usage: make release-tag VERSION=v0.1.0
 release-tag:
 	@if [ -z "$$VERSION" ]; then echo "Set VERSION=vX.Y.Z"; exit 1; fi
-	$(NPM) run release:tag -- $$VERSION
+	$(XTASK) release tag $$VERSION
 
 # Usage: make release-gh VERSION=v0.1.0 NOTES="..."
 release-gh:
 	@if [ -z "$$VERSION" ]; then echo "Set VERSION=vX.Y.Z"; exit 1; fi
-	$(NPM) run release:gh -- $$VERSION "$$NOTES"
+	$(XTASK) release gh $$VERSION --notes "$$NOTES"
 
 clean:
 	rm -rf dist src-tauri/target
@@ -99,16 +106,16 @@ clean:
 fmt: fmt-js fmt-rust
 
 fmt-js:
-	$(NPM) run fmt:js
+	$(XTASK) fmt js
 
 fmt-rust:
-	$(NPM) run fmt:rust
+	$(XTASK) fmt rust
 
 lint:
-	$(NPM) run lint
+	$(XTASK) lint
 
 lint-fix:
-	$(NPM) run lint:fix
+	$(XTASK) lint --fix
 
 clippy-install:
 	rustup component list --installed | grep -q "^clippy" || rustup component add clippy
@@ -118,39 +125,34 @@ clippy: clippy-install
 
 # Vérifications rapides avant PR (checks ciblés)
 check-js:
-	$(NPM) run lint
+	$(XTASK) lint
 
 check-rust: clippy
 
-check: check-js check-rust
-	@echo "✓ check: lint JS/TS + Clippy OK"
+check:
+	$(XTASK) check
 
 check-js-type:
-	npx --no-install tsc --noEmit
+	$(XTASK) ts-check
 
 check-js-fmt:
-	npx --no-install prettier --check .
+	$(XTASK) fmt-check js
 
 check-rust-fmt:
-	cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
+	$(XTASK) fmt-check rust
 
-ci-checks: check-js check-js-type check-js-fmt clippy check-rust-fmt
-	@echo "✓ ci-checks: ESLint + tsc --noEmit + Prettier --check + Clippy + rustfmt --check OK"
+ci-checks:
+	$(XTASK) ci-checks
 
 fix:
-	$(NPM) run fmt && $(NPM) run lint:fix
+	$(XTASK) fix
 
 # Assure que la CLI Tauri locale est disponible (sans installer en global)
 ensure-cli:
-	@# Si la CLI locale manque, installe les devDependencies (incluant @tauri-apps/cli)
-	@if [ ! -x node_modules/.bin/tauri ]; then \
-		echo "[ensure-cli] Installing devDependencies (incl. @tauri-apps/cli)…"; \
-		NPM_CONFIG_PRODUCTION=false $(NPM) ci || NPM_CONFIG_PRODUCTION=false $(NPM) install; \
-	else \
-		echo "[ensure-cli] ✓ Tauri CLI present (node_modules/.bin/tauri)"; \
-	fi
-	@# Vérification rapide (la CLI Tauri exige un sous-commande; on utilise --help)
-	@node_modules/.bin/tauri --help >/dev/null 2>&1 || { echo "[ensure-cli] ✗ Tauri CLI not available"; exit 1; }
+	$(XTASK) ensure-cli
 
 doctor:
-	bash scripts/doctor.sh
+	$(XTASK) doctor
+
+xtask-release:
+	cargo build --manifest-path xtask/Cargo.toml --release

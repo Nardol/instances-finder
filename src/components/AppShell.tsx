@@ -20,8 +20,8 @@ export const AppShell: React.FC<Props> = ({ statusText, flashText, children }) =
     const btnHandler = (e: Event) => {
       if ((e as CustomEvent).type === 'app:refresh') handler();
     };
-    window.addEventListener('app:refresh', btnHandler as any);
-    return () => window.removeEventListener('app:refresh', btnHandler as any);
+    window.addEventListener('app:refresh', btnHandler);
+    return () => window.removeEventListener('app:refresh', btnHandler);
   }, []);
   return (
     <div className="app-shell">

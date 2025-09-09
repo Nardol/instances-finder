@@ -190,8 +190,8 @@ const App: React.FC = () => {
       setFlash(ce.detail || null);
       window.setTimeout(() => setFlash(null), 2000);
     };
-    window.addEventListener('app:flash', handler as any);
-    return () => window.removeEventListener('app:flash', handler as any);
+    window.addEventListener('app:flash', handler);
+    return () => window.removeEventListener('app:flash', handler);
   }, []);
 
   // Toggle inert on background when preferences open
@@ -215,8 +215,8 @@ const App: React.FC = () => {
       }
       setRefreshTick((n) => n + 1);
     };
-    window.addEventListener('app:refresh', handler as any);
-    return () => window.removeEventListener('app:refresh', handler as any);
+    window.addEventListener('app:refresh', handler);
+    return () => window.removeEventListener('app:refresh', handler);
   }, []);
 
   return (

@@ -65,9 +65,6 @@ export const Results: React.FC<Props> = ({ items }) => {
       <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
         {announce}
       </p>
-      <h2 id="results-title" className="sr-only">
-        {t('results.title')}
-      </h2>
       <ul className="result-list">
         {items.map((it) => {
           const idSafe = it.domain.replace(/[^a-zA-Z0-9_-]/g, '-');

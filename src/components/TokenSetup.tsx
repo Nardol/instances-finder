@@ -40,12 +40,15 @@ export const TokenSetup: React.FC<Props> = ({ onReady }) => {
     }
   };
 
+  const statusId = 'token-status';
   return (
     <section className="wizard" aria-labelledby="token-title" aria-busy={busy}>
       <h2 id="token-title">{t('token.title')}</h2>
       <p>{t('token.desc')}</p>
       <div className="row">
-        <button onClick={() => open('https://instances.social/api/token')}>{t('token.get')}</button>
+        <button type="button" onClick={() => open('https://instances.social/api/token')}>
+          {t('token.get')}
+        </button>
       </div>
       <div className="row">
         <label className="label" htmlFor="token-input">
@@ -67,12 +70,20 @@ export const TokenSetup: React.FC<Props> = ({ onReady }) => {
         </label>
       </div>
       <div className="actions">
-        <button onClick={handleTest}>{t('token.test')}</button>
-        <button className="primary" onClick={handleSave}>
+        <button type="button" onClick={handleTest} disabled={busy} aria-controls={statusId}>
+          {t('token.test')}
+        </button>
+        <button
+          type="button"
+          className="primary"
+          onClick={handleSave}
+          disabled={busy || !token}
+          aria-controls={statusId}
+        >
           {t('token.save')}
         </button>
       </div>
-      <p role="status" aria-live="assertive" aria-atomic="true">
+      <p id={statusId} role="status" aria-live="assertive" aria-atomic="true">
         {status}
       </p>
     </section>

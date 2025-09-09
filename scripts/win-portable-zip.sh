@@ -44,7 +44,8 @@ if [ -f LICENSE ]; then
 fi
 
 echo "[zip] Creating archive ${ZIP_PATH}"
-(cd "${BUNDLE_SUBDIR}" && zip -r -9 "${ZIP_PATH}" "${TAG}" >/dev/null)
+# Use a relative output path from inside the bundle dir; passing an absolute
+# path here would resolve to a non-existent nested path after `cd`.
+(cd "${BUNDLE_SUBDIR}" && zip -r -9 "${TAG}.zip" "${TAG}")
 
 echo "[zip] Portable archive ready: ${ZIP_PATH}"
-

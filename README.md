@@ -33,6 +33,12 @@ Build AppImage (Linux)
 2) `npm run tauri:build:appimage`
    L'AppImage sera générée dans `src-tauri/target/release/bundle/appimage/`.
 
+Paquet Debian (.deb)
+- Build: `npm run tauri:build:deb`
+- Fichier: `src-tauri/target/release/bundle/deb/*.deb`
+- Installation: `sudo apt install ./<fichier>.deb`
+  - Dépendances runtime: WebKitGTK, GTK, Ayatana AppIndicator, librsvg, libssl (gérées via le paquet). Compatible Debian 12 (webkit 4.0) et systèmes avec 4.1.
+
 Notes accessibilité
 - Testé au clavier: Tab/Shift+Tab, focus visible renforcé.
 - Annonces: statut (polite) et erreurs (assertive) vocalisées par Orca.

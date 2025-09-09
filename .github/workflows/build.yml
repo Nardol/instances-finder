@@ -54,7 +54,12 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Install JS deps
         if: steps.changes.outputs.docs_only != 'true'
-        run: npm ci || npm install
+        run: |
+          if [[ "${{ github.actor }}" == "dependabot[bot]" ]]; then
+            npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+          else
+            npm ci || npm install
+          fi
       - uses: dtolnay/rust-toolchain@5d458579430fc14a04a08a1e7d3694f545e91ce6 # stable
         if: steps.changes.outputs.docs_only != 'true'
       - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.0

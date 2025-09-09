@@ -11,9 +11,7 @@ const dictionaries: Record<Lang, Dict> = { fr: frData, en: enData };
 
 const I18nContext = createContext({
   lang: 'fr' as Lang,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setLang: (_: Lang) => {},
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   t: (key: I18nKey | string, _params?: Record<string, unknown>) => String(key),
 });
 

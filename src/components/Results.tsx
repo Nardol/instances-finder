@@ -48,6 +48,12 @@ export const Results: React.FC<Props> = ({ items }) => {
   const { t } = useI18n();
   const [announce, setAnnounce] = useState('');
 
+  // Ensure screen readers re-announce identical messages by clearing first
+  const announcePolite = (msg: string) => {
+    setAnnounce('');
+    setTimeout(() => setAnnounce(msg), 0);
+  };
+
   return (
     <div
       className="results"
@@ -56,7 +62,7 @@ export const Results: React.FC<Props> = ({ items }) => {
       aria-live="polite"
       aria-atomic="false"
     >
-      <p className="sr-only" aria-live="polite">
+      <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
         {announce}
       </p>
       <h2 id="results-title" className="sr-only">
@@ -94,7 +100,7 @@ export const Results: React.FC<Props> = ({ items }) => {
               <button
                 onClick={async () => {
                   const ok = await copyText(`https://${it.domain}`);
-                  if (ok) setAnnounce(t('results.copied'));
+                  if (ok) announcePolite(t('results.copied'));
                 }}
               >
                 {t('results.copy')}

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Check staged files only for U+2011 to catch issues early.
+# Check staged files for a small set of forbidden Unicode punctuation.
 staged=( )
 while IFS= read -r -d '' f; do
   staged+=("$f")
@@ -11,13 +11,26 @@ if [[ ${#staged[@]} -eq 0 ]]; then
   exit 0
 fi
 
-hits=$(printf '%s\0' "${staged[@]}" | xargs -0 grep -nIH $'\u2011' || true)
-if [[ -n "$hits" ]]; then
-  echo "pre-commit: Found non-breaking hyphen (U+2011) in staged files:" >&2
-  echo "$hits" >&2
+declare -A PATTERNS=(
+  ["U+2011 non-breaking hyphen"]=$'\u2011'
+  ["U+00A0 no-break space"]=$'\u00A0'
+  ["U+2212 minus sign"]=$'\u2212'
+)
+
+fail=0
+for name in "${!PATTERNS[@]}"; do
+  pat=${PATTERNS[$name]}
+  hits=$(printf '%s\0' "${staged[@]}" | xargs -0 grep -nIH --color=never "$pat" || true)
+  if [[ -n "$hits" ]]; then
+    echo "pre-commit: Forbidden character found ($name) in staged files:" >&2
+    echo "$hits" >&2
+    fail=1
+  fi
+done
+
+if [[ $fail -ne 0 ]]; then
   echo >&2
-  echo "Replace U+2011 with '-' (ASCII hyphen) before committing." >&2
+  echo "Replace with ASCII equivalents: '-' for hyphen/minus, ' ' for spaces." >&2
   exit 1
 fi
 exit 0
-

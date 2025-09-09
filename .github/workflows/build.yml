@@ -18,17 +18,9 @@ jobs:
       - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
         with:
           fetch-depth: 0
-      - name: Forbid non-breaking hyphen (U+2011)
+      - name: Forbid forbidden Unicode punctuation
         shell: bash
-        run: |
-          set -euo pipefail
-          hits=$(git ls-files -z | xargs -0 grep -nIH $'\u2011' || true)
-          if [[ -n "$hits" ]]; then
-            echo "Found non-breaking hyphen (U+2011):" >&2
-            echo "$hits" >&2
-            exit 1
-          fi
-          echo "OK: no U+2011 occurrences found."
+        run: bash scripts/check-forbidden-unicode.sh
       - name: Detect docs-only changes
         id: changes
         shell: bash

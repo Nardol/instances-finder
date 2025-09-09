@@ -96,7 +96,11 @@ Tests:
 
 ## Intégration Continue
 
-- GitHub Actions: `.github/workflows/build.yml` exécute d’abord un job `checks` (ESLint, TypeScript `--noEmit`, Prettier `--check`, Clippy, rustfmt `--check`). Les builds Linux (AppImage + Debian) et Windows (NSIS) ne s’exécutent que si ces checks passent.
+- GitHub Actions: `.github/workflows/build.yml` exécute d’abord un job `checks` (ESLint, TypeScript `--noEmit`, Prettier `--check`, Clippy, rustfmt `--check`).
+- Optimisations:
+  - “Docs‑only”: si seulement des fichiers `.md` changent, les checks sont ignorés (log explicite) et les jobs de packaging ne tournent pas.
+  - Packaging: ne s’exécute que sur les tags `v*` (pas sur les PR ni sur les pushes vers `main`).
+  - Cache: npm et Rust mis en cache; exécutions concurrentes annulées automatiquement.
 - Release: `.github/workflows/release.yml` joint les artefacts aux tags `v*`. Utilisez `release-draft.yml` pour un lancement manuel.
 
 ## Versionnage & Release

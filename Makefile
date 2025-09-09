@@ -2,13 +2,14 @@
 
 NPM := npm
 
-.PHONY: help help-all check check-js check-rust check-js-type check-js-fmt check-rust-fmt ci-checks fix dev build appimage deb linux build-linux cross-prep-win win-exe win-nsis win-zip clean release-tag release-gh fmt fmt-js fmt-rust lint lint-fix clippy clippy-install ensure-cli
+.PHONY: help help-all check check-js check-rust check-js-type check-js-fmt check-rust-fmt ci-checks fix dev build appimage deb linux build-linux cross-prep-win win-exe win-nsis win-zip clean release-tag release-gh fmt fmt-js fmt-rust lint lint-fix clippy clippy-install ensure-cli doctor
 
 help:
 	@echo "Cibles Make disponibles :"
 	@echo "  dev            - Lancer l'app en dev (Vite + Tauri)"
 	@echo "  build          - Builder le frontend (Vite)"
 	@echo "  ensure-cli     - Installer les devDeps si besoin (incl. Tauri CLI)"
+	@echo "  doctor         - Diagnostic de l'environnement dev (Node/Rust/WebKitGTK)"
 	@echo "  appimage       - Construire une AppImage Linux"
 	@echo "  deb            - Construire un paquet Debian (.deb)"
 	@echo "  linux          - Construire AppImage + .deb"
@@ -150,3 +151,6 @@ ensure-cli:
 	fi
 	@# Vérification rapide (la CLI Tauri exige un sous-commande; on utilise --help)
 	@node_modules/.bin/tauri --help >/dev/null 2>&1 || { echo "[ensure-cli] ✗ Tauri CLI not available"; exit 1; }
+
+doctor:
+	bash scripts/doctor.sh

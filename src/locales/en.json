@@ -43,6 +43,8 @@
   "results": {
     "title": "Results",
     "list_label": "Results list ({count})",
+    "skip_table": "Skip results table",
+    "table_caption": "Use Orca table commands. Tab enters row actions; use the skip link to jump after the table.",
     "col_domain": "Domain",
     "col_languages": "Languages",
     "col_signups": "Sign-ups",

@@ -43,6 +43,8 @@
   "results": {
     "title": "Résultats",
     "list_label": "Liste des résultats ({count})",
+    "skip_table": "Passer le tableau des résultats",
+    "table_caption": "Utilisez les commandes tableau d’Orca. Tab entre dans la colonne Actions ; utilisez le lien d’évitement pour aller après le tableau.",
     "col_domain": "Domaine",
     "col_languages": "Langues",
     "col_signups": "Inscriptions",

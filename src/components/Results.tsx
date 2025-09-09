@@ -74,17 +74,7 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
     }
   }, [items, active]);
 
-  // Listen for App request to focus the first cell after results load
-  useEffect(() => {
-    const handler = () => {
-      if (!items.length) return;
-      const idSafe = items[0]?.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
-      const link = document.getElementById(`link-${idSafe}`) as HTMLAnchorElement | null;
-      if (link) { setActive(0); link.focus(); }
-    };
-    window.addEventListener('results:focus-first', handler);
-    return () => window.removeEventListener('results:focus-first', handler);
-  }, [items]);
+  // No forced focus after load; let users/SR decide
 
 
   return (
@@ -92,8 +82,10 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
       <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
         {announce}
       </p>
+      <a href="#after-results" className="skip-link">{t('results.skip_table')}</a>
       <div className="table-wrap" ref={listRef}>
         <table className="results-table" aria-label={t('results.list_label', { count: items.length })}>
+          <caption className="sr-only">{t('results.table_caption')}</caption>
           <thead>
             <tr>
               <th id="h-domain">{t('results.col_domain')}</th>
@@ -111,17 +103,7 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
                 <tr key={it.domain} onMouseEnter={() => setActive(idx)}>
                   <td headers="h-domain">
                     <div className="cell-domain">
-                      <a
-                        href={`https://${it.domain}`}
-                        id={`link-${idSafe}`}
-                        aria-describedby={descId}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          openExternal(`https://${it.domain}`);
-                        }}
-                      >
-                        {it.domain}
-                      </a>
+                      <span className="domain-text">{it.domain}</span>
                       <p id={descId} className="muted">{it.description}</p>
                     </div>
                   </td>
@@ -150,6 +132,7 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
           </tbody>
         </table>
       </div>
+      <div id="after-results" tabIndex={-1}></div>
     </div>
   );
 });

@@ -84,12 +84,7 @@ const App: React.FC = () => {
             new CustomEvent('app:flash', { detail: t('status.done', { count: ranked.length }) })
           );
         } catch (_) {}
-        // After results load, request focus on the first cell (handled by Results)
-        setTimeout(() => {
-          try {
-            window.dispatchEvent(new CustomEvent('results:focus-first'));
-          } catch (_) {}
-        }, 0);
+        // After results load, do not force focus; readers can navigate
       } catch (e) {
         if (!cancelled) {
           setErrorMsg(t('status.error'));

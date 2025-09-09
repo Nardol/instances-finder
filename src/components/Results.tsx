@@ -2,6 +2,18 @@ import React, { useEffect, useState } from 'react';
 import type { Instance } from '../types';
 import { useI18n } from '../i18n';
 
+function isValidDomain(domain: string): boolean {
+  const d = domain.trim().toLowerCase();
+  // Basic hostname validation (RFC‑1123 style, no trailing dot)
+  const re = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$/i;
+  return re.test(d);
+}
+
+function buildInstanceUrl(domain: string): string | null {
+  if (!isValidDomain(domain)) return null;
+  return `https://${domain}`;
+}
+
 async function copyText(text: string): Promise<boolean> {
   try {
     if (navigator.clipboard?.writeText) {
@@ -70,7 +82,12 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
       if (!items.length) return;
       setActive(0);
       setControlsIdx(null);
-      setTimeout(() => itemRefs.current[0]?.focus(), 0);
+      setTimeout(() => {
+        if (listRef && typeof listRef !== 'function') {
+          // Keep focus on the list container (listbox) to maintain SR focus mode
+          listRef.current?.focus();
+        }
+      }, 0);
     };
     window.addEventListener('results:focus-first', handler);
     return () => window.removeEventListener('results:focus-first', handler);
@@ -133,20 +150,25 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
         break;
       case 'Enter':
         e.preventDefault();
-        openExternal(`https://${items[active]?.domain}`);
+        {
+          const u = buildInstanceUrl(items[active]?.domain);
+          if (u) await openExternal(u);
+        }
         break;
       case 'o':
       case 'O':
         if (isMod) {
           e.preventDefault();
-          openExternal(`https://${items[active]?.domain}`);
+          const u = buildInstanceUrl(items[active]?.domain);
+          if (u) await openExternal(u);
         }
         break;
       case 'c':
       case 'C':
         if (isMod && e.shiftKey) {
           e.preventDefault();
-          const ok = await copyText(`https://${items[active]?.domain}`);
+          const u = buildInstanceUrl(items[active]?.domain);
+          const ok = u ? await copyText(u) : false;
           if (ok) announcePolite(t('results.copied'));
         }
         break;
@@ -192,12 +214,13 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
               <div className="card-body">
                 <h3 id={titleId}>
                   <a
-                    href={`https://${it.domain}`}
+                    href={buildInstanceUrl(it.domain) ?? '#'}
                     aria-describedby={factsId}
                     tabIndex={-1}
                     onClick={(e) => {
                       e.preventDefault();
-                      openExternal(`https://${it.domain}`);
+                      const u = buildInstanceUrl(it.domain);
+                      if (u) void openExternal(u);
                     }}
                   >
                     {it.domain}
@@ -225,7 +248,8 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
                 <button
                   tabIndex={controlsIdx === idx ? 0 : -1}
                   onClick={async () => {
-                    const ok = await copyText(`https://${it.domain}`);
+                    const u = buildInstanceUrl(it.domain);
+                    const ok = u ? await copyText(u) : false;
                     if (ok) {
                       announcePolite(t('results.copied'));
                       window.dispatchEvent(new CustomEvent('app:flash', { detail: t('results.copied') }));
@@ -236,7 +260,10 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
                 </button>
                 <button
                   tabIndex={controlsIdx === idx ? 0 : -1}
-                  onClick={() => openExternal(`https://${it.domain}`)}
+                  onClick={() => {
+                    const u = buildInstanceUrl(it.domain);
+                    if (u) void openExternal(u);
+                  }}
                 >
                   {t('results.openBrowser')}
                 </button>

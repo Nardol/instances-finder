@@ -44,7 +44,10 @@ async function openExternal(url: string): Promise<void> {
 
 type Props = { items: Instance[] };
 
-export const Results: React.FC<Props> = ({ items }) => {
+export const Results = React.forwardRef<HTMLUListElement, Props>(function Results(
+  { items },
+  listRef
+) {
   const { t } = useI18n();
   const [announce, setAnnounce] = useState('');
   const [active, setActive] = useState(0);
@@ -137,6 +140,7 @@ export const Results: React.FC<Props> = ({ items }) => {
         className="result-list"
         role="list"
         aria-label={t('results.list_label', { count: items.length })}
+        ref={listRef}
         tabIndex={0}
         onKeyDown={(e) => {
           if (items.length === 0) return;
@@ -239,4 +243,4 @@ export const Results: React.FC<Props> = ({ items }) => {
       </ul>
     </div>
   );
-};
+});

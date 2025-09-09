@@ -62,9 +62,12 @@ jobs:
       - name: Ensure rustfmt
         if: steps.changes.outputs.docs_only != 'true'
         run: rustup component add rustfmt
-      - name: Run all CI checks
+      - name: Build xtask (release)
         if: steps.changes.outputs.docs_only != 'true'
-        run: make ci-checks
+        run: cargo build --manifest-path xtask/Cargo.toml --release
+      - name: Run all CI checks (xtask)
+        if: steps.changes.outputs.docs_only != 'true'
+        run: ./xtask/target/release/xtask ci-checks
       - name: Skip checks (docs-only change)
         if: steps.changes.outputs.docs_only == 'true'
         run: echo "Docs-only change detected; skipping CI checks."
@@ -90,10 +93,12 @@ jobs:
             libjavascriptcoregtk-4.0-dev
       - name: Install JS deps
         run: npm ci || npm install
-      - name: Build AppImage
-        run: npm run tauri:build:appimage
-      - name: Build Debian package
-        run: npm run tauri:build:deb
+      - name: Build xtask (release)
+        run: cargo build --manifest-path xtask/Cargo.toml --release
+      - name: Build AppImage (xtask)
+        run: ./xtask/target/release/xtask build appimage
+      - name: Build Debian package (xtask)
+        run: ./xtask/target/release/xtask build deb
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: appimage
@@ -118,8 +123,10 @@ jobs:
       - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.0
       - name: Install JS deps
         run: npm ci || npm install
-      - name: Build NSIS installer
-        run: npm run tauri:build:win:nsis
+      - name: Build xtask (release)
+        run: cargo build --manifest-path xtask/Cargo.toml --release
+      - name: Build NSIS installer (xtask)
+        run: .\\xtask\\target\\release\\xtask.exe build win-nsis
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: windows-nsis

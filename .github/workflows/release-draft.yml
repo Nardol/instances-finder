@@ -37,8 +37,10 @@ jobs:
             libjavascriptcoregtk-4.0-dev
       - name: Install JS deps
         run: npm ci || npm install
-      - name: Build AppImage
-        run: npm run tauri:build:appimage
+      - name: Build xtask (release)
+        run: cargo build --manifest-path xtask/Cargo.toml --release
+      - name: Build AppImage (xtask)
+        run: ./xtask/target/release/xtask build appimage
       - name: Create/Update draft release (Linux)
         uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3
         with:
@@ -63,8 +65,10 @@ jobs:
       - uses: dtolnay/rust-toolchain@5d458579430fc14a04a08a1e7d3694f545e91ce6 # stable
       - name: Install JS deps
         run: npm ci || npm install
-      - name: Build NSIS installer
-        run: npm run tauri:build:win:nsis
+      - name: Build xtask (release)
+        run: cargo build --manifest-path xtask/Cargo.toml --release
+      - name: Build NSIS installer (xtask)
+        run: .\\xtask\\target\\release\\xtask.exe build win-nsis
       - name: Update draft release (Windows)
         uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3
         with:

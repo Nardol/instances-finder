@@ -2,12 +2,13 @@
 
 NPM := npm
 
-.PHONY: help help-all check check-js check-rust check-js-type check-js-fmt check-rust-fmt ci-checks fix dev build appimage deb linux build-linux cross-prep-win win-exe win-nsis clean release-tag release-gh fmt fmt-js fmt-rust lint lint-fix clippy clippy-install
+.PHONY: help help-all check check-js check-rust check-js-type check-js-fmt check-rust-fmt ci-checks fix dev build appimage deb linux build-linux cross-prep-win win-exe win-nsis win-zip clean release-tag release-gh fmt fmt-js fmt-rust lint lint-fix clippy clippy-install ensure-cli
 
 help:
 	@echo "Cibles Make disponibles :"
 	@echo "  dev            - Lancer l'app en dev (Vite + Tauri)"
 	@echo "  build          - Builder le frontend (Vite)"
+	@echo "  ensure-cli     - Installer les devDeps si besoin (incl. Tauri CLI)"
 	@echo "  appimage       - Construire une AppImage Linux"
 	@echo "  deb            - Construire un paquet Debian (.deb)"
 	@echo "  linux          - Construire AppImage + .deb"
@@ -52,19 +53,19 @@ help-all: help
 	@echo "  lint, lint:fix      - ESLint (JS/TS)"
 	@echo "  fmt, fmt:js, fmt:rust - Formatage"
 
-dev:
+dev: ensure-cli
 	$(NPM) run tauri:dev
 
 build:
 	$(NPM) run build
 
-appimage:
+appimage: ensure-cli
 	$(NPM) run tauri:build:appimage
 
-deb:
+deb: ensure-cli
 	$(NPM) run tauri:build:deb
 
-linux:
+linux: ensure-cli
 	$(NPM) run tauri:build:linux
 
 build-linux: linux
@@ -72,13 +73,13 @@ build-linux: linux
 cross-prep-win:
 	$(NPM) run cross:prep:win
 
-win-exe:
+win-exe: ensure-cli
 	$(NPM) run cross:build:win:exe
 
-win-nsis:
+win-nsis: ensure-cli
 	$(NPM) run cross:build:win:nsis
 
-win-zip:
+win-zip: ensure-cli
 	$(NPM) run cross:build:win:zip
 
 # Usage: make release-tag VERSION=v0.1.0
@@ -137,3 +138,15 @@ ci-checks: check-js check-js-type check-js-fmt clippy check-rust-fmt
 
 fix:
 	$(NPM) run fmt && $(NPM) run lint:fix
+
+# Assure que la CLI Tauri locale est disponible (sans installer en global)
+ensure-cli:
+	@# Si la CLI locale manque, installe les devDependencies (incluant @tauri-apps/cli)
+	@if [ ! -x node_modules/.bin/tauri ]; then \
+		echo "[ensure-cli] Installing devDependencies (incl. @tauri-apps/cli)…"; \
+		NPM_CONFIG_PRODUCTION=false $(NPM) ci || NPM_CONFIG_PRODUCTION=false $(NPM) install; \
+	else \
+		echo "[ensure-cli] ✓ Tauri CLI present (node_modules/.bin/tauri)"; \
+	fi
+	@# Vérification rapide
+	@npx --no-install @tauri-apps/cli -v >/dev/null 2>&1 || { echo "[ensure-cli] ✗ Tauri CLI not available"; exit 1; }

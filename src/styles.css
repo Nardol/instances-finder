@@ -195,6 +195,12 @@ button.primary {
 .results-table .muted { color: #6b7280; font-size: 0.9rem; margin: 0.25rem 0 0; }
 @media (prefers-color-scheme: dark) { .results-table .muted { color: #9ca3af; } }
 .results-table .cell-actions { display: flex; gap: 0.5rem; }
+.results-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 0.5rem 0 1rem;
+}
 @media (prefers-color-scheme: dark) {
   .result-list[data-active-col="0"] [aria-colindex="1"],
   .result-list[data-active-col="1"] [aria-colindex="2"],

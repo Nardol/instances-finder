@@ -118,7 +118,6 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
               <th id="h-langs">{t('results.col_languages')}</th>
               <th id="h-signups">{t('results.col_signups')}</th>
               <th id="h-size">{t('results.col_size')}</th>
-              <th id="h-actions">{t('results.col_actions')}</th>
             </tr>
           </thead>
           <tbody>
@@ -147,28 +146,62 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
                   <td headers="h-langs">{it.languages.join(', ').toUpperCase()}</td>
                   <td headers="h-signups">{it.signups === 'open' ? t('results.open') : t('results.approval')}</td>
                   <td headers="h-size">{it.sizeLabel}</td>
-                  <td headers="h-actions" className="cell-actions">
-                    <button
-                      tabIndex={-1}
-                      onClick={async () => {
-                        const ok = await copyText(`https://${it.domain}`);
-                        if (ok) {
-                          announcePolite(t('results.copied'));
-                          window.dispatchEvent(new CustomEvent('app:flash', { detail: t('results.copied') }));
-                        }
-                      }}
-                    >
-                      {t('results.copy')}
-                    </button>
-                    <button tabIndex={-1} onClick={() => openExternal(`https://${it.domain}`)}>
-                      {t('results.openBrowser')}
-                    </button>
-                  </td>
                 </tr>
               );
             })}
           </tbody>
         </table>
+      </div>
+      <div className="results-actions" role="group" aria-label={t('results.actions_label')}>
+        <button
+          onClick={() => {
+            if (!items.length) return;
+            const next = Math.max(0, Math.min(items.length - 1, active - 1));
+            if (next !== active) {
+              setActive(next);
+              announcePolite(items[next].domain);
+            }
+          }}
+          disabled={active <= 0 || !items.length}
+        >
+          {t('results.prev')}
+        </button>
+        <button
+          onClick={() => {
+            if (!items.length) return;
+            const next = Math.max(0, Math.min(items.length - 1, active + 1));
+            if (next !== active) {
+              setActive(next);
+              announcePolite(items[next].domain);
+            }
+          }}
+          disabled={active >= items.length - 1 || !items.length}
+        >
+          {t('results.next')}
+        </button>
+        <button
+          onClick={async () => {
+            if (!items.length) return;
+            const url = `https://${items[active].domain}`;
+            const ok = await copyText(url);
+            if (ok) {
+              announcePolite(t('results.copied'));
+              window.dispatchEvent(new CustomEvent('app:flash', { detail: t('results.copied') }));
+            }
+          }}
+          disabled={!items.length}
+        >
+          {t('results.copy')}
+        </button>
+        <button
+          onClick={() => {
+            if (!items.length) return;
+            openExternal(`https://${items[active].domain}`);
+          }}
+          disabled={!items.length}
+        >
+          {t('results.openBrowser')}
+        </button>
       </div>
       <div id="after-results" tabIndex={-1}></div>
     </div>

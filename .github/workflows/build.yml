@@ -13,7 +13,7 @@ on:
 
 jobs:
   checks:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
@@ -76,9 +76,9 @@ jobs:
         run: |
           set -euxo pipefail
           sudo apt-get update
-          # On ubuntu-22.04, ensure WebKitGTK/JSC 4.0 (what javascriptcore-rs-sys expects)
+          # On ubuntu-24.04, install WebKitGTK/JSC 4.1 and libsoup3 for Tauri 2
           sudo apt-get install -y libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev \
-            libsoup2.4-dev libwebkit2gtk-4.0-dev libjavascriptcoregtk-4.0-dev
+            libsoup-3.0-dev libwebkit2gtk-4.1-dev libjavascriptcoregtk-4.1-dev
       - name: Ensure Clippy
         if: steps.changes.outputs.docs_only != 'true'
         run: rustup component add clippy
@@ -96,7 +96,7 @@ jobs:
         run: echo "Docs-only change detected; skipping CI checks."
 
   linux-appimage:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: [checks]
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
@@ -113,7 +113,7 @@ jobs:
           set -euxo pipefail
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev \
-            libsoup2.4-dev libwebkit2gtk-4.0-dev libjavascriptcoregtk-4.0-dev
+            libsoup-3.0-dev libwebkit2gtk-4.1-dev libjavascriptcoregtk-4.1-dev
       - name: Install JS deps
         run: npm ci || npm install
       - name: Build xtask (release)

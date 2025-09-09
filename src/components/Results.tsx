@@ -203,7 +203,7 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
             <li
               key={it.domain}
               id={`opt-${idSafe}`}
-              className="card"
+              className={`card${active === idx ? ' is-active' : ''}`}
               role="option"
               aria-selected={active === idx}
               aria-labelledby={`${titleId} ${descId}`}

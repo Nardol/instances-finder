@@ -135,6 +135,9 @@ button.primary {
 .card.is-active {
   border-color: var(--focus);
 }
+.card[aria-selected='true'] {
+  border-color: var(--focus);
+}
 .card:focus {
   outline: 3px solid var(--focus);
   outline-offset: -3px; /* keep visible despite overflow */

@@ -15,6 +15,7 @@ help:
 	@echo "  cross-prep-win - Préparer la cible Rust Windows (cross-build)"
 	@echo "  win-exe        - Cross-build Windows (.exe portable)"
 	@echo "  win-nsis       - Cross-build Windows (installeur NSIS)"
+	@echo "  win-zip        - Créer une archive .zip portable Windows (mac/Linux)"
 	@echo "  release-tag    - Créer et pousser un tag VERSION=vX.Y.Z"
 	@echo "  release-gh     - Créer une release GitHub brouillon VERSION=vX.Y.Z NOTES=..."
 	@echo "  fmt            - Formater JS/TS et Rust"
@@ -76,6 +77,9 @@ win-exe:
 
 win-nsis:
 	$(NPM) run cross:build:win:nsis
+
+win-zip:
+	$(NPM) run cross:build:win:zip
 
 # Usage: make release-tag VERSION=v0.1.0
 release-tag:

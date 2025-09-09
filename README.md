@@ -94,6 +94,16 @@ Build Windows depuis Linux (cross‑build):
   - Sortie: `src-tauri/target/x86_64-pc-windows-gnu/release/bundle/nsis/Instances-Finder_x64-setup.exe`
 - Notes: WebView2 est téléchargé via bootstrapper; binaires non signés (alerte SmartScreen possible).
 
+Build Windows depuis macOS (portable .zip):
+
+- Prérequis (macOS):
+  - Installer le toolchain MinGW: `brew install mingw-w64`
+  - Préparer la cible Rust: `npm run cross:prep:win`
+- Créer une archive portable: `npm run cross:build:win:zip`
+  - Sortie: `src-tauri/target/x86_64-pc-windows-gnu/release/bundle/<Nom>_win-x64_portable_v<version>.zip`
+  - Contenu: exécutable Windows + DLLs nécessaires (pas d’installation).
+  - Notes: le runtime WebView2 est téléchargé via bootstrapper au premier lancement.
+
 ### Bundler Windows et fallback
 
 - Ce que fait Tauri (par défaut):

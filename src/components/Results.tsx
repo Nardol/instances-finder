@@ -209,18 +209,19 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
             : undefined
         }
         ref={listRef}
+        data-active-col={col}
         tabIndex={0}
         onKeyDown={handleListKeyDown}
       >
         {/* Header row for screen readers and sighted users */}
         <li role="row" className="grid-header" aria-rowindex={1}>
-          <div role="columnheader" id="colhdr-domain" aria-colindex={1} className="cell">
+          <div role="columnheader" id="colhdr-domain" aria-colindex={1} className={`cell ${col === 0 ? 'is-active' : ''}`}>
             {t('results.col_domain')}
           </div>
-          <div role="columnheader" id="colhdr-details" aria-colindex={2} className="cell">
+          <div role="columnheader" id="colhdr-details" aria-colindex={2} className={`cell ${col === 1 ? 'is-active' : ''}`}>
             {t('results.col_details')}
           </div>
-          <div role="columnheader" id="colhdr-actions" aria-colindex={3} className="cell">
+          <div role="columnheader" id="colhdr-actions" aria-colindex={3} className={`cell ${col === 2 ? 'is-active' : ''}`}>
             {t('results.col_actions')}
           </div>
         </li>
@@ -243,7 +244,7 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
               aria-labelledby={`colhdr-domain ${titleId}`}
               aria-colindex={1}
               aria-selected={active === idx && col === 0}
-              className="card-body"
+              className="card-body col-0"
             >
               <h3 id={titleId}>
                 <a
@@ -266,7 +267,7 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
               aria-labelledby={`colhdr-details ${titleId}`}
               aria-colindex={2}
               aria-selected={active === idx && col === 1}
-              className="card-body"
+              className="card-body col-1"
               aria-describedby={factsId}
             >
               <p id={factsId}>
@@ -283,7 +284,7 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
               aria-labelledby={`colhdr-actions ${titleId}`}
               aria-colindex={3}
               aria-selected={active === idx && col === 2}
-              className="card-actions"
+              className="card-actions col-2"
             >
               {active === idx && (
                 <div className="kbd-hint" aria-hidden="true">

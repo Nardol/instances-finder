@@ -127,4 +127,9 @@ Icône de l’application:
 - Linux: `make appimage` | `make deb` | `make linux` ou `make build-linux`
 - Vérification rapide: `make check` (lint JS/TS + Clippy)
 - Vérifs ciblées: `make check-js` ou `make check-rust`
+- Types/formatage:
+  - `make check-js-type` (TypeScript `tsc --noEmit`)
+  - `make check-js-fmt` (Prettier `--check`)
+  - `make check-rust-fmt` (`cargo fmt --check`)
+- Corrections automatiques: `make fix` (formatage + lint --fix)
 - Formatage/Lint: `make fmt`, `make lint`, `make lint-fix`

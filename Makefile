@@ -2,7 +2,7 @@
 
 NPM := npm
 
-.PHONY: help help-all check check-js check-rust dev build appimage deb linux build-linux cross-prep-win win-exe win-nsis clean release-tag release-gh fmt fmt-js fmt-rust lint lint-fix clippy clippy-install
+.PHONY: help help-all check check-js check-rust check-js-type check-js-fmt check-rust-fmt fix dev build appimage deb linux build-linux cross-prep-win win-exe win-nsis clean release-tag release-gh fmt fmt-js fmt-rust lint lint-fix clippy clippy-install
 
 help:
 	@echo "Cibles Make disponibles :"
@@ -22,6 +22,13 @@ help:
 	@echo "  lint-fix       - Linter JS/TS (auto-fix)"
 	@echo "  clippy         - Lancer Rust Clippy (lint)"
 	@echo "  clippy-install - Installer Clippy si nécessaire"
+	@echo "  check          - Lancer lint JS/TS + Clippy"
+	@echo "  check-js       - Lancer lint JS/TS uniquement"
+	@echo "  check-js-type  - Vérifier les types TypeScript (tsc --noEmit)"
+	@echo "  check-js-fmt   - Vérifier le formatage Prettier"
+	@echo "  check-rust     - Lancer Clippy"
+	@echo "  check-rust-fmt - Vérifier formatage Rust (cargo fmt --check)"
+	@echo "  fix            - Formatter et corriger (fmt + lint-fix)"
 	@echo "  clean          - Supprimer les artefacts de build"
 
 help-all: help
@@ -110,3 +117,15 @@ check-rust: clippy
 
 check: check-js check-rust
 	@echo "✓ check: lint JS/TS + Clippy OK"
+
+check-js-type:
+	npx --no-install tsc --noEmit
+
+check-js-fmt:
+	npx --no-install prettier --check .
+
+check-rust-fmt:
+	cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
+
+fix:
+	$(NPM) run fmt && $(NPM) run lint:fix

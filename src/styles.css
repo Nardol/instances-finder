@@ -100,6 +100,20 @@ button.primary {
   border-radius: 0.5rem;
   overflow: hidden;
 }
+.card:focus {
+  outline: 3px solid var(--focus);
+  outline-offset: -3px; /* keep visible despite overflow */
+}
+.kbd-hint {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  margin: 0.25rem 0.75rem 0.75rem;
+  font-size: 0.85rem;
+  color: #6b7280; /* slate-500 */
+}
+.kbd-hint .sep { opacity: 0.6; }
 .card-body {
   padding: 0.75rem 1rem;
 }
@@ -149,3 +163,84 @@ button.primary {
   background: #1d4ed8;
   color: #fff;
 }
+
+/* App Shell */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--border);
+  -webkit-app-region: drag; /* fallback for some platforms */
+}
+.titlebar .drag-region {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.titlebar .app-name {
+  font-weight: 600;
+}
+.window-controls {
+  display: flex;
+  gap: 4px;
+  -webkit-app-region: no-drag;
+}
+.win-btn {
+  width: 28px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+.win-btn.close {
+  color: #b91c1c;
+}
+
+.app-body {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  flex: 1;
+  min-height: 0;
+}
+.sidebar {
+  border-right: 1px solid var(--border);
+  padding: 0.75rem;
+}
+.sidebar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.25rem;
+}
+.sidebar a {
+  display: block;
+  padding: 0.5rem 0.5rem;
+  border-radius: 6px;
+}
+.sidebar a:focus,
+.sidebar a:hover {
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.app-content {
+  min-width: 0;
+}
+
+.status-bar {
+  border-top: 1px solid var(--border);
+  padding: 0.25rem 0.75rem;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+}
+

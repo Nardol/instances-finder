@@ -7,7 +7,10 @@ import { useI18n } from './i18n';
 import type { Instance, Preferences } from './types';
 import { rankInstances } from './lib/score';
 import { TokenSetup } from './components/TokenSetup';
-import { fetchInstances } from './lib/api';
+import { fetchInstances, clearInstancesCache } from './lib/api';
+import { AppShell } from './components/AppShell';
+
+const isTauri = () => typeof window !== 'undefined' && '__TAURI_IPC__' in window;
 
 const App: React.FC = () => {
   const { t, lang, setLang } = useI18n();
@@ -27,6 +30,8 @@ const App: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState<string>('');
   const [errorLive, setErrorLive] = useState<string>('');
   const [expert, setExpert] = useState<boolean>(false);
+  const [refreshTick, setRefreshTick] = useState<number>(0);
+  const [flash, setFlash] = useState<string | null>(null);
   const liveRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -48,7 +53,7 @@ const App: React.FC = () => {
           signups: prefs.signups,
           region: expert ? prefs.region : undefined,
           size: prefs.size,
-        });
+        }, import.meta.env.DEV || refreshTick > 0);
         if (cancelled) return;
         const normalized: Instance[] = items.map((it) => {
           const reg =
@@ -68,6 +73,11 @@ const App: React.FC = () => {
         const ranked = rankInstances(normalized, prefs);
         setResults(ranked);
         setStatus('done');
+        try {
+          window.dispatchEvent(
+            new CustomEvent('app:flash', { detail: t('status.done', { count: ranked.length }) })
+          );
+        } catch (_) {}
       } catch (e) {
         if (!cancelled) {
           setErrorMsg(t('status.error'));
@@ -79,7 +89,7 @@ const App: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [prefs, tokenReady, expert, t]);
+  }, [prefs, tokenReady, expert, t, refreshTick]);
 
   const onApply = (p: Preferences) => setPrefs(p);
 
@@ -99,30 +109,86 @@ const App: React.FC = () => {
     }
   }, [status, errorMsg, t]);
 
+  // React to native "Preferences" menu: focus a relevant control as a placeholder.
+  useEffect(() => {
+    if (!isTauri()) return;
+    let unlisten: (() => void) | undefined;
+    (async () => {
+      const { listen } = await import('@tauri-apps/api/event');
+      unlisten = await listen('menu://preferences', () => {
+        const el = document.getElementById('lang-select') as HTMLSelectElement | null;
+        el?.focus();
+      });
+    })();
+    return () => {
+      if (unlisten) unlisten();
+    };
+  }, []);
+
+  // React to native Refresh
+  useEffect(() => {
+    if (!isTauri()) return;
+    let unlisten: (() => void) | undefined;
+    (async () => {
+      const { listen } = await import('@tauri-apps/api/event');
+      unlisten = await listen('menu://refresh', async () => {
+        try {
+          await clearInstancesCache();
+        } catch (_) {}
+        setRefreshTick((n) => n + 1);
+      });
+    })();
+    return () => {
+      if (unlisten) unlisten();
+    };
+  }, []);
+
+  // App-wide flash message for status bar
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const ce = e as CustomEvent<string>;
+      setFlash(ce.detail || null);
+      window.setTimeout(() => setFlash(null), 2000);
+    };
+    window.addEventListener('app:flash', handler as any);
+    return () => window.removeEventListener('app:flash', handler as any);
+  }, []);
+
+  // React to in-app refresh button (DOM event)
+  useEffect(() => {
+    const handler = async () => {
+      try {
+        await clearInstancesCache();
+      } catch (_) {}
+      setRefreshTick((n) => n + 1);
+    };
+    window.addEventListener('app:refresh', handler as any);
+    return () => window.removeEventListener('app:refresh', handler as any);
+  }, []);
+
   return (
-    <div className="app" aria-labelledby="app-title">
-      <Header lang={lang} onChangeLang={setLang} expert={expert} onToggleExpert={setExpert} />
+    <AppShell statusText={statusText} flashText={flash}>
+      <div className="app" aria-labelledby="app-title">
+        <Header lang={lang} onChangeLang={setLang} expert={expert} onToggleExpert={setExpert} />
 
-      <main id="main" className="main" role="main">
-        <h1 id="app-title" className="visually-hidden">
-          {t('app.title')}
-        </h1>
-        {!tokenReady ? <TokenSetup onReady={() => setTokenReady(true)} /> : null}
-        <Wizard prefs={prefs} onApply={onApply} expert={expert} />
-        <section aria-labelledby="results-title">
-          <h2 id="results-title">{t('results.title')}</h2>
-          <p role="status" aria-live="polite" aria-atomic="true">
-            {statusText}
-          </p>
-          <div className="sr-only" role="alert" aria-live="assertive" aria-atomic="true">
-            {errorLive}
-          </div>
-          <Results items={results} />
-        </section>
-      </main>
+        <main id="main" className="main" role="main">
+          <h1 id="app-title" className="visually-hidden">
+            {t('app.title')}
+          </h1>
+          {!tokenReady ? <TokenSetup onReady={() => setTokenReady(true)} /> : null}
+          <Wizard prefs={prefs} onApply={onApply} expert={expert} />
+          <section aria-labelledby="results-title">
+            <h2 id="results-title">{t('results.title')}</h2>
+            <div className="sr-only" role="alert" aria-live="assertive" aria-atomic="true">
+              {errorLive}
+            </div>
+            <Results items={results} />
+          </section>
+        </main>
 
-      <LiveRegion ref={liveRef} />
-    </div>
+        <LiveRegion ref={liveRef} />
+      </div>
+    </AppShell>
   );
 };
 

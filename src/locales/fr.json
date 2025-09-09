@@ -34,11 +34,15 @@
   },
   "results": {
     "title": "Résultats",
+    "list_label": "Liste des résultats ({count})",
     "open": "Inscriptions ouvertes",
     "approval": "Inscriptions sur demande",
     "copy": "Copier l'URL",
     "openBrowser": "Ouvrir dans le navigateur",
-    "copied": "URL copiée dans le presse-papiers"
+    "copied": "URL copiée dans le presse-papiers",
+    "hint_open": "Entrée — ouvrir",
+    "hint_copy_tab": "Tab — copier",
+    "hint_copy_shortcut": "Ctrl+Maj+C — copier"
   },
   "status": {
     "loading": "Chargement des résultats…",

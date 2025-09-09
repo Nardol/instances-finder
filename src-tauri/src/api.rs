@@ -126,20 +126,33 @@ pub fn test_token(state: tauri::State<'_, AppState>, token: Option<String>) -> R
 }
 
 #[tauri::command]
+pub fn clear_instances_cache(app: tauri::AppHandle) -> Result<(), String> {
+    let p = cache_path(&app);
+    if p.exists() {
+        fs::remove_file(p).map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
+#[tauri::command]
 pub fn fetch_instances(
     app: tauri::AppHandle,
     state: tauri::State<'_, AppState>,
     params: FetchParams,
+    bypass_cache: Option<bool>,
 ) -> Result<Vec<JsInstance>, String> {
-    // cache 24h
+    // cache 24h (skip in debug or when bypass_cache=true)
     let cache_file = cache_path(&app);
-    if let Ok(bytes) = fs::read(&cache_file) {
-        if let Ok(cache) = serde_json::from_slice::<CacheFile>(&bytes) {
-            let age = SystemTime::UNIX_EPOCH + Duration::from_secs(cache.saved_at);
-            if age.elapsed().unwrap_or_default() < Duration::from_secs(24 * 3600)
-                && cache.params == params
-            {
-                return Ok(cache.items);
+    let want_cache = !bypass_cache.unwrap_or(false) && !cfg!(debug_assertions);
+    if want_cache {
+        if let Ok(bytes) = fs::read(&cache_file) {
+            if let Ok(cache) = serde_json::from_slice::<CacheFile>(&bytes) {
+                let age = SystemTime::UNIX_EPOCH + Duration::from_secs(cache.saved_at);
+                if age.elapsed().unwrap_or_default() < Duration::from_secs(24 * 3600)
+                    && cache.params == params
+                {
+                    return Ok(cache.items);
+                }
             }
         }
     }
@@ -267,8 +280,10 @@ pub fn fetch_instances(
         params,
         items: items.clone(),
     };
-    if let Ok(bytes) = serde_json::to_vec(&cache) {
-        let _ = fs::write(cache_file, bytes);
+    if want_cache {
+        if let Ok(bytes) = serde_json::to_vec(&cache) {
+            let _ = fs::write(cache_file, bytes);
+        }
     }
 
     Ok(items)

@@ -34,11 +34,15 @@
   },
   "results": {
     "title": "Results",
+    "list_label": "Results list ({count})",
     "open": "Open sign-ups",
     "approval": "Approval required",
     "copy": "Copy URL",
     "openBrowser": "Open in browser",
-    "copied": "URL copied to clipboard"
+    "copied": "URL copied to clipboard",
+    "hint_open": "Enter — open",
+    "hint_copy_tab": "Tab — copy",
+    "hint_copy_shortcut": "Ctrl+Shift+C — copy"
   },
   "status": {
     "loading": "Loading results…",

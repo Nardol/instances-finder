@@ -31,54 +31,22 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChang
       if (focusables.length > 0) focusables[0].focus();
       else dialog?.focus();
     };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        onClose();
-      }
-      // Close on Ctrl/Cmd+W (desktop convention)
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'w' || e.key === 'W')) {
-        e.preventDefault();
-        onClose();
-      }
-      if (e.key === 'Tab') {
-        const focusables = getFocusables();
-        if (focusables.length === 0) return;
-        const active = document.activeElement as HTMLElement | null;
-        let idx = focusables.findIndex((el) => el === active);
-        if (idx === -1) idx = 0;
-        e.preventDefault();
-        const delta = e.shiftKey ? -1 : 1;
-        const next = (idx + delta + focusables.length) % focusables.length;
-        focusables[next].focus();
-      }
-    };
-    const onFocusIn = (e: FocusEvent) => {
-      const target = e.target as HTMLElement;
-      if (!dialog?.contains(target)) {
-        // Redirect stray focus back into the dialog
-        e.stopPropagation();
-        focusFirst();
-      }
-    };
-    const onClickBackdrop = (e: MouseEvent) => {
-      if (e.target === backdropRef.current) onClose();
-    };
-    document.addEventListener('keydown', onKey, true);
-    document.addEventListener('focusin', onFocusIn, true);
-    backdropRef.current?.addEventListener('mousedown', onClickBackdrop);
     focusFirst();
     return () => {
-      document.removeEventListener('keydown', onKey, true);
-      document.removeEventListener('focusin', onFocusIn, true);
-      backdropRef.current?.removeEventListener('mousedown', onClickBackdrop);
       lastFocusRef.current?.focus();
     };
   }, [open, onClose]);
 
   if (!open) return null;
   return (
-    <div ref={backdropRef} className="modal-backdrop" aria-hidden="false">
+    <div
+      ref={backdropRef}
+      className="modal-backdrop"
+      aria-hidden="false"
+      onMouseDown={(e) => {
+        if (e.target === backdropRef.current) onClose();
+      }}
+    >
       <div
         ref={dialogRef}
         className="modal"
@@ -86,7 +54,44 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChang
         aria-modal="true"
         aria-labelledby="prefs-title"
         tabIndex={-1}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            e.preventDefault();
+            onClose();
+          }
+          if ((e.ctrlKey || e.metaKey) && (e.key === 'w' || e.key === 'W')) {
+            e.preventDefault();
+            onClose();
+          }
+          if (e.key === 'Tab') {
+            const dialog = dialogRef.current;
+            const list = dialog?.querySelectorAll<HTMLElement>(
+              'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+            );
+            const focusables = list ? Array.from(list) : [];
+            if (focusables.length === 0) return;
+            const active = document.activeElement as HTMLElement | null;
+            let idx = focusables.findIndex((el) => el === active);
+            if (idx === -1) idx = 0;
+            e.preventDefault();
+            const delta = e.shiftKey ? -1 : 1;
+            const next = (idx + delta + focusables.length) % focusables.length;
+            focusables[next].focus();
+          }
+        }}
       >
+        <div
+          tabIndex={0}
+          aria-hidden="true"
+          onFocus={() => {
+            const dialog = dialogRef.current;
+            const list = dialog?.querySelectorAll<HTMLElement>(
+              'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+            );
+            const arr = list ? Array.from(list) : [];
+            arr[arr.length - 1]?.focus();
+          }}
+        />
         <header className="modal-header">
           <h2 id="prefs-title">Préférences</h2>
           <button type="button" onClick={onClose} aria-label="Fermer les préférences">
@@ -121,6 +126,17 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChang
             </ul>
           </section>
         </div>
+        <div
+          tabIndex={0}
+          aria-hidden="true"
+          onFocus={() => {
+            const dialog = dialogRef.current;
+            const first = dialog?.querySelector<HTMLElement>(
+              'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+            );
+            first?.focus();
+          }}
+        />
       </div>
     </div>
   );

@@ -2,7 +2,10 @@
 name = "instances-finder"
 version = "0.1.0"
 description = "Accessible Mastodon instances finder"
-authors = ["You"]
+authors = ["Patrick Zajda <patrick@zajda.fr>"]
+license = "MIT"
+homepage = "https://github.com/Nardol/instances-finder"
+repository = "https://github.com/Nardol/instances-finder"
 edition = "2021"
 
 [build-dependencies]

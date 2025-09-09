@@ -2,6 +2,7 @@
   "name": "instances-finder",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "description": "Prototype accessible to find Mastodon instances (instances.social)",
   "scripts": {

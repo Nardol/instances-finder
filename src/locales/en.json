@@ -75,8 +75,7 @@
     "ui_language": "UI language",
     "expert_mode": "Expert mode (experimental)",
     "accessibility": "Accessibility",
-    "braille_refresh": "Refresh braille display on state change (may cause double speech) — experimental"
-    ,
+    "braille_refresh": "Refresh braille display on state change (may cause double speech) — experimental",
     "shortcuts": "Keyboard shortcuts",
     "shortcut_enter_open": "Enter: open instance",
     "shortcut_tab_copy": "Tab: copy URL",

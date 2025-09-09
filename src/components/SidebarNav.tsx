@@ -20,4 +20,3 @@ export const SidebarNav: React.FC = () => {
     </nav>
   );
 };
-

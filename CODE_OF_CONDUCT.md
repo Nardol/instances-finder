@@ -6,4 +6,3 @@ We follow the Contributor Covenant. Be respectful and constructive.
 - See https://www.contributor-covenant.org/ for the full text.
 
 Maintainers may moderate issues/PRs to keep discussions healthy and inclusive.
-

@@ -51,12 +51,12 @@ Important: aucune installation globale de `tauri` n’est requise. La CLI est fo
 
 Installation (développement):
 
-1) Installer les dépendances système et outils ci‑dessus.
-2) Installer les dépendances du projet: `npm ci` (ou `npm install`).
+1. Installer les dépendances système et outils ci‑dessus.
+2. Installer les dépendances du projet: `npm ci` (ou `npm install`).
    - Option tout‑en‑un (recommandée): `make setup` → exécute `npm ci` et précompile `xtask` en release pour des commandes plus rapides.
    - Assurez‑vous d’installer les devDependencies (ne pas installer en mode production). Si vous avez `NODE_ENV=production` ou `npm config set production true`, réactivez les devDependencies avec `npm config set production false` puis relancez `npm ci`.
-3) Vérifier la CLI si besoin: `npx --no-install @tauri-apps/cli -v` (devrait afficher la version locale).
-4) Démarrer en dev (du plus simple au plus rapide):
+3. Vérifier la CLI si besoin: `npx --no-install @tauri-apps/cli -v` (devrait afficher la version locale).
+4. Démarrer en dev (du plus simple au plus rapide):
    - Simple: `make dev` (alias qui appelle xtask)
    - Direct: `cargo run --manifest-path xtask/Cargo.toml -- dev`
    - Ultra-rapide sessions longues: `make xtask-release` (précompile xtask) puis `make dev`
@@ -64,10 +64,10 @@ Installation (développement):
 
 ## Utilisation
 
-1) Au premier lancement, ouvrez la page de création de jeton Instances.social, collez le jeton, puis lancez le test.
-2) Choisissez vos préférences (langue, taille, modération…).
-3) Parcourez les résultats, copiez l’URL de l’instance ou ouvrez‑la dans le navigateur.
-4) Optionnel: activez le “Mode expert” pour afficher le filtre Région (expérimental).
+1. Au premier lancement, ouvrez la page de création de jeton Instances.social, collez le jeton, puis lancez le test.
+2. Choisissez vos préférences (langue, taille, modération…).
+3. Parcourez les résultats, copiez l’URL de l’instance ou ouvrez‑la dans le navigateur.
+4. Optionnel: activez le “Mode expert” pour afficher le filtre Région (expérimental).
 
 Stockage du jeton:
 
@@ -80,8 +80,8 @@ Confidentialité: le jeton reste local et n’est envoyé qu’à `instances.soc
 
 Build AppImage (Linux):
 
-1) `npm run build` (build frontend)
-2) `npm run tauri:build:appimage`
+1. `npm run build` (build frontend)
+2. `npm run tauri:build:appimage`
    → sortie: `src-tauri/target/release/bundle/appimage/`
 
 Paquet Debian (.deb):
@@ -198,8 +198,8 @@ Limites / compromis:
 - CI locale: `make ci-checks` (réplique des checks CI)
 - Corrections automatiques: `make fix` (formatage + lint --fix)
 - Formatage/Lint: `make fmt`, `make lint`, `make lint-fix`
- - Setup complet: `make setup` (installe les deps via `npm ci` et précompile `xtask` en release)
- - Nettoyage: `make clean` (rapide), `make clean-xtask` (supprime le binaire `xtask`), `make clean-deps` (supprime `node_modules`), `make clean-all` (tout nettoyer)
+- Setup complet: `make setup` (installe les deps via `npm ci` et précompile `xtask` en release)
+- Nettoyage: `make clean` (rapide), `make clean-xtask` (supprime le binaire `xtask`), `make clean-deps` (supprime `node_modules`), `make clean-all` (tout nettoyer)
 
 ## Transparence IA
 

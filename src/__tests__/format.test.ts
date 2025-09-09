@@ -18,4 +18,3 @@ describe('format()', () => {
     expect(format('{n}:{b}', { n: 42, b: false })).toBe('42:false');
   });
 });
-

@@ -12,7 +12,13 @@ type Props = {
   brailleRefresh?: boolean;
 };
 
-export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false, languagesList, brailleRefresh = false }) => {
+export const Wizard: React.FC<Props> = ({
+  prefs,
+  onApply,
+  expert = false,
+  languagesList,
+  brailleRefresh = false,
+}) => {
   const { t } = useI18n();
   const [local, setLocal] = useState<Preferences>(prefs);
   const titleId = useId();
@@ -36,7 +42,14 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false, langua
           <div className="row" style={{ marginBottom: '.5rem' }}>
             <button
               type="button"
-              onClick={() => update('languages', Array.from(new Set([...(languagesList ?? ['fr','en'])].map((l) => l.toLowerCase()))))}
+              onClick={() =>
+                update(
+                  'languages',
+                  Array.from(
+                    new Set([...(languagesList ?? ['fr', 'en'])].map((l) => l.toLowerCase()))
+                  )
+                )
+              }
             >
               {t('wizard.select_all')}
             </button>
@@ -47,11 +60,16 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false, langua
           <CheckboxList
             label={t('wizard.languages')}
             filterPlaceholder={t('wizard.languages_filter')}
-            announcementLabels={{ selected: t('wizard.selected'), notSelected: t('wizard.not_selected') }}
+            announcementLabels={{
+              selected: t('wizard.selected'),
+              notSelected: t('wizard.not_selected'),
+            }}
             brailleRefresh={brailleRefresh}
             items={(languagesList ?? ['fr', 'en']).map((code) => ({
               id: `lang-${code}`,
-              label: languageDisplayName(code, (t('header.fr') ? 'fr' : 'en') as 'fr' | 'en') + ` (${code.toUpperCase()})`,
+              label:
+                languageDisplayName(code, (t('header.fr') ? 'fr' : 'en') as 'fr' | 'en') +
+                ` (${code.toUpperCase()})`,
               checked: local.languages.includes(code),
               onToggle: (next: boolean) =>
                 update(
@@ -87,7 +105,9 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false, langua
         <div className="row">
           <label className="label" htmlFor="moderation-select">
             {t('wizard.moderation')}
-            {local.moderation === 'any' && <span className="badge-muted">{t('wizard.indifferent')}</span>}
+            {local.moderation === 'any' && (
+              <span className="badge-muted">{t('wizard.indifferent')}</span>
+            )}
           </label>
           <select
             id="moderation-select"
@@ -104,7 +124,9 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false, langua
         <div className="row">
           <label className="label" htmlFor="signups-select">
             {t('wizard.signups')}
-            {local.signups === 'any' && <span className="badge-muted">{t('wizard.indifferent')}</span>}
+            {local.signups === 'any' && (
+              <span className="badge-muted">{t('wizard.indifferent')}</span>
+            )}
           </label>
           <select
             id="signups-select"
@@ -121,7 +143,9 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false, langua
           <div className="row">
             <label className="label" htmlFor="region-select">
               {t('wizard.region_experimental')}
-              {local.region === 'any' && <span className="badge-muted">{t('wizard.indifferent')}</span>}
+              {local.region === 'any' && (
+                <span className="badge-muted">{t('wizard.indifferent')}</span>
+              )}
             </label>
             <select
               id="region-select"

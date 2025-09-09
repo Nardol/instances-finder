@@ -29,9 +29,8 @@ const uniq = Array.from(new Set(keys)).sort();
 
 const header = `// Auto-generated from src/locales/fr.json. Do not edit by hand.\n`;
 const body = uniq.length
-  ? `export type I18nKey = ${uniq.map(k => JSON.stringify(k)).join(' | ')};\n`
+  ? `export type I18nKey = ${uniq.map((k) => JSON.stringify(k)).join(' | ')};\n`
   : `export type I18nKey = string;\n`;
 
 writeFileSync(out, header + body);
 console.log(`Generated ${out} with ${uniq.length} keys.`);
-

@@ -51,15 +51,18 @@ const App: React.FC = () => {
     let cancelled = false;
     const run = async () => {
       try {
-        const items = await fetchInstances({
-          language: prefs.languages.length ? prefs.languages[0] : undefined,
-          include_closed: false,
-          include_down: false,
-          max: 200,
-          signups: prefs.signups === 'any' ? undefined : (prefs.signups as 'open' | 'approval'),
-          region: expert && prefs.region !== 'any' ? prefs.region : undefined,
-          size: prefs.size === 'any' ? undefined : prefs.size,
-        }, import.meta.env.DEV || refreshTick > 0);
+        const items = await fetchInstances(
+          {
+            language: prefs.languages.length ? prefs.languages[0] : undefined,
+            include_closed: false,
+            include_down: false,
+            max: 200,
+            signups: prefs.signups === 'any' ? undefined : (prefs.signups as 'open' | 'approval'),
+            region: expert && prefs.region !== 'any' ? prefs.region : undefined,
+            size: prefs.size === 'any' ? undefined : prefs.size,
+          },
+          import.meta.env.DEV || refreshTick > 0
+        );
         if (cancelled) return;
         const normalized: Instance[] = items.map((it) => {
           const reg =
@@ -83,7 +86,9 @@ const App: React.FC = () => {
           window.dispatchEvent(
             new CustomEvent('app:flash', { detail: t('status.done', { count: ranked.length }) })
           );
-        } catch (_) {}
+        } catch (_) {
+          /* no-op: UI flash is optional */
+        }
         // After results load, focus the listbox container to keep Orca in focus mode
         setTimeout(() => {
           resultsListRef.current?.focus();
@@ -167,7 +172,9 @@ const App: React.FC = () => {
       unlisten = await listen('menu://refresh', async () => {
         try {
           await clearInstancesCache();
-        } catch (_) {}
+        } catch (_) {
+          /* no-op: cache clear failure is non-blocking */
+        }
         setRefreshTick((n) => n + 1);
       });
     })();
@@ -203,7 +210,9 @@ const App: React.FC = () => {
     const handler = async () => {
       try {
         await clearInstancesCache();
-      } catch (_) {}
+      } catch (_) {
+        /* no-op: cache clear failure is non-blocking */
+      }
       setRefreshTick((n) => n + 1);
     };
     window.addEventListener('app:refresh', handler as any);
@@ -212,12 +221,7 @@ const App: React.FC = () => {
 
   return (
     <AppShell statusText={statusText} flashText={flash}>
-      <div
-        ref={appRef}
-        className="app"
-        aria-labelledby="app-title"
-        aria-hidden={prefsOpen}
-      >
+      <div ref={appRef} className="app" aria-labelledby="app-title" aria-hidden={prefsOpen}>
         <Header onOpenPrefs={() => setPrefsOpen(true)} />
 
         <main id="main" className="main" role="main">

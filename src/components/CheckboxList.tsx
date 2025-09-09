@@ -15,7 +15,13 @@ type Props = {
   brailleRefresh?: boolean;
 };
 
-export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder, announcementLabels, brailleRefresh = false }) => {
+export const CheckboxList: React.FC<Props> = ({
+  label,
+  items,
+  filterPlaceholder,
+  announcementLabels,
+  brailleRefresh = false,
+}) => {
   const [active, setActive] = React.useState(0);
   const listboxRef = React.useRef<HTMLUListElement | null>(null);
   const listId = React.useId();
@@ -53,7 +59,9 @@ export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder,
         {label}
       </div>
       <div style={{ marginBottom: 6 }}>
-        <label htmlFor={filterId} className="sr-only">{filterPlaceholder || 'Filtrer'}</label>
+        <label htmlFor={filterId} className="sr-only">
+          {filterPlaceholder || 'Filtrer'}
+        </label>
         <input
           id={filterId}
           type="text"
@@ -73,9 +81,11 @@ export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder,
         aria-labelledby={listId}
         aria-describedby={hintId}
         aria-activedescendant={
-          (brailleRefresh && adRefresh)
+          brailleRefresh && adRefresh
             ? proxyId
-            : (visible[active] ? `opt-${visible[active].id}` : undefined)
+            : visible[active]
+              ? `opt-${visible[active].id}`
+              : undefined
         }
         tabIndex={0}
         className="roving-list"
@@ -110,13 +120,13 @@ export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder,
                   requestAnimationFrame(() => setAdRefresh(false));
                 }
               }
-              break; }
+              break;
+            }
             default:
               break;
           }
         }}
       >
-        
         {visible.map((it, idx) => {
           const labelId = `lbl-${it.id}`;
           const stateId = `st-${it.id}`;
@@ -141,6 +151,15 @@ export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder,
                   requestAnimationFrame(() => setAdRefresh(false));
                 }
               }}
+              onKeyDown={(e) => {
+                // Provide keyboard equivalence for click when the item gets focus programmatically
+                if (e.key === ' ' || e.key === 'Enter') {
+                  e.preventDefault();
+                  setActive(idx);
+                  it.onToggle(!it.checked);
+                  listboxRef.current?.focus();
+                }
+              }}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -151,7 +170,11 @@ export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder,
                 cursor: 'pointer',
               }}
             >
-              <span aria-hidden="true" className="check-icon" style={{ width: 18, textAlign: 'center' }}>
+              <span
+                aria-hidden="true"
+                className="check-icon"
+                style={{ width: 18, textAlign: 'center' }}
+              >
                 {it.checked ? '☑' : '☐'}
               </span>
               <span id={labelId}>{it.label}</span>

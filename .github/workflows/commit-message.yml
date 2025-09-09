@@ -2,9 +2,9 @@ name: Commit Message Lint
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   lint-commit-messages:
@@ -40,4 +40,3 @@ jobs:
             printf '%s\n' "$s" | bash scripts/validate-commit-msg.sh || {
               echo "\nCommit message validation failed for commit #$i in PR."; exit 1; }
           done
-

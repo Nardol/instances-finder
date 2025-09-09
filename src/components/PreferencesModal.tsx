@@ -13,7 +13,16 @@ type Props = {
   onToggleBrailleRefresh: (v: boolean) => void;
 };
 
-export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChangeLang, expert, onToggleExpert, brailleRefresh, onToggleBrailleRefresh }) => {
+export const PreferencesModal: React.FC<Props> = ({
+  open,
+  onClose,
+  lang,
+  onChangeLang,
+  expert,
+  onToggleExpert,
+  brailleRefresh,
+  onToggleBrailleRefresh,
+}) => {
   const { t } = useI18n();
   const backdropRef = useRef<HTMLDivElement | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
@@ -48,6 +57,23 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChang
         e.preventDefault();
         e.stopPropagation();
         onClose();
+        return;
+      }
+      if (e.key === 'Tab') {
+        const dialog = dialogRef.current;
+        if (!dialog || !dialog.contains(document.activeElement)) return;
+        const list = dialog.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        const focusables = Array.from(list || []);
+        if (focusables.length === 0) return;
+        const active = document.activeElement as HTMLElement | null;
+        let idx = focusables.findIndex((el) => el === active);
+        if (idx === -1) idx = 0;
+        e.preventDefault();
+        const delta = e.shiftKey ? -1 : 1;
+        const next = (idx + delta + focusables.length) % focusables.length;
+        focusables[next].focus();
       }
     };
     const onFocusIn = (e: FocusEvent) => {
@@ -74,8 +100,20 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChang
       ref={backdropRef}
       className="modal-backdrop"
       aria-hidden="false"
-      onMouseDown={(e) => {
+      role="button"
+      tabIndex={-1}
+      aria-label={t('prefs.close')}
+      onClick={(e) => {
         if (e.target === backdropRef.current) onClose();
+      }}
+      onKeyDown={(e) => {
+        if (
+          e.target === backdropRef.current &&
+          (e.key === 'Escape' || e.key === ' ' || e.key === 'Enter')
+        ) {
+          e.preventDefault();
+          onClose();
+        }
       }}
     >
       <div
@@ -85,33 +123,7 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChang
         aria-modal="true"
         aria-labelledby="prefs-title"
         tabIndex={-1}
-        onKeyDown={(e) => {
-          if (e.key === 'Escape') {
-            e.preventDefault();
-            onClose();
-          }
-          if ((e.ctrlKey || e.metaKey) && (e.key === 'w' || e.key === 'W')) {
-            e.preventDefault();
-            onClose();
-          }
-          if (e.key === 'Tab') {
-            const dialog = dialogRef.current;
-            const list = dialog?.querySelectorAll<HTMLElement>(
-              'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-            );
-            const focusables = list ? Array.from(list) : [];
-            if (focusables.length === 0) return;
-            const active = document.activeElement as HTMLElement | null;
-            let idx = focusables.findIndex((el) => el === active);
-            if (idx === -1) idx = 0;
-            e.preventDefault();
-            const delta = e.shiftKey ? -1 : 1;
-            const next = (idx + delta + focusables.length) % focusables.length;
-            focusables[next].focus();
-          }
-        }}
       >
-        
         <header className="modal-header">
           <h2 id="prefs-title">{t('prefs.title')}</h2>
           <button type="button" onClick={onClose} aria-label={t('prefs.close')}>
@@ -122,15 +134,26 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChang
           <section aria-labelledby="prefs-general-title" style={{ marginBottom: '1rem' }}>
             <h3 id="prefs-general-title">{t('prefs.general')}</h3>
             <div className="row">
-              <label className="label" htmlFor="prefs-lang">{t('prefs.ui_language')}</label>
-              <select id="prefs-lang" value={lang} onChange={(e) => onChangeLang(e.target.value as Lang)}>
+              <label className="label" htmlFor="prefs-lang">
+                {t('prefs.ui_language')}
+              </label>
+              <select
+                id="prefs-lang"
+                value={lang}
+                onChange={(e) => onChangeLang(e.target.value as Lang)}
+              >
                 <option value="fr">{t('header.fr')}</option>
                 <option value="en">{t('header.en')}</option>
               </select>
             </div>
             <div className="row" style={{ marginTop: '.5rem' }}>
               <label>
-                <input type="checkbox" checked={expert} onChange={(e) => onToggleExpert(e.target.checked)} /> {t('prefs.expert_mode')}
+                <input
+                  type="checkbox"
+                  checked={expert}
+                  onChange={(e) => onToggleExpert(e.target.checked)}
+                />{' '}
+                {t('prefs.expert_mode')}
               </label>
             </div>
           </section>
@@ -142,7 +165,8 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChang
                   type="checkbox"
                   checked={brailleRefresh}
                   onChange={(e) => onToggleBrailleRefresh(e.target.checked)}
-                /> {t('prefs.braille_refresh')}
+                />{' '}
+                {t('prefs.braille_refresh')}
               </label>
             </div>
           </section>
@@ -158,7 +182,6 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChang
             </ul>
           </section>
         </div>
-        
       </div>
     </div>
   );

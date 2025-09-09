@@ -37,7 +37,10 @@ export async function testToken(token?: string): Promise<void> {
   await invoke('test_token', { token });
 }
 
-export async function fetchInstances(params: FetchParams, bypassCache?: boolean): Promise<JsInstance[]> {
+export async function fetchInstances(
+  params: FetchParams,
+  bypassCache?: boolean
+): Promise<JsInstance[]> {
   return invoke('fetch_instances', { params, bypass_cache: bypassCache });
 }
 

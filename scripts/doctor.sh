@@ -89,13 +89,41 @@ check_webkitgtk() {
   fi
 }
 
+check_windows() {
+  # Only run on Windows (Git Bash/MSYS/Cygwin) or if OS env says Windows_NT
+  case "${OS:-} $(uname -s 2>/dev/null || true)" in
+    *Windows_NT*|*MINGW*|*MSYS*|*CYGWIN*) : ;;
+    *) return 0;;
+  esac
+
+  # Use where/powershell if available
+  if command -v where >/dev/null 2>&1; then
+    where makensis >/dev/null 2>&1 && ok "NSIS (makensis) present" || meh "NSIS not found (optional unless building installer)"
+  else
+    meh "'where' not found; skipping NSIS check"
+  fi
+
+  if command -v powershell.exe >/dev/null 2>&1; then
+    # Detect WebView2 Runtime via registry
+    pw_cmd='Get-ChildItem "HKLM:\\SOFTWARE\\Microsoft\\EdgeUpdate\\Clients" | ForEach-Object { $_ | Get-ItemProperty } | Where-Object { $_.name -like "*WebView2*" -or $_.name -like "*Edge WebView2*" } | Select-Object -First 1 -ExpandProperty name'
+    name=$(powershell.exe -NoProfile -Command "$pw_cmd" 2>/dev/null | tr -d '\r')
+    if [ -n "$name" ]; then
+      ok "WebView2 Runtime detected ($name)"
+    else
+      meh "WebView2 Runtime not detected (bootstrapper Tauri le téléchargera si nécessaire)"
+    fi
+  else
+    meh "PowerShell not available; skipping WebView2/registry checks"
+  fi
+}
+
 note "Running development environment checks…"
 check_node
 check_rust
 check_tauri_cli
 check_webkitgtk
+check_windows
 
 echo
 printf "[doctor] Summary: %d ok, %d warn, %d fail\n" "$pass" "$warn" "$fail"
 [ "$fail" -eq 0 ] || exit 1
-

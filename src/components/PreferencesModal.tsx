@@ -15,16 +15,16 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose }) => {
     lastFocusRef.current = (document.activeElement as HTMLElement) || null;
 
     const dialog = dialogRef.current;
-    const focusFirst = () => {
-      const body = dialog?.querySelector<HTMLElement>('.modal-body');
-      if (body) {
-        body.focus();
-        return;
-      }
-      const focusables = dialog?.querySelectorAll<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    const getFocusables = () => {
+      const list = dialog?.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
       );
-      focusables?.[0]?.focus();
+      return list ? Array.from(list).filter((el) => el.offsetParent !== null || el === dialog) : [];
+    };
+    const focusFirst = () => {
+      const focusables = getFocusables();
+      if (focusables.length > 0) focusables[0].focus();
+      else dialog?.focus();
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -37,11 +37,8 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose }) => {
         onClose();
       }
       if (e.key === 'Tab') {
-        const list = dialog?.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        if (!list || list.length === 0) return;
-        const focusables = Array.from(list);
+        const focusables = getFocusables();
+        if (focusables.length === 0) return;
         const active = document.activeElement as HTMLElement | null;
         let idx = focusables.findIndex((el) => el === active);
         if (idx === -1) idx = 0;
@@ -51,14 +48,24 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose }) => {
         focusables[next].focus();
       }
     };
+    const onFocusIn = (e: FocusEvent) => {
+      const target = e.target as HTMLElement;
+      if (!dialog?.contains(target)) {
+        // Redirect stray focus back into the dialog
+        e.stopPropagation();
+        focusFirst();
+      }
+    };
     const onClickBackdrop = (e: MouseEvent) => {
       if (e.target === backdropRef.current) onClose();
     };
     document.addEventListener('keydown', onKey, true);
+    document.addEventListener('focusin', onFocusIn, true);
     backdropRef.current?.addEventListener('mousedown', onClickBackdrop);
     focusFirst();
     return () => {
       document.removeEventListener('keydown', onKey, true);
+      document.removeEventListener('focusin', onFocusIn, true);
       backdropRef.current?.removeEventListener('mousedown', onClickBackdrop);
       lastFocusRef.current?.focus();
     };
@@ -73,6 +80,7 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose }) => {
         role="dialog"
         aria-modal="true"
         aria-labelledby="prefs-title"
+        tabIndex={-1}
       >
         <header className="modal-header">
           <h2 id="prefs-title">Préférences</h2>

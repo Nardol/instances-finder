@@ -39,6 +39,13 @@ Paquet Debian (.deb)
 - Installation: `sudo apt install ./<fichier>.deb`
   - Dépendances runtime: WebKitGTK, GTK, Ayatana AppIndicator, librsvg, libssl (gérées via le paquet). Compatible Debian 12 (webkit 4.0) et systèmes avec 4.1.
 
+Makefile (raccourcis)
+- Lister: `make help`
+- Dev: `make dev` | Build frontend: `make build`
+- Linux: `make appimage` | `make deb` | `make linux`
+- Windows (cross-build): `make cross-prep-win` puis `make win-exe` ou `make win-nsis`
+- Release: `make release-tag VERSION=v0.1.0` ou `make release-gh VERSION=v0.1.0 NOTES="..."`
+
 Notes accessibilité
 - Testé au clavier: Tab/Shift+Tab, focus visible renforcé.
 - Annonces: statut (polite) et erreurs (assertive) vocalisées par Orca.

@@ -119,3 +119,11 @@ Icône de l’application:
 
 - Via tags (CI): `npm run release:tag -- v0.1.0` (crée un tag et déclenche le workflow de release qui attache l’AppImage et l’installeur NSIS).
 - Via GitHub CLI (brouillon): `npm run release:gh -- v0.1.0 "Notes de version"` (crée une release brouillon; le workflow “release” y attache les artefacts).
+
+### Makefile (raccourcis)
+
+- Lister: `make help` (cibles Make) ou `make help-all` (inclut scripts npm)
+- Dev: `make dev` | Build frontend: `make build`
+- Linux: `make appimage` | `make deb` | `make linux` ou `make build-linux`
+- Vérification rapide: `make check` (lint JS/TS + Clippy)
+- Formatage/Lint: `make fmt`, `make lint`, `make lint-fix`

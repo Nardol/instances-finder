@@ -2,7 +2,7 @@
 
 NPM := npm
 
-.PHONY: help dev build appimage deb linux build-linux cross-prep-win win-exe win-nsis clean release-tag release-gh fmt fmt-js fmt-rust lint lint-fix clippy clippy-install
+.PHONY: help help-all check dev build appimage deb linux build-linux cross-prep-win win-exe win-nsis clean release-tag release-gh fmt fmt-js fmt-rust lint lint-fix clippy clippy-install
 
 help:
 	@echo "Cibles Make disponibles :"
@@ -23,6 +23,25 @@ help:
 	@echo "  clippy         - Lancer Rust Clippy (lint)"
 	@echo "  clippy-install - Installer Clippy si nécessaire"
 	@echo "  clean          - Supprimer les artefacts de build"
+
+help-all: help
+	@echo
+	@echo "Scripts npm utiles :"
+	@echo "  dev                 - Vite dev server (web)"
+	@echo "  preview             - Vite preview (web)"
+	@echo "  tauri:dev           - Tauri dev (desktop)"
+	@echo "  build               - Build web (tsc + vite)"
+	@echo "  tauri:build         - Build desktop (toutes cibles par défaut)"
+	@echo "  tauri:build:appimage- Build AppImage Linux"
+	@echo "  tauri:build:deb     - Build paquet Debian"
+	@echo "  tauri:build:linux   - Build AppImage + Debian"
+	@echo "  cross:prep:win      - Ajouter la cible Rust Windows"
+	@echo "  cross:build:win:exe - Cross-build Windows (.exe)"
+	@echo "  cross:build:win:nsis- Cross-build Windows (NSIS)"
+	@echo "  release:tag         - Créer et pousser un tag"
+	@echo "  release:gh          - Créer une release GitHub (brouillon)"
+	@echo "  lint, lint:fix      - ESLint (JS/TS)"
+	@echo "  fmt, fmt:js, fmt:rust - Formatage"
 
 dev:
 	$(NPM) run tauri:dev
@@ -82,3 +101,7 @@ clippy-install:
 
 clippy: clippy-install
 	cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings
+
+# Vérifications rapides avant PR (lint JS/TS + Clippy Rust)
+check: lint clippy
+	@echo "✓ check: lint JS/TS + Clippy OK"

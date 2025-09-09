@@ -50,7 +50,8 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
 ) {
   const { t } = useI18n();
   const [announce, setAnnounce] = useState('');
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState(0); // active row index
+  const [col, setCol] = useState(0); // active column index within the grid
   const [controlsIdx, setControlsIdx] = useState<number | null>(null);
 
   // Ensure screen readers re-announce identical messages by clearing first
@@ -62,6 +63,8 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
   // Keep active in range when list changes
   useEffect(() => {
     if (active > items.length - 1) setActive(items.length ? 0 : 0);
+    // Reset column to first when the dataset changes
+    setCol(0);
   }, [items.length]);
 
   const focusIndex = (idx: number) => {
@@ -86,7 +89,13 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
       if (listRef && typeof listRef !== 'function') listRef.current?.focus();
       return;
     }
-    switch (e.key) {
+    const colCount = 3;
+    const moveRow = (delta: number) => focusIndex(active + delta);
+    const moveCol = (delta: number) => setCol((c) => Math.max(0, Math.min(colCount - 1, c + delta)));
+    const key = e.key;
+    const ctrlAlt = e.ctrlKey && e.altKey; // Orca table navigation
+
+    switch (key) {
       case 'Tab': {
         if (e.shiftKey) {
           // Allow Shift+Tab to escape the listbox naturally
@@ -108,20 +117,45 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
         }, 0);
         break; }
       case 'ArrowDown':
+        // Move to next row; also handle Orca Ctrl+Alt+Down
+        if (!ctrlAlt) e.preventDefault();
         e.preventDefault();
         focusIndex(active + 1);
         break;
       case 'ArrowUp':
+        if (!ctrlAlt) e.preventDefault();
         e.preventDefault();
         focusIndex(active - 1);
         break;
+      case 'ArrowRight':
+        e.preventDefault();
+        moveCol(1);
+        break;
+      case 'ArrowLeft':
+        e.preventDefault();
+        moveCol(-1);
+        break;
       case 'Home':
         e.preventDefault();
-        focusIndex(0);
+        if (e.ctrlKey) {
+          // Ctrl+Home: first cell of first row
+          focusIndex(0);
+          setCol(0);
+        } else {
+          // Home: first cell of current row
+          setCol(0);
+        }
         break;
       case 'End':
         e.preventDefault();
-        focusIndex(items.length - 1);
+        if (e.ctrlKey) {
+          // Ctrl+End: last cell of last row
+          focusIndex(items.length - 1);
+          setCol(colCount - 1);
+        } else {
+          // End: last cell of current row
+          setCol(colCount - 1);
+        }
         break;
       case 'PageDown':
         e.preventDefault();
@@ -162,9 +196,15 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
       </p>
       <ul
         className="result-list"
-        role="listbox"
+        role="grid"
+        aria-rowcount={items.length}
+        aria-colcount={3}
         aria-label={t('results.list_label', { count: items.length })}
-        aria-activedescendant={items.length ? `opt-${items[active]?.domain.replace(/[^a-zA-Z0-9_-]/g, '-')}` : undefined}
+        aria-activedescendant={
+          items.length
+            ? `cell-${items[active]?.domain.replace(/[^a-zA-Z0-9_-]/g, '-')}-${col}`
+            : undefined
+        }
         ref={listRef}
         tabIndex={0}
         onKeyDown={handleListKeyDown}
@@ -174,22 +214,21 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
           const titleId = `title-${idSafe}`;
           const descId = `desc-${idSafe}`;
           const factsId = `facts-${idSafe}`;
-          const optId = `opt-${idSafe}`;
           return (
           <li
             key={it.domain}
-            id={optId}
             className="card"
-            role="option"
-            aria-selected={active === idx}
-            aria-posinset={idx + 1}
-            aria-setsize={items.length}
-            aria-labelledby={`${titleId} ${descId}`}
-            aria-describedby={factsId}
-            aria-keyshortcuts="Enter, Control+O, Meta+O, Control+C, Meta+C, ArrowUp, ArrowDown, Home, End"
+            role="row"
+            aria-rowindex={idx + 1}
             onMouseEnter={() => setActive(idx)}
           >
-            <div className="card-body">
+            <div
+              id={`cell-${idSafe}-0`}
+              role="gridcell"
+              aria-colindex={1}
+              aria-selected={active === idx && col === 0}
+              className="card-body"
+            >
               <h3 id={titleId}>
                 <a
                   href={`https://${it.domain}`}
@@ -204,6 +243,15 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
                 </a>
               </h3>
               <p id={descId}>{it.description}</p>
+            </div>
+            <div
+              id={`cell-${idSafe}-1`}
+              role="gridcell"
+              aria-colindex={2}
+              aria-selected={active === idx && col === 1}
+              className="card-body"
+              aria-describedby={factsId}
+            >
               <p id={factsId}>
                 <span>{it.languages.join(', ').toUpperCase()}</span>
                 {' · '}
@@ -212,16 +260,22 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
                 <span>{it.sizeLabel}</span>
               </p>
             </div>
-            {active === idx && (
-              <div className="kbd-hint" aria-hidden="true">
-                <span>{t('results.hint_open')}</span>
-                <span className="sep">•</span>
-                <span>{t('results.hint_copy_tab')}</span>
-                <span className="sep">•</span>
-                <span>{t('results.hint_copy_shortcut')}</span>
-              </div>
-            )}
-            <div className="card-actions" aria-hidden={controlsIdx !== idx}>
+            <div
+              id={`cell-${idSafe}-2`}
+              role="gridcell"
+              aria-colindex={3}
+              aria-selected={active === idx && col === 2}
+              className="card-actions"
+            >
+              {active === idx && (
+                <div className="kbd-hint" aria-hidden="true">
+                  <span>{t('results.hint_open')}</span>
+                  <span className="sep">•</span>
+                  <span>{t('results.hint_copy_tab')}</span>
+                  <span className="sep">•</span>
+                  <span>{t('results.hint_copy_shortcut')}</span>
+                </div>
+              )}
               <button
                 tabIndex={controlsIdx === idx ? 0 : -1}
                 onClick={async () => {

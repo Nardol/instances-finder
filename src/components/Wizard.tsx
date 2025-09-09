@@ -66,7 +66,9 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false }) => {
         </fieldset>
 
         <div className="row">
-          <label className="label" htmlFor="size-select">{t('wizard.size')}</label>
+          <label className="label" htmlFor="size-select">
+            {t('wizard.size')}
+          </label>
           <select
             id="size-select"
             value={local.size}
@@ -79,7 +81,9 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false }) => {
         </div>
 
         <div className="row">
-          <label className="label" htmlFor="moderation-select">{t('wizard.moderation')}</label>
+          <label className="label" htmlFor="moderation-select">
+            {t('wizard.moderation')}
+          </label>
           <select
             id="moderation-select"
             value={local.moderation}
@@ -92,7 +96,9 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false }) => {
         </div>
 
         <div className="row">
-          <label className="label" htmlFor="signups-select">{t('wizard.signups')}</label>
+          <label className="label" htmlFor="signups-select">
+            {t('wizard.signups')}
+          </label>
           <select
             id="signups-select"
             value={local.signups}
@@ -105,7 +111,9 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false }) => {
 
         {expert && (
           <div className="row">
-            <label className="label" htmlFor="region-select">{t('wizard.region_experimental')}</label>
+            <label className="label" htmlFor="region-select">
+              {t('wizard.region_experimental')}
+            </label>
             <select
               id="region-select"
               value={local.region}
@@ -119,7 +127,9 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false }) => {
         )}
 
         <div className="row">
-          <label className="label" htmlFor="nsfw-select">{t('wizard.nsfw')}</label>
+          <label className="label" htmlFor="nsfw-select">
+            {t('wizard.nsfw')}
+          </label>
           <select
             id="nsfw-select"
             value={local.nsfw}
@@ -131,7 +141,9 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false }) => {
         </div>
 
         <div className="actions">
-          <button type="submit" className="primary">{t('wizard.apply')}</button>
+          <button type="submit" className="primary">
+            {t('wizard.apply')}
+          </button>
         </div>
       </form>
     </section>

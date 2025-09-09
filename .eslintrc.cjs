@@ -9,14 +9,13 @@ module.exports = {
     'plugin:react/recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:jsx-a11y/recommended',
-    'prettier'
+    'prettier',
   ],
   settings: { react: { version: 'detect' } },
   rules: {
     'react/react-in-jsx-scope': 'off',
     'react/prop-types': 'off',
-    '@typescript-eslint/no-explicit-any': 'warn'
+    '@typescript-eslint/no-explicit-any': 'warn',
   },
-  ignorePatterns: ['dist/', 'node_modules/', 'src-tauri/target/', 'src-tauri/**/bundle/**']
+  ignorePatterns: ['dist/', 'node_modules/', 'src-tauri/target/', 'src-tauri/**/bundle/**'],
 };
-

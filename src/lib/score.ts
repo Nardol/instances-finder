@@ -21,4 +21,3 @@ export function scoreInstance(i: Instance, p: Preferences): number {
 export function rankInstances(list: Instance[], p: Preferences): Instance[] {
   return [...list].sort((a, b) => scoreInstance(b, p) - scoreInstance(a, p));
 }
-

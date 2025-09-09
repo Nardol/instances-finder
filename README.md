@@ -1,83 +1,98 @@
-Instances Finder
-================
+# Instances Finder
 
 But: Trouver une instance Mastodon/Fediverse via l'API instances.social, avec une UI accessible (lecteurs d'écran) et des actions rapides (copier l'URL, ouvrir le navigateur).
 
 Statut: Prototype accessible, API instances.social intégrée (jeton requis). Packaging AppImage opérationnel; cross‑build Windows disponible.
 
 Fonctionnalités
+
 - Assistant de préférences (langue, taille, modération, inscriptions, contenu sensible).
 - Mode expert: filtre Région (expérimental, basé TLD) et pondérations à venir.
 - Accessibilité: navigation clavier complète, annonces `role=status/alert`, lien d’évitement, contraste suffisant.
 - I18n: FR par défaut, EN disponible.
 
 Arborescence
+
 - `src/` UI React/TypeScript (Vite)
 - `src-tauri/` hôte Tauri (Rust)
 
 Prérequis (Debian 12 Bookworm)
+
 - Système (développement Tauri):
-  
+
   `sudo apt update && sudo apt install -y libwebkit2gtk-4.0-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev libsoup2.4-dev libjavascriptcoregtk-4.0-dev curl build-essential pkg-config`
-  
+
   Note: si `libwebkit2gtk-4.1-dev` est disponible sur votre système, vous pouvez l’installer à la place de `libwebkit2gtk-4.0-dev`.
+
 - Node.js 18+ et npm, Rust (stable) et `cargo`, Tauri CLI.
 
 Installation (dev)
-1) Installer dépendances ci-dessus.
-2) Dans ce dossier: `npm install`
-3) Dev: `npm run tauri:dev` (ouvre la fenêtre appli avec Vite en dev).
+
+1. Installer dépendances ci-dessus.
+2. Dans ce dossier: `npm install`
+3. Dev: `npm run tauri:dev` (ouvre la fenêtre appli avec Vite en dev).
 
 Build AppImage (Linux)
-1) `npm run build` (build frontend)
-2) `npm run tauri:build:appimage`
+
+1. `npm run build` (build frontend)
+2. `npm run tauri:build:appimage`
    L'AppImage sera générée dans `src-tauri/target/release/bundle/appimage/`.
 
 Paquet Debian (.deb)
+
 - Build: `npm run tauri:build:deb`
 - Fichier: `src-tauri/target/release/bundle/deb/*.deb`
 - Installation: `sudo apt install ./<fichier>.deb`
   - Dépendances runtime: WebKitGTK, GTK, Ayatana AppIndicator, librsvg, libssl (gérées via le paquet). Compatible Debian 12 (webkit 4.0) et systèmes avec 4.1.
 
 Makefile (raccourcis)
+
 - Lister: `make help`
 - Dev: `make dev` | Build frontend: `make build`
 - Linux: `make appimage` | `make deb` | `make linux`
 - Windows (cross-build): `make cross-prep-win` puis `make win-exe` ou `make win-nsis`
 - Release: `make release-tag VERSION=v0.1.0` ou `make release-gh VERSION=v0.1.0 NOTES="..."`
 - Qualité code: `make fmt` (JS+Rust), `make lint` / `make lint-fix`
- - Lint Rust: `make clippy` (installe le composant si nécessaire)
+- Lint Rust: `make clippy` (installe le composant si nécessaire)
 
 Notes accessibilité
+
 - Testé au clavier: Tab/Shift+Tab, focus visible renforcé.
 - Annonces: statut (polite) et erreurs (assertive) vocalisées par Orca.
 
 Limitations actuelles
+
 - Filtre Région heuristique (TLD), désactivé hors mode expert.
 - Pondérations de score: à venir.
 
 Licences et télémétrie
+
 - Aucune télémétrie. Pas de collecte de données personnelles.
 
 Contribuer
-- Consultez le guide de contribution: [CONTRIBUTING.md](./CONTRIBUTING.md) 
+
+- Consultez le guide de contribution: [CONTRIBUTING.md](./CONTRIBUTING.md)
 - Pour les règles détaillées (structure, style, accessibilité, PR): [AGENTS.md](./AGENTS.md)
 
 Releases
+
 - Via tags (CI auto): `npm run release:tag -- v0.1.0` (crée un tag et déclenche le workflow release qui attache l’AppImage et l’installeur NSIS à la release GitHub).
 - Via GitHub CLI (draft): `npm run release:gh -- v0.1.0 "Notes de version"` (crée une release brouillon; le workflow “release” l’enrichit avec les artefacts).
 
 Icône de l’application
+
 - Un pictogramme PNG minimal est auto‑généré au build si `src-tauri/icons/icon.png` est absent (pour éviter l’erreur Tauri).
 - Pour un meilleur rendu, remplacez‑le par votre propre `src-tauri/icons/icon.png` (recommandé: PNG 512×512).
 
 Jeton Instances.social (API)
+
 - L’application peut interroger l’API `instances.social` pour des résultats complets.
 - Au premier lancement, un écran “Connexion à Instances.social” propose d’ouvrir la page de création de jeton, de coller le jeton et de le tester.
 - Stockage: par défaut dans le trousseau système (Linux: Secret Service/libsecret via keyring; Windows: Credential Manager). Vous pouvez choisir de ne pas mémoriser et de garder le jeton en mémoire.
 - Confidentialité: le jeton ne quitte jamais votre machine et n’est envoyé qu’à `instances.social`.
 
 Build Windows depuis Linux (cross-build)
+
 - Prérequis (Debian/Ubuntu):
   - `sudo apt update && sudo apt install -y mingw-w64 gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 binutils-mingw-w64-x86-64 nsis`
   - Optionnel: si votre préfixe diffère, exportez `MINGW_PREFIX` (ex.: `MINGW_PREFIX=x86_64-w64-mingw32`).

@@ -13,7 +13,9 @@ export const TokenSetup: React.FC<Props> = ({ onReady }) => {
   const [busy, setBusy] = useState<boolean>(false);
 
   React.useEffect(() => {
-    tokenStatus().then((ok) => { if (ok) onReady(); });
+    tokenStatus().then((ok) => {
+      if (ok) onReady();
+    });
   }, [onReady]);
 
   const handleTest = async () => {
@@ -22,17 +24,18 @@ export const TokenSetup: React.FC<Props> = ({ onReady }) => {
       setStatus(t('token.testing'));
       await testToken(token || undefined);
       setStatus(t('token.valid'));
-    } catch (e: any) {
+    } catch (_e) {
       setStatus(t('token.invalid'));
+    } finally {
+      setBusy(false);
     }
-    finally { setBusy(false); }
   };
 
   const handleSave = async () => {
     try {
       await saveToken(token, persist);
       onReady();
-    } catch (e: any) {
+    } catch (_e) {
       setStatus(t('token.save_error'));
     }
   };
@@ -45,20 +48,33 @@ export const TokenSetup: React.FC<Props> = ({ onReady }) => {
         <button onClick={() => open('https://instances.social/api/token')}>{t('token.get')}</button>
       </div>
       <div className="row">
-        <label className="label" htmlFor="token-input">{t('token.input')}</label>
-        <input id="token-input" type="password" value={token} onChange={(e) => setToken(e.target.value)} aria-describedby="token-help" />
+        <label className="label" htmlFor="token-input">
+          {t('token.input')}
+        </label>
+        <input
+          id="token-input"
+          type="password"
+          value={token}
+          onChange={(e) => setToken(e.target.value)}
+          aria-describedby="token-help"
+        />
       </div>
       <p id="token-help">{t('token.help')}</p>
       <div className="row">
         <label>
-          <input type="checkbox" checked={persist} onChange={(e) => setPersist(e.target.checked)} /> {t('token.persist')}
+          <input type="checkbox" checked={persist} onChange={(e) => setPersist(e.target.checked)} />{' '}
+          {t('token.persist')}
         </label>
       </div>
       <div className="actions">
         <button onClick={handleTest}>{t('token.test')}</button>
-        <button className="primary" onClick={handleSave}>{t('token.save')}</button>
+        <button className="primary" onClick={handleSave}>
+          {t('token.save')}
+        </button>
       </div>
-      <p role="status" aria-live="assertive" aria-atomic="true">{status}</p>
+      <p role="status" aria-live="assertive" aria-atomic="true">
+        {status}
+      </p>
     </section>
   );
 };

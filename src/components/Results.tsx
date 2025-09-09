@@ -8,12 +8,19 @@ async function copyText(text: string): Promise<boolean> {
       await navigator.clipboard.writeText(text);
       return true;
     }
-  } catch {}
+  } catch (_e) {
+    void _e;
+  }
   try {
     const mod = await import('@tauri-apps/api/clipboard');
-    // @ts-ignore - runtime guard
-    if (mod?.writeText) { await mod.writeText(text); return true; }
-  } catch {}
+    const clip = mod as unknown as { writeText?: (s: string) => Promise<void> };
+    if (clip?.writeText) {
+      await clip.writeText(text);
+      return true;
+    }
+  } catch (_e) {
+    void _e;
+  }
   // Fallback hidden textarea
   const ta = document.createElement('textarea');
   ta.value = text;
@@ -43,13 +50,21 @@ export const Results: React.FC<Props> = ({ items }) => {
 
   return (
     <div className="results" role="region" aria-live="polite" aria-atomic="false">
-      <p className="sr-only" aria-live="polite">{announce}</p>
+      <p className="sr-only" aria-live="polite">
+        {announce}
+      </p>
       <ul className="result-list">
         {items.map((it) => (
           <li key={it.domain} className="card">
             <div className="card-body">
               <h3>
-                <a href={`https://${it.domain}`} onClick={(e) => { e.preventDefault(); openExternal(`https://${it.domain}`); }}>
+                <a
+                  href={`https://${it.domain}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    openExternal(`https://${it.domain}`);
+                  }}
+                >
                   {it.domain}
                 </a>
               </h3>
@@ -81,4 +96,3 @@ export const Results: React.FC<Props> = ({ items }) => {
     </div>
   );
 };
-

@@ -5,7 +5,6 @@ import { Results } from './components/Results';
 import { LiveRegion } from './components/LiveRegion';
 import { useI18n } from './i18n';
 import type { Instance, Preferences } from './types';
-import { mockInstances } from './mocks/instances';
 import { rankInstances } from './lib/score';
 import { TokenSetup } from './components/TokenSetup';
 import { fetchInstances } from './lib/api';
@@ -21,7 +20,9 @@ const App: React.FC = () => {
     nsfw: 'allowed',
   });
   const [results, setResults] = useState<Instance[]>([]);
-  const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error' | 'needs_token'>('idle');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error' | 'needs_token'>(
+    'idle'
+  );
   const [tokenReady, setTokenReady] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>('');
   const [errorLive, setErrorLive] = useState<string>('');
@@ -29,8 +30,13 @@ const App: React.FC = () => {
   const liveRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!tokenReady) { setStatus('needs_token'); setResults([]); return; }
-    setStatus('loading'); setErrorMsg('');
+    if (!tokenReady) {
+      setStatus('needs_token');
+      setResults([]);
+      return;
+    }
+    setStatus('loading');
+    setErrorMsg('');
     let cancelled = false;
     const run = async () => {
       try {
@@ -44,17 +50,22 @@ const App: React.FC = () => {
           size: prefs.size,
         });
         if (cancelled) return;
-        const normalized = items.map(it => ({
-          domain: it.domain,
-          description: it.description,
-          languages: it.languages.includes('fr') ? ['fr'] : ['en'],
-          signups: it.signups,
-          size: (it.size as 1|2|3),
-          sizeLabel: it.sizeLabel,
-          region: (it.region as any),
-          availability: it.availability,
-        }));
-        const ranked = rankInstances(normalized as any, prefs);
+        const normalized: Instance[] = items.map((it) => {
+          const reg =
+            it.region === 'eu' || it.region === 'na' || it.region === 'other' ? it.region : 'other';
+          const sz = it.size as 1 | 2 | 3;
+          return {
+            domain: it.domain,
+            description: it.description,
+            languages: it.languages.includes('fr') ? ['fr'] : ['en'],
+            signups: it.signups,
+            size: sz,
+            sizeLabel: it.sizeLabel,
+            region: reg,
+            availability: it.availability,
+          };
+        });
+        const ranked = rankInstances(normalized, prefs);
         setResults(ranked);
         setStatus('done');
       } catch (e) {
@@ -65,7 +76,9 @@ const App: React.FC = () => {
       }
     };
     run();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [prefs, tokenReady, expert, t]);
 
   const onApply = (p: Preferences) => setPrefs(p);
@@ -91,13 +104,19 @@ const App: React.FC = () => {
       <Header lang={lang} onChangeLang={setLang} expert={expert} onToggleExpert={setExpert} />
 
       <main id="main" className="main" role="main">
-        <h1 id="app-title" className="visually-hidden">{t('app.title')}</h1>
+        <h1 id="app-title" className="visually-hidden">
+          {t('app.title')}
+        </h1>
         {!tokenReady ? <TokenSetup onReady={() => setTokenReady(true)} /> : null}
         <Wizard prefs={prefs} onApply={onApply} expert={expert} />
         <section aria-labelledby="results-title">
           <h2 id="results-title">{t('results.title')}</h2>
-          <p role="status" aria-live="polite" aria-atomic="true">{statusText}</p>
-          <div className="sr-only" role="alert" aria-live="assertive" aria-atomic="true">{errorLive}</div>
+          <p role="status" aria-live="polite" aria-atomic="true">
+            {statusText}
+          </p>
+          <div className="sr-only" role="alert" aria-live="assertive" aria-atomic="true">
+            {errorLive}
+          </div>
           <Results items={results} />
         </section>
       </main>

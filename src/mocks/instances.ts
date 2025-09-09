@@ -40,6 +40,5 @@ export const mockInstances: Instance[] = [
     sizeLabel: 'Moyenne',
     region: 'na',
     availability: 0.998,
-  }
+  },
 ];
-

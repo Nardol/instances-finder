@@ -34,7 +34,7 @@
       },
       "appimage": {},
       "windows": {
-        "webviewInstallMode": "downloadBootstrapper"
+        "webviewInstallMode": { "type": "downloadBootstrapper" }
       }
     },
     "security": {

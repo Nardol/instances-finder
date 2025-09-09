@@ -18,7 +18,9 @@ export const Header: React.FC<Props> = ({ lang, onChangeLang, expert, onToggleEx
         <strong>Instances Finder</strong>
       </div>
       <div className="spacer" aria-hidden="true" />
-      <label htmlFor="lang-select" className="label">{t('header.language')}</label>
+      <label htmlFor="lang-select" className="label">
+        {t('header.language')}
+      </label>
       <select
         id="lang-select"
         value={lang}
@@ -29,7 +31,12 @@ export const Header: React.FC<Props> = ({ lang, onChangeLang, expert, onToggleEx
         <option value="en">{t('header.en')}</option>
       </select>
       <label style={{ marginLeft: '1rem' }}>
-        <input type="checkbox" checked={expert} onChange={(e) => onToggleExpert(e.target.checked)} /> {t('header.expert')}
+        <input
+          type="checkbox"
+          checked={expert}
+          onChange={(e) => onToggleExpert(e.target.checked)}
+        />{' '}
+        {t('header.expert')}
       </label>
     </header>
   );

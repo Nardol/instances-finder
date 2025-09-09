@@ -17,4 +17,3 @@ export type Instance = {
   region: 'eu' | 'na' | 'other';
   availability: number; // 0..1
 };
-

@@ -148,5 +148,5 @@ ensure-cli:
 	else \
 		echo "[ensure-cli] ✓ Tauri CLI present (node_modules/.bin/tauri)"; \
 	fi
-	@# Vérification rapide
-	@npx --no-install @tauri-apps/cli -v >/dev/null 2>&1 || { echo "[ensure-cli] ✗ Tauri CLI not available"; exit 1; }
+	@# Vérification rapide (la CLI Tauri exige un sous-commande; on utilise --help)
+	@node_modules/.bin/tauri --help >/dev/null 2>&1 || { echo "[ensure-cli] ✗ Tauri CLI not available"; exit 1; }

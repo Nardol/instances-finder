@@ -126,4 +126,5 @@ Icône de l’application:
 - Dev: `make dev` | Build frontend: `make build`
 - Linux: `make appimage` | `make deb` | `make linux` ou `make build-linux`
 - Vérification rapide: `make check` (lint JS/TS + Clippy)
+- Vérifs ciblées: `make check-js` ou `make check-rust`
 - Formatage/Lint: `make fmt`, `make lint`, `make lint-fix`

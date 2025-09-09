@@ -2,7 +2,7 @@
 
 NPM := npm
 
-.PHONY: help help-all check dev build appimage deb linux build-linux cross-prep-win win-exe win-nsis clean release-tag release-gh fmt fmt-js fmt-rust lint lint-fix clippy clippy-install
+.PHONY: help help-all check check-js check-rust dev build appimage deb linux build-linux cross-prep-win win-exe win-nsis clean release-tag release-gh fmt fmt-js fmt-rust lint lint-fix clippy clippy-install
 
 help:
 	@echo "Cibles Make disponibles :"
@@ -102,6 +102,11 @@ clippy-install:
 clippy: clippy-install
 	cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings
 
-# Vérifications rapides avant PR (lint JS/TS + Clippy Rust)
-check: lint clippy
+# Vérifications rapides avant PR (checks ciblés)
+check-js:
+	$(NPM) run lint
+
+check-rust: clippy
+
+check: check-js check-rust
 	@echo "✓ check: lint JS/TS + Clippy OK"

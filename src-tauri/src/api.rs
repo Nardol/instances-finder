@@ -8,7 +8,7 @@ use std::{
 use instances_social::Client;
 use keyring::Entry;
 use serde::{Deserialize, Serialize};
-use tauri::api::path::app_data_dir;
+use tauri::Manager;
 use thiserror::Error;
 
 const SERVICE: &str = "org.instances.finder";
@@ -57,7 +57,10 @@ struct CacheFile {
 }
 
 fn cache_path(app: &tauri::AppHandle) -> PathBuf {
-    let mut dir = app_data_dir(&app.config()).unwrap_or_else(std::env::temp_dir);
+    let mut dir = app
+        .path()
+        .app_data_dir()
+        .unwrap_or_else(|_| std::env::temp_dir());
     dir.push("instances-finder");
     let _ = fs::create_dir_all(&dir);
     dir.push("instances_cache.json");

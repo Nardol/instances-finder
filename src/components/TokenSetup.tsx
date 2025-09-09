@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useI18n } from '../i18n';
 import { tokenStatus, testToken, saveToken } from '../lib/api';
-import { open } from '@tauri-apps/api/shell';
+import { open } from '@tauri-apps/plugin-shell';
 
 type Props = { onReady: () => void };
 

@@ -32,12 +32,14 @@
     "gen:i18n:keys": "node scripts/gen-i18n-keys.mjs"
   },
   "dependencies": {
-    "@tauri-apps/api": "^1.6.0",
+    "@tauri-apps/api": "^2.8.0",
+    "@tauri-apps/plugin-shell": "^2.0.0",
+    "@tauri-apps/plugin-clipboard-manager": "^2.0.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "1.6.3",
+    "@tauri-apps/cli": "2.8.4",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
     "@typescript-eslint/eslint-plugin": "^8.43.0",

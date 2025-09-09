@@ -22,4 +22,3 @@ Describe the change and the user impact.
 ## Test Steps
 
 Exact commands and steps to verify the change locally.
-

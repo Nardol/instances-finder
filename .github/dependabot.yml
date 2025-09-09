@@ -5,6 +5,10 @@ updates:
     schedule:
       interval: 'weekly'
     open-pull-requests-limit: 5
+    groups:
+      ts-eslint:
+        patterns:
+          - '@typescript-eslint/*'
 
   - package-ecosystem: 'cargo'
     directory: '/src-tauri'

@@ -1,6 +1,6 @@
 # Contributing Guide
 
- Merci de votre intérêt pour ce projet. Cette page complète le README et décrit comment contribuer efficacement.
+Merci de votre intérêt pour ce projet. Cette page complète le README et décrit comment contribuer efficacement.
 
 ## Start Here
 

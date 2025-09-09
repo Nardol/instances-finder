@@ -12,7 +12,8 @@ Merci de votre intérêt pour ce projet. Cette courte page complète le README e
 - Dev: `npm run tauri:dev`
 - Build AppImage: `npm run tauri:build:appimage`
 - Cross‑build Windows (depuis Linux):
-  - `sudo apt install mingw-w64 nsis && npm run cross:prep:win`
+  - Prérequis: `sudo apt install -y mingw-w64 gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 binutils-mingw-w64-x86-64 nsis`
+  - Préparer la cible Rust: `npm run cross:prep:win`
   - `.exe`: `npm run cross:build:win:exe`  |  `nsis`: `npm run cross:build:win:nsis`
 
 ## Branches & Commits

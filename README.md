@@ -45,13 +45,17 @@ Outils:
 
 - Node.js 18+ et npm
 - Rust (stable) et `cargo`
-- Tauri CLI
+- Tauri CLI (installée localement via devDependency)
+
+Important: aucune installation globale de `tauri` n’est requise. La CLI est fournie par `@tauri-apps/cli` (devDependency) et sera disponible dans les scripts npm après l’installation (`node_modules/.bin/tauri`).
 
 Installation (développement):
 
-1) Installer les dépendances ci‑dessus.
-2) Dans ce dossier: `npm install`
-3) Démarrer en dev: `npm run tauri:dev` (ouvre la fenêtre applicative avec Vite).
+1) Installer les dépendances système et outils ci‑dessus.
+2) Installer les dépendances du projet: `npm ci` (ou `npm install`).
+   - Assurez‑vous d’installer les devDependencies (ne pas installer en mode production). Si vous avez `NODE_ENV=production` ou `npm config set production true`, réactivez les devDependencies avec `npm config set production false` puis relancez `npm ci`.
+3) Vérifier la CLI si besoin: `npx --no-install @tauri-apps/cli -v` (devrait afficher la version locale).
+4) Démarrer en dev: `npm run tauri:dev` (ouvre la fenêtre applicative avec Vite + Tauri).
 
 ## Utilisation
 
@@ -146,6 +150,10 @@ Limites / compromis:
 - Échec de stockage du jeton (keyring): choisissez l’option “ne pas mémoriser” pour garder le jeton en mémoire.
 - Windows: installeur NSIS non signé → SmartScreen peut afficher un avertissement.
 - Node ou Rust non trouvés: vérifiez vos versions (Node 18+, Rust stable) et votre `PATH`.
+- `sh: 1: tauri: not found` lors d’un `npm run tauri:*`:
+  - Exécutez d’abord `npm ci` (ou `npm install`) pour installer les devDependencies, dont `@tauri-apps/cli`.
+  - Vérifiez que vous n’êtes pas en mode production: `npm config get production` doit être `false`.
+  - Option de vérification: `npx --no-install @tauri-apps/cli -v` doit afficher la version locale.
 
 ## Contribuer
 

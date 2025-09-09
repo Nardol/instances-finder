@@ -117,21 +117,24 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
         }, 0);
         break; }
       case 'ArrowDown':
-        // Move to next row; also handle Orca Ctrl+Alt+Down
-        if (!ctrlAlt) e.preventDefault();
+        // Move to next row; let Orca Ctrl+Alt+Down pass through
+        if (ctrlAlt) return;
         e.preventDefault();
         focusIndex(active + 1);
         break;
       case 'ArrowUp':
-        if (!ctrlAlt) e.preventDefault();
+        if (ctrlAlt) return;
         e.preventDefault();
         focusIndex(active - 1);
         break;
       case 'ArrowRight':
+        // Let Orca Ctrl+Alt+Right read next column
+        if (ctrlAlt) return;
         e.preventDefault();
         moveCol(1);
         break;
       case 'ArrowLeft':
+        if (ctrlAlt) return;
         e.preventDefault();
         moveCol(-1);
         break;
@@ -236,7 +239,7 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
           >
             <div
               id={`cell-${idSafe}-0`}
-              role="rowheader"
+              role="gridcell"
               aria-labelledby={`colhdr-domain ${titleId}`}
               aria-colindex={1}
               aria-selected={active === idx && col === 0}

@@ -37,9 +37,39 @@ echo "[cross] Using $PREFIX toolchain for $TARGET_TRIPLE"
 echo "[cross] Building frontend (vite)"
 npm run -s build
 
+ICON_DIR="src-tauri/icons"
+ICON_PNG="$ICON_DIR/icon.png"
+ICON_ICO="$ICON_DIR/icon.ico"
+
+# Ensure a Windows .ico exists (or refresh if PNG changed)
+if [ ! -f "$ICON_ICO" ] || [ "$ICON_PNG" -nt "$ICON_ICO" ]; then
+  echo "[cross] (Re)generating Windows icon (.ico) from $ICON_PNG"
+  if [ ! -f "$ICON_PNG" ]; then
+    # Cargo build will generate a minimal PNG via build.rs, so do a quick build step.
+    echo "[cross] PNG not found; performing a quick Rust build to seed icon.png"
+    (cd src-tauri && cargo build --quiet >/dev/null 2>&1 || true)
+  fi
+  tauri icon "$ICON_PNG"
+fi
+
 echo "[cross] Building Tauri bundle: $BUNDLE_TARGET ($TARGET_TRIPLE)"
+# Passer explicitement --bundles pour éviter de dépendre de TAURI_BUNDLE_TARGETS
 export TAURI_BUNDLE_TARGETS="$BUNDLE_TARGET"
-tauri build --target "$TARGET_TRIPLE"
+tauri build --target "$TARGET_TRIPLE" --bundles "$BUNDLE_TARGET"
 
 echo "[cross] Done. Outputs under src-tauri/target/$TARGET_TRIPLE/release/bundle/"
 
+# Fallback: certains environnements ignorent le bundling en cross-build.
+# Si le dossier bundle n'existe pas et que l'on vise 'app', on le crée.
+if [ "$BUNDLE_TARGET" = "app" ]; then
+  BUNDLE_BASE="src-tauri/target/$TARGET_TRIPLE/release/bundle"
+  EXE_PATH="src-tauri/target/$TARGET_TRIPLE/release/Instances Finder.exe"
+  DLL_PATH="src-tauri/target/$TARGET_TRIPLE/release/WebView2Loader.dll"
+  if [ ! -d "$BUNDLE_BASE/app" ] && [ -f "$EXE_PATH" ]; then
+    echo "[cross] Bundler non exécuté; création d'un bundle portable minimal."
+    mkdir -p "$BUNDLE_BASE/app"
+    cp -f "$EXE_PATH" "$BUNDLE_BASE/app/" || true
+    [ -f "$DLL_PATH" ] && cp -f "$DLL_PATH" "$BUNDLE_BASE/app/" || true
+    echo "[cross] Portable prêt: $BUNDLE_BASE/app/"
+  fi
+fi

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { Instance } from '../types';
 import { useI18n } from '../i18n';
 
@@ -52,7 +52,6 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
   const [announce, setAnnounce] = useState('');
   const [active, setActive] = useState(0);
   const [controlsIdx, setControlsIdx] = useState<number | null>(null);
-  const itemRefs = useRef<Array<HTMLLIElement | null>>([]);
 
   // Ensure screen readers re-announce identical messages by clearing first
   const announcePolite = (msg: string) => {
@@ -80,30 +79,41 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
   const focusIndex = (idx: number) => {
     const clamped = Math.max(0, Math.min(items.length - 1, idx));
     setActive(clamped);
-    setTimeout(() => {
-      const el = itemRefs.current[clamped];
-      el?.focus();
-    }, 0);
   };
 
-  const onItemKeyDown = async (
-    e: React.KeyboardEvent<HTMLLIElement>,
-    index: number,
-    domain: string
-  ) => {
+  const handleListKeyDown = async (e: React.KeyboardEvent<HTMLUListElement>) => {
+    if (items.length === 0) return;
     const isMod = e.ctrlKey || e.metaKey;
+    // Let Tab reach controls within the active card; intercept only on container
+    if (e.key === 'Tab') {
+      if (e.shiftKey) return; // allow Shift+Tab to go back naturally
+      e.preventDefault();
+      setControlsIdx(active);
+      setTimeout(() => {
+        if (listRef && typeof listRef !== 'function') {
+          const root = listRef.current;
+          const btn = root?.querySelector(
+            `li:nth-child(${active + 1}) .card-actions button`
+          ) as HTMLButtonElement | null;
+          btn?.focus();
+        }
+      }, 0);
+      return;
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      setControlsIdx(null);
+      if (listRef && typeof listRef !== 'function') listRef.current?.focus();
+      return;
+    }
     switch (e.key) {
-      case 'Tab':
-        // Reveal controls so the next focus lands on the Copy button
-        setControlsIdx(index);
-        break;
       case 'ArrowDown':
         e.preventDefault();
-        focusIndex(index + 1);
+        focusIndex(active + 1);
         break;
       case 'ArrowUp':
         e.preventDefault();
-        focusIndex(index - 1);
+        focusIndex(active - 1);
         break;
       case 'Home':
         e.preventDefault();
@@ -115,28 +125,28 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
         break;
       case 'PageDown':
         e.preventDefault();
-        focusIndex(index + 10);
+        focusIndex(active + 10);
         break;
       case 'PageUp':
         e.preventDefault();
-        focusIndex(index - 10);
+        focusIndex(active - 10);
         break;
       case 'Enter':
         e.preventDefault();
-        openExternal(`https://${domain}`);
+        openExternal(`https://${items[active]?.domain}`);
         break;
       case 'o':
       case 'O':
         if (isMod) {
           e.preventDefault();
-          openExternal(`https://${domain}`);
+          openExternal(`https://${items[active]?.domain}`);
         }
         break;
       case 'c':
       case 'C':
         if (isMod && e.shiftKey) {
           e.preventDefault();
-          const ok = await copyText(`https://${domain}`);
+          const ok = await copyText(`https://${items[active]?.domain}`);
           if (ok) announcePolite(t('results.copied'));
         }
         break;
@@ -153,10 +163,14 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
       </p>
       <ul
         className="result-list"
-        role="list"
+        role="listbox"
         aria-label={t('results.list_label', { count: items.length })}
+        aria-activedescendant={
+          items.length ? `opt-${items[active]?.domain.replace(/[^a-zA-Z0-9_-]/g, '-')}` : undefined
+        }
         ref={listRef}
-        tabIndex={-1}
+        tabIndex={0}
+        onKeyDown={handleListKeyDown}
       >
         {items.map((it, idx) => {
           const idSafe = it.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
@@ -166,18 +180,14 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
           return (
             <li
               key={it.domain}
+              id={`opt-${idSafe}`}
               className="card"
-              role="listitem"
-              tabIndex={active === idx ? 0 : -1}
+              role="option"
+              aria-selected={active === idx}
               aria-labelledby={`${titleId} ${descId}`}
               aria-describedby={factsId}
               aria-keyshortcuts="Enter, Control+O, Meta+O, Control+C, Meta+C, ArrowUp, ArrowDown, Home, End"
-              ref={(el) => (itemRefs.current[idx] = el)}
-              onKeyDown={(e) => onItemKeyDown(e, idx, it.domain)}
-              onFocus={() => {
-                setActive(idx);
-                setControlsIdx(null);
-              }}
+              onMouseEnter={() => setActive(idx)}
             >
               <div className="card-body">
                 <h3 id={titleId}>

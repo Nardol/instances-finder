@@ -84,9 +84,9 @@ const App: React.FC = () => {
             new CustomEvent('app:flash', { detail: t('status.done', { count: ranked.length }) })
           );
         } catch (_) {}
-        // After results load, ask Results to focus the first item
+        // After results load, focus the listbox container to keep Orca in focus mode
         setTimeout(() => {
-          try { window.dispatchEvent(new CustomEvent('results:focus-first')); } catch (_) {}
+          resultsListRef.current?.focus();
         }, 0);
       } catch (e) {
         if (!cancelled) {

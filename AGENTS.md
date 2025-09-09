@@ -24,12 +24,14 @@
 - `make dev`, `make appimage`, `make deb`, `make linux`
 - `make cross-prep-win`, `make win-exe`, `make win-nsis`
 - `make release-tag VERSION=vX.Y.Z`, `make release-gh VERSION=vX.Y.Z NOTES="..."`
+ - `make fmt`, `make lint`, `make lint-fix`
 
 ## Coding Style & Naming Conventions
 - TypeScript: strict, indent 2 espaces, pas d’`any` non justifié; `import type` pour les types.
 - React: composants et fichiers de composants en PascalCase (`Header.tsx`), utilitaires en kebab‑case (`score.ts`).
 - CSS: styles globaux dans `src/styles.css`, contraste AA minimum.
 - Rust: `rustfmt` par défaut; fonctions en `snake_case`, types en `PascalCase`.
+- Outils: ESLint (TS/React/a11y) + Prettier. Corrigez avec `npm run lint:fix` et `npm run fmt`.
 
 ## Accessibility Standards (A11y)
 - Navigation clavier complète; ordre de tabulation logique; focus visible.

@@ -93,7 +93,7 @@ const App: React.FC = () => {
         setTimeout(() => {
           resultsListRef.current?.focus();
         }, 0);
-      } catch (e) {
+      } catch (_e) {
         if (!cancelled) {
           setErrorMsg(t('status.error'));
           setStatus('error');

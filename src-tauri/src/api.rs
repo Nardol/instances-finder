@@ -93,7 +93,8 @@ pub fn save_token(
 #[tauri::command]
 pub fn clear_token(state: tauri::State<'_, AppState>) -> Result<(), String> {
     if let Ok(entry) = Entry::new(SERVICE, USERNAME) {
-        let _ = entry.delete_password();
+        // keyring v3 uses `delete_credential` instead of `delete_password`
+        let _ = entry.delete_credential();
     }
     *state.token.write().unwrap() = None;
     Ok(())

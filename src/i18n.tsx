@@ -28,8 +28,15 @@ export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const dict = dictionaries[lang];
   const t = (key: keyof Dict | string, params?: Record<string, unknown>) => {
     const path = String(key).split('.');
-    let ref: any = dict;
-    for (const p of path) ref = ref?.[p];
+    let ref: unknown = dict;
+    for (const p of path) {
+      if (ref && typeof ref === 'object') {
+        ref = (ref as Record<string, unknown>)[p];
+      } else {
+        ref = undefined;
+        break;
+      }
+    }
     if (typeof ref === 'string') return format(ref, params);
     return String(key);
   };

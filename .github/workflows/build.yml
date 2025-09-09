@@ -16,6 +16,10 @@ jobs:
         with:
           node-version: 20
       - uses: dtolnay/rust-toolchain@stable
+      - name: Ensure Clippy
+        run: rustup component add clippy
+      - name: Clippy (Rust lint)
+        run: cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings
       - name: Install system deps (Tauri)
         run: |
           sudo apt-get update

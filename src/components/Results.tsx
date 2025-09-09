@@ -48,6 +48,7 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
   { items },
   listRef
 ) {
+  const SR_STRICT = true; // disable custom arrow handling to let Orca fully drive table nav
   const { t } = useI18n();
   const [announce, setAnnounce] = useState('');
   const [active, setActive] = useState(0); // active row index
@@ -108,6 +109,7 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
     rowIndex: number,
     colIndex: number
   ) => {
+    if (SR_STRICT) return; // let Orca handle; no custom nav
     if (items.length === 0) return;
     const isMod = e.ctrlKey || e.metaKey;
     const ctrlAlt = e.ctrlKey && e.altKey; // Orca table navigation
@@ -252,7 +254,7 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
               aria-colindex={1}
               className={`card-body col-0 ${active === idx && col === 0 ? 'is-active' : ''}`}
               tabIndex={active === idx && col === 0 ? 0 : -1}
-              onKeyDown={(e) => handleCellKeyDown(e, idx, 0)}
+              onKeyDown={SR_STRICT ? undefined : (e) => handleCellKeyDown(e, idx, 0)}
             >
               <h3 id={titleId}>
                 <a
@@ -276,7 +278,7 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
               aria-colindex={2}
               className={`card-body col-1 ${active === idx && col === 1 ? 'is-active' : ''}`}
               tabIndex={active === idx && col === 1 ? 0 : -1}
-              onKeyDown={(e) => handleCellKeyDown(e, idx, 1)}
+              onKeyDown={SR_STRICT ? undefined : (e) => handleCellKeyDown(e, idx, 1)}
             >
               <span>{it.languages.join(', ').toUpperCase()}</span>
             </div>
@@ -287,7 +289,7 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
               aria-colindex={3}
               className={`card-body col-2 ${active === idx && col === 2 ? 'is-active' : ''}`}
               tabIndex={active === idx && col === 2 ? 0 : -1}
-              onKeyDown={(e) => handleCellKeyDown(e, idx, 2)}
+              onKeyDown={SR_STRICT ? undefined : (e) => handleCellKeyDown(e, idx, 2)}
             >
               <span>{it.signups === 'open' ? t('results.open') : t('results.approval')}</span>
             </div>
@@ -298,7 +300,7 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
               aria-colindex={4}
               className={`card-body col-3 ${active === idx && col === 3 ? 'is-active' : ''}`}
               tabIndex={active === idx && col === 3 ? 0 : -1}
-              onKeyDown={(e) => handleCellKeyDown(e, idx, 3)}
+              onKeyDown={SR_STRICT ? undefined : (e) => handleCellKeyDown(e, idx, 3)}
             >
               <span>{it.sizeLabel}</span>
             </div>
@@ -309,7 +311,7 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
               aria-colindex={5}
               className={`card-actions col-4 ${active === idx && col === 4 ? 'is-active' : ''}`}
               tabIndex={active === idx && col === 4 ? 0 : -1}
-              onKeyDown={(e) => handleCellKeyDown(e, idx, 4)}
+              onKeyDown={SR_STRICT ? undefined : (e) => handleCellKeyDown(e, idx, 4)}
             >
               {active === idx && (
                 <div className="kbd-hint" aria-hidden="true">

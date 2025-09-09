@@ -11,6 +11,8 @@
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
     "tauri:build:appimage": "TAURI_BUNDLE_TARGETS=appimage tauri build",
+    "tauri:build:deb": "TAURI_BUNDLE_TARGETS=deb tauri build",
+    "tauri:build:linux": "TAURI_BUNDLE_TARGETS=appimage,deb tauri build",
     "cross:prep:win": "rustup target add x86_64-pc-windows-gnu",
     "cross:build:win:exe": "bash scripts/cross-win-build.sh app",
     "cross:build:win:nsis": "bash scripts/cross-win-build.sh nsis",

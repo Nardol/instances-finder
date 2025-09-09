@@ -2,6 +2,7 @@ import React, { useId, useState } from 'react';
 import { useI18n } from '../i18n';
 import type { Preferences } from '../types';
 import { CheckboxList } from './CheckboxList';
+import { languageDisplayName } from '../lib/languages';
 
 type Props = {
   prefs: Preferences;
@@ -33,9 +34,10 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false, langua
           <legend className="label">{t('wizard.languages')}</legend>
           <CheckboxList
             label={t('wizard.languages')}
+            filterPlaceholder={t('wizard.languages_filter')}
             items={(languagesList ?? ['fr', 'en']).map((code) => ({
               id: `lang-${code}`,
-              label: code.toUpperCase(),
+              label: languageDisplayName(code, (t('header.fr') ? 'fr' : 'en') as 'fr' | 'en') + ` (${code.toUpperCase()})`,
               checked: local.languages.includes(code),
               onToggle: (next: boolean) =>
                 update(
@@ -46,6 +48,9 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false, langua
                 ),
             }))}
           />
+          <p style={{ marginTop: 4, fontSize: '0.9rem', opacity: 0.8 }}>
+            {t('wizard.languages_hint')}
+          </p>
         </fieldset>
 
         <div className="row">

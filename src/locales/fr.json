@@ -12,6 +12,8 @@
   "wizard": {
     "title": "Vos préférences",
     "languages": "Langue(s) de l'instance",
+    "languages_filter": "Filtrer les langues",
+    "languages_hint": "Astuce: si aucune langue n’est cochée, toutes les langues sont prises en compte.",
     "size": "Taille de la communauté",
     "size_small": "Petite",
     "size_medium": "Moyenne",

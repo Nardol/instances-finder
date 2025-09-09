@@ -111,7 +111,7 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
     if (items.length === 0) return;
     const isMod = e.ctrlKey || e.metaKey;
     const ctrlAlt = e.ctrlKey && e.altKey; // Orca table navigation
-    const colCount = 3;
+    const colCount = 5;
 
     const goTo = (r: number, c: number) => {
       const nr = Math.max(0, Math.min(items.length - 1, r));
@@ -138,11 +138,19 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
         e.preventDefault();
         goTo(rowIndex - 1, colIndex);
         break;
-      case 'ArrowRight':
+      case 'ArrowRight': {
         if (ctrlAlt) return;
-        if (colIndex >= colCount - 1) return;
+        const idSafe = items[rowIndex]?.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
+        if (colIndex >= colCount - 1) {
+          // At Actions column: move into first button
+          e.preventDefault();
+          const btn = (document.querySelector(`#cell-${idSafe}-${colIndex} button`) as HTMLButtonElement | null);
+          if (btn) { btn.focus(); }
+          return;
+        }
         e.preventDefault();
         goTo(rowIndex, colIndex + 1);
+        break; }
         break;
       case 'ArrowLeft':
         if (ctrlAlt) return;
@@ -152,19 +160,11 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
         break;
       case 'Home':
         e.preventDefault();
-        if (e.ctrlKey) {
-          goTo(0, 0);
-        } else {
-          goTo(rowIndex, 0);
-        }
+        if (e.ctrlKey) { goTo(0, 0); } else { goTo(rowIndex, 0); }
         break;
       case 'End':
         e.preventDefault();
-        if (e.ctrlKey) {
-          goTo(items.length - 1, colCount - 1);
-        } else {
-          goTo(rowIndex, colCount - 1);
-        }
+        if (e.ctrlKey) { goTo(items.length - 1, colCount - 1); } else { goTo(rowIndex, colCount - 1); }
         break;
       case 'PageDown':
         e.preventDefault();
@@ -219,10 +219,16 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
           <div role="columnheader" id="colhdr-domain" aria-colindex={1} className={`cell ${col === 0 ? 'is-active' : ''}`}>
             {t('results.col_domain')}
           </div>
-          <div role="columnheader" id="colhdr-details" aria-colindex={2} className={`cell ${col === 1 ? 'is-active' : ''}`}>
-            {t('results.col_details')}
+          <div role="columnheader" id="colhdr-langs" aria-colindex={2} className={`cell ${col === 1 ? 'is-active' : ''}`}>
+            {t('results.col_languages')}
           </div>
-          <div role="columnheader" id="colhdr-actions" aria-colindex={3} className={`cell ${col === 2 ? 'is-active' : ''}`}>
+          <div role="columnheader" id="colhdr-signups" aria-colindex={3} className={`cell ${col === 2 ? 'is-active' : ''}`}>
+            {t('results.col_signups')}
+          </div>
+          <div role="columnheader" id="colhdr-size" aria-colindex={4} className={`cell ${col === 3 ? 'is-active' : ''}`}>
+            {t('results.col_size')}
+          </div>
+          <div role="columnheader" id="colhdr-actions" aria-colindex={5} className={`cell ${col === 4 ? 'is-active' : ''}`}>
             {t('results.col_actions')}
           </div>
         </div>
@@ -266,29 +272,44 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
             <div
               id={`cell-${idSafe}-1`}
               role="cell"
-              aria-labelledby={`colhdr-details ${titleId}`}
+              aria-labelledby={`colhdr-langs ${titleId}`}
               aria-colindex={2}
               className={`card-body col-1 ${active === idx && col === 1 ? 'is-active' : ''}`}
               tabIndex={active === idx && col === 1 ? 0 : -1}
-              aria-describedby={factsId}
               onKeyDown={(e) => handleCellKeyDown(e, idx, 1)}
             >
-              <p id={factsId}>
-                <span>{it.languages.join(', ').toUpperCase()}</span>
-                {' · '}
-                <span>{it.signups === 'open' ? t('results.open') : t('results.approval')}</span>
-                {' · '}
-                <span>{it.sizeLabel}</span>
-              </p>
+              <span>{it.languages.join(', ').toUpperCase()}</span>
             </div>
             <div
               id={`cell-${idSafe}-2`}
               role="cell"
-              aria-labelledby={`colhdr-actions ${titleId}`}
+              aria-labelledby={`colhdr-signups ${titleId}`}
               aria-colindex={3}
-              className={`card-actions col-2 ${active === idx && col === 2 ? 'is-active' : ''}`}
+              className={`card-body col-2 ${active === idx && col === 2 ? 'is-active' : ''}`}
               tabIndex={active === idx && col === 2 ? 0 : -1}
               onKeyDown={(e) => handleCellKeyDown(e, idx, 2)}
+            >
+              <span>{it.signups === 'open' ? t('results.open') : t('results.approval')}</span>
+            </div>
+            <div
+              id={`cell-${idSafe}-3`}
+              role="cell"
+              aria-labelledby={`colhdr-size ${titleId}`}
+              aria-colindex={4}
+              className={`card-body col-3 ${active === idx && col === 3 ? 'is-active' : ''}`}
+              tabIndex={active === idx && col === 3 ? 0 : -1}
+              onKeyDown={(e) => handleCellKeyDown(e, idx, 3)}
+            >
+              <span>{it.sizeLabel}</span>
+            </div>
+            <div
+              id={`cell-${idSafe}-4`}
+              role="cell"
+              aria-labelledby={`colhdr-actions ${titleId}`}
+              aria-colindex={5}
+              className={`card-actions col-4 ${active === idx && col === 4 ? 'is-active' : ''}`}
+              tabIndex={active === idx && col === 4 ? 0 : -1}
+              onKeyDown={(e) => handleCellKeyDown(e, idx, 4)}
             >
               {active === idx && (
                 <div className="kbd-hint" aria-hidden="true">
@@ -301,10 +322,11 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
               )}
               <button
                 onKeyDown={(e) => {
-                  if (e.key === 'Escape') {
+                  if (e.key === 'Escape' || e.key === 'ArrowLeft') {
                     e.preventDefault();
-                    const idSafe = it.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
-                    (document.getElementById(`cell-${idSafe}-2`) as HTMLElement | null)?.focus();
+                    const idSafe2 = it.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
+                    (document.getElementById(`cell-${idSafe2}-4`) as HTMLElement | null)?.focus();
+                    setActive(idx); setCol(4);
                   }
                 }}
                 onClick={async () => {
@@ -319,10 +341,11 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
               </button>
               <button
                 onKeyDown={(e) => {
-                  if (e.key === 'Escape') {
+                  if (e.key === 'Escape' || e.key === 'ArrowLeft') {
                     e.preventDefault();
-                    const idSafe = it.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
-                    (document.getElementById(`cell-${idSafe}-2`) as HTMLElement | null)?.focus();
+                    const idSafe2 = it.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
+                    (document.getElementById(`cell-${idSafe2}-4`) as HTMLElement | null)?.focus();
+                    setActive(idx); setCol(4);
                   }
                 }}
                 onClick={() => openExternal(`https://${it.domain}`)}

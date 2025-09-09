@@ -251,8 +251,14 @@ button.primary {
   border-radius: 0.375rem;
   font-size: 0.75rem;
   line-height: 1.2;
-  color: #6b7280;
-  background: rgba(107, 114, 128, 0.15);
+  color: #374151; /* gray-700 */
+  background: #e5e7eb; /* gray-200 */
+}
+@media (prefers-color-scheme: dark) {
+  .badge-muted {
+    color: #e5e7eb; /* gray-200 */
+    background: rgba(229, 231, 235, 0.16);
+  }
 }
 
 /* When modal open, make background inert to pointer events */

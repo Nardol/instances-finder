@@ -109,6 +109,9 @@ export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder 
               outlineOffset: 2,
             }}
           >
+            <span aria-hidden="true" className="check-icon" style={{ width: 18, textAlign: 'center' }}>
+              {it.checked ? '☑' : '☐'}
+            </span>
             <input
               type="checkbox"
               checked={it.checked}

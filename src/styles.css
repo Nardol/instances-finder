@@ -205,6 +205,13 @@ button.primary {
   color: #b91c1c;
 }
 
+.check-icon {
+  color: #4b5563; /* gray-600 */
+}
+@media (prefers-color-scheme: dark) {
+  .check-icon { color: #9ca3af; /* gray-400 */ }
+}
+
 .app-body {
   display: grid;
   grid-template-columns: 220px 1fr;

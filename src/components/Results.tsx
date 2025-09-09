@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { Instance } from '../types';
 import { useI18n } from '../i18n';
 
@@ -44,14 +44,15 @@ async function openExternal(url: string): Promise<void> {
 
 type Props = { items: Instance[] };
 
-export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
+export const Results = React.forwardRef<HTMLUListElement, Props>(function Results(
   { items },
   listRef
 ) {
-  const SR_STRICT = true; // disable custom arrow handling to let Orca fully drive table nav
   const { t } = useI18n();
   const [announce, setAnnounce] = useState('');
-  const [active, setActive] = useState(0); // active row index
+  const [active, setActive] = useState(0);
+  const [controlsIdx, setControlsIdx] = useState<number | null>(null);
+  const itemRefs = useRef<Array<HTMLLIElement | null>>([]);
 
   // Ensure screen readers re-announce identical messages by clearing first
   const announcePolite = (msg: string) => {
@@ -62,39 +63,73 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
   // Keep active in range when list changes
   useEffect(() => {
     if (active > items.length - 1) setActive(items.length ? 0 : 0);
-  }, [items.length]);
+  }, [items.length, active]);
 
-  // Ensure a focus target exists when items load the first time
-  useEffect(() => {
-    if (!items.length) return;
-    const idSafe = items[Math.max(0, Math.min(items.length - 1, active))]?.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
-    const link = document.getElementById(`link-${idSafe}`) as HTMLAnchorElement | null;
-    if (link && document.activeElement === document.body) {
-      link.focus();
-    }
-  }, [items, active]);
+  const focusIndex = (idx: number) => {
+    const clamped = Math.max(0, Math.min(items.length - 1, idx));
+    setActive(clamped);
+    setTimeout(() => {
+      const el = itemRefs.current[clamped];
+      el?.focus();
+    }, 0);
+  };
 
-  // No forced focus after load; let users/SR decide
-
-  const onTableKeyDown = async (e: React.KeyboardEvent<HTMLTableElement>) => {
-    const key = e.key;
+  const onItemKeyDown = async (
+    e: React.KeyboardEvent<HTMLLIElement>,
+    index: number,
+    domain: string
+  ) => {
     const isMod = e.ctrlKey || e.metaKey;
-    const target = e.target as HTMLElement | null;
-    // Don't hijack when inside interactive controls
-    if (target && (target.closest('button') || target.closest('a'))) return;
-    const rowEl = target?.closest('tr');
-    const domain = rowEl?.getAttribute('data-domain');
-    if (!domain) return;
-    if (key === 'Enter') {
-      e.preventDefault();
-      openExternal(`https://${domain}`);
-      return;
-    }
-    if ((key === 'c' || key === 'C') && isMod && e.shiftKey) {
-      e.preventDefault();
-      const ok = await copyText(`https://${domain}`);
-      if (ok) announcePolite(t('results.copied'));
-      return;
+    switch (e.key) {
+      case 'Tab':
+        // Reveal controls so the next focus lands on the Copy button
+        setControlsIdx(index);
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        focusIndex(index + 1);
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        focusIndex(index - 1);
+        break;
+      case 'Home':
+        e.preventDefault();
+        focusIndex(0);
+        break;
+      case 'End':
+        e.preventDefault();
+        focusIndex(items.length - 1);
+        break;
+      case 'PageDown':
+        e.preventDefault();
+        focusIndex(index + 10);
+        break;
+      case 'PageUp':
+        e.preventDefault();
+        focusIndex(index - 10);
+        break;
+      case 'Enter':
+        e.preventDefault();
+        openExternal(`https://${domain}`);
+        break;
+      case 'o':
+      case 'O':
+        if (isMod) {
+          e.preventDefault();
+          openExternal(`https://${domain}`);
+        }
+        break;
+      case 'c':
+      case 'C':
+        if (isMod && e.shiftKey) {
+          e.preventDefault();
+          const ok = await copyText(`https://${domain}`);
+          if (ok) announcePolite(t('results.copied'));
+        }
+        break;
+      default:
+        break;
     }
   };
 
@@ -104,106 +139,90 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
       <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
         {announce}
       </p>
-      <a href="#after-results" className="skip-link">{t('results.skip_table')}</a>
-      <div className="table-wrap" ref={listRef}>
-        <table
-          className="results-table"
-          aria-label={t('results.list_label', { count: items.length })}
-          onKeyDown={onTableKeyDown}
-        >
-          <caption className="sr-only">{t('results.table_caption')}</caption>
-          <thead>
-            <tr>
-              <th id="h-domain">{t('results.col_domain')}</th>
-              <th id="h-langs">{t('results.col_languages')}</th>
-              <th id="h-signups">{t('results.col_signups')}</th>
-              <th id="h-size">{t('results.col_size')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((it, idx) => {
-              const idSafe = it.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
-              const descId = `desc-${idSafe}`;
-              return (
-                <tr key={it.domain} data-domain={it.domain} onMouseEnter={() => setActive(idx)}>
-                  <td headers="h-domain">
-                    <div className="cell-domain">
-                      <a
-                        href={`https://${it.domain}`}
-                        id={`link-${idSafe}`}
-                        tabIndex={-1}
-                        aria-describedby={descId}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          openExternal(`https://${it.domain}`);
-                        }}
-                      >
-                        {it.domain}
-                      </a>
-                      <p id={descId} className="muted">{it.description}</p>
-                    </div>
-                  </td>
-                  <td headers="h-langs">{it.languages.join(', ').toUpperCase()}</td>
-                  <td headers="h-signups">{it.signups === 'open' ? t('results.open') : t('results.approval')}</td>
-                  <td headers="h-size">{it.sizeLabel}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      <div className="results-actions" role="group" aria-label={t('results.actions_label')}>
-        <button
-          onClick={() => {
-            if (!items.length) return;
-            const next = Math.max(0, Math.min(items.length - 1, active - 1));
-            if (next !== active) {
-              setActive(next);
-              announcePolite(items[next].domain);
-            }
-          }}
-          disabled={active <= 0 || !items.length}
-        >
-          {t('results.prev')}
-        </button>
-        <button
-          onClick={() => {
-            if (!items.length) return;
-            const next = Math.max(0, Math.min(items.length - 1, active + 1));
-            if (next !== active) {
-              setActive(next);
-              announcePolite(items[next].domain);
-            }
-          }}
-          disabled={active >= items.length - 1 || !items.length}
-        >
-          {t('results.next')}
-        </button>
-        <button
-          onClick={async () => {
-            if (!items.length) return;
-            const url = `https://${items[active].domain}`;
-            const ok = await copyText(url);
-            if (ok) {
-              announcePolite(t('results.copied'));
-              window.dispatchEvent(new CustomEvent('app:flash', { detail: t('results.copied') }));
-            }
-          }}
-          disabled={!items.length}
-        >
-          {t('results.copy')}
-        </button>
-        <button
-          onClick={() => {
-            if (!items.length) return;
-            openExternal(`https://${items[active].domain}`);
-          }}
-          disabled={!items.length}
-        >
-          {t('results.openBrowser')}
-        </button>
-      </div>
-      <div id="after-results" tabIndex={-1}></div>
+      <ul
+        className="result-list"
+        role="list"
+        aria-label={t('results.list_label', { count: items.length })}
+        ref={listRef}
+        tabIndex={0}
+      >
+        {items.map((it, idx) => {
+          const idSafe = it.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
+          const titleId = `title-${idSafe}`;
+          const descId = `desc-${idSafe}`;
+          const factsId = `facts-${idSafe}`;
+          return (
+            <li
+              key={it.domain}
+              className="card"
+              role="listitem"
+              tabIndex={active === idx ? 0 : -1}
+              aria-labelledby={`${titleId} ${descId}`}
+              aria-describedby={factsId}
+              aria-keyshortcuts="Enter, Control+O, Meta+O, Control+C, Meta+C, ArrowUp, ArrowDown, Home, End"
+              ref={(el) => (itemRefs.current[idx] = el)}
+              onKeyDown={(e) => onItemKeyDown(e, idx, it.domain)}
+              onFocus={() => {
+                setActive(idx);
+                setControlsIdx(null);
+              }}
+            >
+              <div className="card-body">
+                <h3 id={titleId}>
+                  <a
+                    href={`https://${it.domain}`}
+                    aria-describedby={factsId}
+                    tabIndex={-1}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openExternal(`https://${it.domain}`);
+                    }}
+                  >
+                    {it.domain}
+                  </a>
+                </h3>
+                <p id={descId}>{it.description}</p>
+                <p id={factsId}>
+                  <span>{it.languages.join(', ').toUpperCase()}</span>
+                  {' · '}
+                  <span>{it.signups === 'open' ? t('results.open') : t('results.approval')}</span>
+                  {' · '}
+                  <span>{it.sizeLabel}</span>
+                </p>
+              </div>
+              {active === idx && (
+                <div className="kbd-hint" aria-hidden="true">
+                  <span>{t('results.hint_open')}</span>
+                  <span className="sep">•</span>
+                  <span>{t('results.hint_copy_tab')}</span>
+                  <span className="sep">•</span>
+                  <span>{t('results.hint_copy_shortcut')}</span>
+                </div>
+              )}
+              <div className="card-actions" aria-hidden={controlsIdx !== idx}>
+                <button
+                  tabIndex={controlsIdx === idx ? 0 : -1}
+                  onClick={async () => {
+                    const ok = await copyText(`https://${it.domain}`);
+                    if (ok) {
+                      announcePolite(t('results.copied'));
+                      window.dispatchEvent(new CustomEvent('app:flash', { detail: t('results.copied') }));
+                    }
+                  }}
+                >
+                  {t('results.copy')}
+                </button>
+                <button
+                  tabIndex={controlsIdx === idx ? 0 : -1}
+                  onClick={() => openExternal(`https://${it.domain}`)}
+                >
+                  {t('results.openBrowser')}
+                </button>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 });

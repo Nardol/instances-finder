@@ -38,7 +38,7 @@ const App: React.FC = () => {
   const [availableLangs, setAvailableLangs] = useState<string[]>(['fr', 'en']);
   const liveRef = useRef<HTMLDivElement | null>(null);
   const appRef = useRef<HTMLDivElement | null>(null);
-  const resultsListRef = useRef<HTMLDivElement | null>(null);
+  const resultsListRef = useRef<HTMLUListElement | null>(null);
 
   useEffect(() => {
     if (!tokenReady) {
@@ -84,7 +84,10 @@ const App: React.FC = () => {
             new CustomEvent('app:flash', { detail: t('status.done', { count: ranked.length }) })
           );
         } catch (_) {}
-        // After results load, do not force focus; readers can navigate
+        // After results load, move focus to the list for faster nav
+        setTimeout(() => {
+          resultsListRef.current?.focus();
+        }, 0);
       } catch (e) {
         if (!cancelled) {
           setErrorMsg(t('status.error'));

@@ -6,7 +6,10 @@ use api::{
     clear_instances_cache, clear_token, fetch_instances, fetch_languages, save_token, test_token,
     token_status, AppState,
 };
-use tauri::{menu::{Menu, MenuItem, Submenu}, Emitter, Manager};
+use tauri::{
+    menu::{Menu, MenuItem, Submenu},
+    Emitter, Manager,
+};
 
 fn main() {
     tauri::Builder::default()
@@ -31,14 +34,22 @@ fn main() {
                 "preferences",
                 "Préférences…",
                 true,
-                if cfg!(target_os = "macos") { Some("Cmd+,") } else { Some("Ctrl+,") },
+                if cfg!(target_os = "macos") {
+                    Some("Cmd+,")
+                } else {
+                    Some("Ctrl+,")
+                },
             )?;
             let refresh = MenuItem::with_id(
                 app,
                 "refresh",
                 "Actualiser",
                 true,
-                if cfg!(target_os = "macos") { Some("Cmd+R") } else { Some("Ctrl+R") },
+                if cfg!(target_os = "macos") {
+                    Some("Cmd+R")
+                } else {
+                    Some("Ctrl+R")
+                },
             )?;
 
             let file = Submenu::new(app, "Fichier", true)?;

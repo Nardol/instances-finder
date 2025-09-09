@@ -27,6 +27,7 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChang
       const arr = list ? Array.from(list) : [];
       return arr.filter(
         (el) =>
+          !el.hasAttribute('data-sentinel') &&
           el.getAttribute('aria-hidden') !== 'true' &&
           !el.closest('[aria-hidden="true"]') &&
           (el === dialog || el.getClientRects().length > 0)
@@ -124,7 +125,7 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChang
             ✕
           </button>
         </header>
-        <div className="modal-body" tabIndex={0} role="document">
+        <div className="modal-body" role="document">
           <section aria-labelledby="prefs-general-title" style={{ marginBottom: '1rem' }}>
             <h3 id="prefs-general-title">Général</h3>
             <div className="row">
@@ -155,6 +156,7 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChang
         <div
           tabIndex={0}
           aria-hidden="true"
+          data-sentinel
           onFocus={() => {
             const dialog = dialogRef.current;
             const first = dialog?.querySelector<HTMLElement>(

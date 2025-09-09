@@ -163,6 +163,38 @@ button.primary {
 .result-list[data-active-col="4"] [aria-colindex="5"] {
   background: rgba(59, 130, 246, 0.08);
 }
+
+/* Semantic table layout for results */
+.table-wrap {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: auto;
+}
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.results-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  text-align: left;
+  padding: 0.5rem 1rem;
+  background: rgba(59, 130, 246, 0.10);
+}
+@media (prefers-color-scheme: dark) {
+  .results-table thead th { background: rgba(59, 130, 246, 0.16); }
+}
+.results-table tbody td {
+  padding: 0.5rem 1rem;
+  vertical-align: top;
+  border-top: 1px solid var(--border);
+}
+.results-table .cell-domain a { font-weight: 600; }
+.results-table .muted { color: #6b7280; font-size: 0.9rem; margin: 0.25rem 0 0; }
+@media (prefers-color-scheme: dark) { .results-table .muted { color: #9ca3af; } }
+.results-table .cell-actions { display: flex; gap: 0.5rem; }
 @media (prefers-color-scheme: dark) {
   .result-list[data-active-col="0"] [aria-colindex="1"],
   .result-list[data-active-col="1"] [aria-colindex="2"],

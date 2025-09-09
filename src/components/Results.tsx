@@ -52,8 +52,6 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
   const { t } = useI18n();
   const [announce, setAnnounce] = useState('');
   const [active, setActive] = useState(0); // active row index
-  const [col, setCol] = useState(0); // active column index within the grid
-  // Using roving tabindex: keep the DOM focus on the active grid cell
 
   // Ensure screen readers re-announce identical messages by clearing first
   const announcePolite = (msg: string) => {
@@ -64,299 +62,93 @@ export const Results = React.forwardRef<HTMLDivElement, Props>(function Results(
   // Keep active in range when list changes
   useEffect(() => {
     if (active > items.length - 1) setActive(items.length ? 0 : 0);
-    // Reset column to first when the dataset changes
-    setCol(0);
   }, [items.length]);
 
   // Ensure a focus target exists when items load the first time
   useEffect(() => {
     if (!items.length) return;
     const idSafe = items[Math.max(0, Math.min(items.length - 1, active))]?.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
-    const cell = document.getElementById(`cell-${idSafe}-${col}`) as HTMLElement | null;
-    if (cell && document.activeElement === document.body) {
-      cell.focus();
+    const link = document.getElementById(`link-${idSafe}`) as HTMLAnchorElement | null;
+    if (link && document.activeElement === document.body) {
+      link.focus();
     }
-  }, [items, active, col]);
+  }, [items, active]);
 
   // Listen for App request to focus the first cell after results load
   useEffect(() => {
     const handler = () => {
       if (!items.length) return;
       const idSafe = items[0]?.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
-      const cell = document.getElementById(`cell-${idSafe}-0`) as HTMLElement | null;
-      if (cell) {
-        setActive(0);
-        setCol(0);
-        cell.focus();
-      }
+      const link = document.getElementById(`link-${idSafe}`) as HTMLAnchorElement | null;
+      if (link) { setActive(0); link.focus(); }
     };
     window.addEventListener('results:focus-first', handler);
     return () => window.removeEventListener('results:focus-first', handler);
   }, [items]);
 
-  const focusIndex = (idx: number) => {
-    const clamped = Math.max(0, Math.min(items.length - 1, idx));
-    setActive(clamped);
-    setTimeout(() => {
-      const idSafe = items[clamped]?.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
-      const cell = document.getElementById(`cell-${idSafe}-${col}`) as HTMLElement | null;
-      cell?.focus();
-    }, 0);
-  };
-
-  const handleCellKeyDown = async (
-    e: React.KeyboardEvent<HTMLElement>,
-    rowIndex: number,
-    colIndex: number
-  ) => {
-    if (SR_STRICT) return; // let Orca handle; no custom nav
-    if (items.length === 0) return;
-    const isMod = e.ctrlKey || e.metaKey;
-    const ctrlAlt = e.ctrlKey && e.altKey; // Orca table navigation
-    const colCount = 5;
-
-    const goTo = (r: number, c: number) => {
-      const nr = Math.max(0, Math.min(items.length - 1, r));
-      const nc = Math.max(0, Math.min(colCount - 1, c));
-      if (nr === active && nc === col) return; // no-op to avoid redundant focus/update
-      setActive(nr);
-      setCol(nc);
-      setTimeout(() => {
-        const idSafe = items[nr]?.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
-        (document.getElementById(`cell-${idSafe}-${nc}`) as HTMLElement | null)?.focus();
-      }, 0);
-    };
-
-    switch (e.key) {
-      case 'ArrowDown':
-        if (ctrlAlt) return; // let Orca handle
-        if (rowIndex >= items.length - 1) return; // let SR announce boundary
-        e.preventDefault();
-        goTo(rowIndex + 1, colIndex);
-        break;
-      case 'ArrowUp':
-        if (ctrlAlt) return;
-        if (rowIndex <= 0) return;
-        e.preventDefault();
-        goTo(rowIndex - 1, colIndex);
-        break;
-      case 'ArrowRight': {
-        if (ctrlAlt) return;
-        const idSafe = items[rowIndex]?.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
-        if (colIndex >= colCount - 1) {
-          // At Actions column: move into first button
-          e.preventDefault();
-          const btn = (document.querySelector(`#cell-${idSafe}-${colIndex} button`) as HTMLButtonElement | null);
-          if (btn) { btn.focus(); }
-          return;
-        }
-        e.preventDefault();
-        goTo(rowIndex, colIndex + 1);
-        break; }
-        break;
-      case 'ArrowLeft':
-        if (ctrlAlt) return;
-        if (colIndex <= 0) return;
-        e.preventDefault();
-        goTo(rowIndex, colIndex - 1);
-        break;
-      case 'Home':
-        e.preventDefault();
-        if (e.ctrlKey) { goTo(0, 0); } else { goTo(rowIndex, 0); }
-        break;
-      case 'End':
-        e.preventDefault();
-        if (e.ctrlKey) { goTo(items.length - 1, colCount - 1); } else { goTo(rowIndex, colCount - 1); }
-        break;
-      case 'PageDown':
-        e.preventDefault();
-        goTo(rowIndex + 10, colIndex);
-        break;
-      case 'PageUp':
-        e.preventDefault();
-        goTo(rowIndex - 10, colIndex);
-        break;
-      case 'Enter':
-        e.preventDefault();
-        openExternal(`https://${items[rowIndex]?.domain}`);
-        break;
-      case 'o':
-      case 'O':
-        if (isMod) {
-          e.preventDefault();
-          openExternal(`https://${items[rowIndex]?.domain}`);
-        }
-        break;
-      case 'c':
-      case 'C':
-        if (isMod && e.shiftKey) {
-          e.preventDefault();
-          const ok = await copyText(`https://${items[rowIndex]?.domain}`);
-          if (ok) announcePolite(t('results.copied'));
-        }
-        break;
-      default:
-        break;
-    }
-  };
 
   return (
     <div className="results" role="region" aria-labelledby="results-title">
       <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
         {announce}
       </p>
-      <div
-        className="result-list"
-        role="table"
-        aria-rowcount={items.length + 1}
-        aria-colcount={3}
-        aria-label={t('results.list_label', { count: items.length })}
-        ref={listRef}
-        data-active-col={col}
-        // Keep the container out of the tab order to avoid double focus
-        tabIndex={-1}
-      >
-        {/* Header row for screen readers and sighted users */}
-        <div role="row" className="grid-header" aria-rowindex={1}>
-          <div role="columnheader" id="colhdr-domain" aria-colindex={1} className={`cell ${col === 0 ? 'is-active' : ''}`}>
-            {t('results.col_domain')}
-          </div>
-          <div role="columnheader" id="colhdr-langs" aria-colindex={2} className={`cell ${col === 1 ? 'is-active' : ''}`}>
-            {t('results.col_languages')}
-          </div>
-          <div role="columnheader" id="colhdr-signups" aria-colindex={3} className={`cell ${col === 2 ? 'is-active' : ''}`}>
-            {t('results.col_signups')}
-          </div>
-          <div role="columnheader" id="colhdr-size" aria-colindex={4} className={`cell ${col === 3 ? 'is-active' : ''}`}>
-            {t('results.col_size')}
-          </div>
-          <div role="columnheader" id="colhdr-actions" aria-colindex={5} className={`cell ${col === 4 ? 'is-active' : ''}`}>
-            {t('results.col_actions')}
-          </div>
-        </div>
-        {items.map((it, idx) => {
-          const idSafe = it.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
-          const titleId = `title-${idSafe}`;
-          const descId = `desc-${idSafe}`;
-          const factsId = `facts-${idSafe}`;
-          return (
-          <div
-            key={it.domain}
-            className={`card ${active === idx ? 'is-active' : ''}`}
-            role="row"
-            aria-rowindex={idx + 2}
-            onMouseEnter={() => setActive(idx)}
-          >
-            <div
-              id={`cell-${idSafe}-0`}
-              role="cell"
-              aria-labelledby={`colhdr-domain ${titleId}`}
-              aria-colindex={1}
-              className={`card-body col-0 ${active === idx && col === 0 ? 'is-active' : ''}`}
-              tabIndex={active === idx && col === 0 ? 0 : -1}
-              onKeyDown={SR_STRICT ? undefined : (e) => handleCellKeyDown(e, idx, 0)}
-            >
-              <h3 id={titleId}>
-                <a
-                  href={`https://${it.domain}`}
-                  aria-describedby={factsId}
-                  tabIndex={-1}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    openExternal(`https://${it.domain}`);
-                  }}
-                >
-                  {it.domain}
-                </a>
-              </h3>
-              <p id={descId}>{it.description}</p>
-            </div>
-            <div
-              id={`cell-${idSafe}-1`}
-              role="cell"
-              aria-labelledby={`colhdr-langs ${titleId}`}
-              aria-colindex={2}
-              className={`card-body col-1 ${active === idx && col === 1 ? 'is-active' : ''}`}
-              tabIndex={active === idx && col === 1 ? 0 : -1}
-              onKeyDown={SR_STRICT ? undefined : (e) => handleCellKeyDown(e, idx, 1)}
-            >
-              <span>{it.languages.join(', ').toUpperCase()}</span>
-            </div>
-            <div
-              id={`cell-${idSafe}-2`}
-              role="cell"
-              aria-labelledby={`colhdr-signups ${titleId}`}
-              aria-colindex={3}
-              className={`card-body col-2 ${active === idx && col === 2 ? 'is-active' : ''}`}
-              tabIndex={active === idx && col === 2 ? 0 : -1}
-              onKeyDown={SR_STRICT ? undefined : (e) => handleCellKeyDown(e, idx, 2)}
-            >
-              <span>{it.signups === 'open' ? t('results.open') : t('results.approval')}</span>
-            </div>
-            <div
-              id={`cell-${idSafe}-3`}
-              role="cell"
-              aria-labelledby={`colhdr-size ${titleId}`}
-              aria-colindex={4}
-              className={`card-body col-3 ${active === idx && col === 3 ? 'is-active' : ''}`}
-              tabIndex={active === idx && col === 3 ? 0 : -1}
-              onKeyDown={SR_STRICT ? undefined : (e) => handleCellKeyDown(e, idx, 3)}
-            >
-              <span>{it.sizeLabel}</span>
-            </div>
-            <div
-              id={`cell-${idSafe}-4`}
-              role="cell"
-              aria-labelledby={`colhdr-actions ${titleId}`}
-              aria-colindex={5}
-              className={`card-actions col-4 ${active === idx && col === 4 ? 'is-active' : ''}`}
-              tabIndex={active === idx && col === 4 ? 0 : -1}
-              onKeyDown={SR_STRICT ? undefined : (e) => handleCellKeyDown(e, idx, 4)}
-            >
-              {active === idx && (
-                <div className="kbd-hint" aria-hidden="true">
-                  <span>{t('results.hint_open')}</span>
-                  <span className="sep">•</span>
-                  <span>{t('results.hint_copy_tab')}</span>
-                  <span className="sep">•</span>
-                  <span>{t('results.hint_copy_shortcut')}</span>
-                </div>
-              )}
-              <button
-                onKeyDown={(e) => {
-                  if (e.key === 'Escape' || e.key === 'ArrowLeft') {
-                    e.preventDefault();
-                    const idSafe2 = it.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
-                    (document.getElementById(`cell-${idSafe2}-4`) as HTMLElement | null)?.focus();
-                    setActive(idx); setCol(4);
-                  }
-                }}
-                onClick={async () => {
-                  const ok = await copyText(`https://${it.domain}`);
-                  if (ok) {
-                    announcePolite(t('results.copied'));
-                    window.dispatchEvent(new CustomEvent('app:flash', { detail: t('results.copied') }));
-                  }
-                }}
-              >
-                {t('results.copy')}
-              </button>
-              <button
-                onKeyDown={(e) => {
-                  if (e.key === 'Escape' || e.key === 'ArrowLeft') {
-                    e.preventDefault();
-                    const idSafe2 = it.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
-                    (document.getElementById(`cell-${idSafe2}-4`) as HTMLElement | null)?.focus();
-                    setActive(idx); setCol(4);
-                  }
-                }}
-                onClick={() => openExternal(`https://${it.domain}`)}
-              >
-                {t('results.openBrowser')}
-              </button>
-            </div>
-          </div>
-        );})}
+      <div className="table-wrap" ref={listRef}>
+        <table className="results-table" aria-label={t('results.list_label', { count: items.length })}>
+          <thead>
+            <tr>
+              <th id="h-domain">{t('results.col_domain')}</th>
+              <th id="h-langs">{t('results.col_languages')}</th>
+              <th id="h-signups">{t('results.col_signups')}</th>
+              <th id="h-size">{t('results.col_size')}</th>
+              <th id="h-actions">{t('results.col_actions')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((it, idx) => {
+              const idSafe = it.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
+              const descId = `desc-${idSafe}`;
+              return (
+                <tr key={it.domain} onMouseEnter={() => setActive(idx)}>
+                  <td headers="h-domain">
+                    <div className="cell-domain">
+                      <a
+                        href={`https://${it.domain}`}
+                        id={`link-${idSafe}`}
+                        aria-describedby={descId}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          openExternal(`https://${it.domain}`);
+                        }}
+                      >
+                        {it.domain}
+                      </a>
+                      <p id={descId} className="muted">{it.description}</p>
+                    </div>
+                  </td>
+                  <td headers="h-langs">{it.languages.join(', ').toUpperCase()}</td>
+                  <td headers="h-signups">{it.signups === 'open' ? t('results.open') : t('results.approval')}</td>
+                  <td headers="h-size">{it.sizeLabel}</td>
+                  <td headers="h-actions" className="cell-actions">
+                    <button
+                      onClick={async () => {
+                        const ok = await copyText(`https://${it.domain}`);
+                        if (ok) {
+                          announcePolite(t('results.copied'));
+                          window.dispatchEvent(new CustomEvent('app:flash', { detail: t('results.copied') }));
+                        }
+                      }}
+                    >
+                      {t('results.copy')}
+                    </button>
+                    <button onClick={() => openExternal(`https://${it.domain}`)}>
+                      {t('results.openBrowser')}
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </div>
   );

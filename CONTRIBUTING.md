@@ -17,6 +17,11 @@ Merci de votre intérêt pour ce projet. Cette courte page complète le README e
   - Préparer la cible Rust: `npm run cross:prep:win`
   - `.exe`: `npm run cross:build:win:exe`  |  `nsis`: `npm run cross:build:win:nsis`
 
+### Makefile (optionnel)
+- `make dev`, `make appimage`, `make deb`, `make linux`
+- `make cross-prep-win`, `make win-exe`, `make win-nsis`
+- `make release-tag VERSION=vX.Y.Z`, `make release-gh VERSION=vX.Y.Z NOTES="..."`
+
 ## Branches & Commits
 - Branches: `feat/<sujet-court>`, `fix/<bug-id>`, `chore/<tache>`.
 - Messages: au présent + type: `feat:`, `fix:`, `docs:`, `chore:`. Ajoutez `Closes #<num>` si pertinent.

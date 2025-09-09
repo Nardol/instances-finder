@@ -2,26 +2,27 @@
 
 NPM := npm
 
-.PHONY: help dev build appimage deb linux cross-prep-win win-exe win-nsis clean release-tag release-gh fmt fmt-js fmt-rust lint lint-fix clippy clippy-install
+.PHONY: help dev build appimage deb linux build-linux cross-prep-win win-exe win-nsis clean release-tag release-gh fmt fmt-js fmt-rust lint lint-fix clippy clippy-install
 
 help:
-	@echo "Targets:"
-	@echo "  dev            - Run Tauri dev (Vite + app)"
-	@echo "  build          - Build frontend (Vite)"
-	@echo "  appimage       - Build Linux AppImage"
-	@echo "  deb            - Build Debian .deb"
-	@echo "  linux          - Build AppImage + .deb"
-	@echo "  cross-prep-win - Add Rust target for Windows cross-build"
-	@echo "  win-exe        - Cross-build Windows portable .exe"
-	@echo "  win-nsis       - Cross-build Windows NSIS installer"
-	@echo "  release-tag    - Create and push git tag VERSION=vX.Y.Z"
-	@echo "  release-gh     - Create draft GitHub release VERSION=vX.Y.Z NOTES=..."
-	@echo "  clean          - Remove build artifacts"
-	@echo "  fmt            - Format JS/TS and Rust"
-	@echo "  lint           - Lint JS/TS"
-	@echo "  lint-fix       - Lint JS/TS (auto-fix)"
-	@echo "  clippy         - Run Rust Clippy (lint)"
-	@echo "  clippy-install - Ensure Clippy component is installed"
+	@echo "Cibles Make disponibles :"
+	@echo "  dev            - Lancer l'app en dev (Vite + Tauri)"
+	@echo "  build          - Builder le frontend (Vite)"
+	@echo "  appimage       - Construire une AppImage Linux"
+	@echo "  deb            - Construire un paquet Debian (.deb)"
+	@echo "  linux          - Construire AppImage + .deb"
+	@echo "  build-linux    - Alias de 'linux' (bundle Linux)"
+	@echo "  cross-prep-win - Préparer la cible Rust Windows (cross-build)"
+	@echo "  win-exe        - Cross-build Windows (.exe portable)"
+	@echo "  win-nsis       - Cross-build Windows (installeur NSIS)"
+	@echo "  release-tag    - Créer et pousser un tag VERSION=vX.Y.Z"
+	@echo "  release-gh     - Créer une release GitHub brouillon VERSION=vX.Y.Z NOTES=..."
+	@echo "  fmt            - Formater JS/TS et Rust"
+	@echo "  lint           - Linter JS/TS"
+	@echo "  lint-fix       - Linter JS/TS (auto-fix)"
+	@echo "  clippy         - Lancer Rust Clippy (lint)"
+	@echo "  clippy-install - Installer Clippy si nécessaire"
+	@echo "  clean          - Supprimer les artefacts de build"
 
 dev:
 	$(NPM) run tauri:dev
@@ -37,6 +38,8 @@ deb:
 
 linux:
 	$(NPM) run tauri:build:linux
+
+build-linux: linux
 
 cross-prep-win:
 	$(NPM) run cross:prep:win

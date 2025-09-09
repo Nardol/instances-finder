@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Check staged files only for U+2011 to catch issues early.
+staged=( )
+while IFS= read -r -d '' f; do
+  staged+=("$f")
+done < <(git diff --cached --name-only -z)
+
+if [[ ${#staged[@]} -eq 0 ]]; then
+  exit 0
+fi
+
+hits=$(printf '%s\0' "${staged[@]}" | xargs -0 grep -nIH $'\u2011' || true)
+if [[ -n "$hits" ]]; then
+  echo "pre-commit: Found non-breaking hyphen (U+2011) in staged files:" >&2
+  echo "$hits" >&2
+  echo >&2
+  echo "Replace U+2011 with '-' (ASCII hyphen) before committing." >&2
+  exit 1
+fi
+exit 0
+

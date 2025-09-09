@@ -90,8 +90,9 @@ Tests:
 ## Hooks Git (validation locale)
 
 - Hook local recommandé: activez les hooks du dépôt: `git config core.hooksPath .githooks`.
-- Le hook `commit-msg` applique deux règles: (1) ASCII uniquement (anglais), (2) style Conventional Commits minimal.
-- En cas de besoin ponctuel, vous pouvez passer outre avec `git commit -n`, mais la CI refusera une PR non conforme.
+- `commit-msg`: (1) ASCII uniquement (anglais), (2) style Conventional Commits minimal.
+- `pre-push`: exécute `make check` (lint JS/TS + Clippy). Si ça échoue, corrigez et relancez.
+- Bypass temporaire possible (`git commit -n`), mais la CI refusera une PR non conforme.
 
 ## Intégration Continue
 

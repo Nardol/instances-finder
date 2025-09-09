@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
+
+echo "[pre-push] Running make check (lint JS/TS + Clippy)…"
+if ! make -s check; then
+  cat >&2 <<'EOF'
+[pre-push] Checks failed.
+- Ensure JS deps are installed: npm ci
+- Ensure Rust toolchain + Clippy: rustup component add clippy
+Then re-run: make check
+EOF
+  exit 1
+fi
+
+echo "[pre-push] All checks passed. Proceeding with push."

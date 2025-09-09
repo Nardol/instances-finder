@@ -19,11 +19,19 @@ jobs:
         run: npm ci || npm install
       - name: ESLint (JS/TS lint)
         run: npm run lint
+      - name: TypeScript (tsc --noEmit)
+        run: npx --no-install tsc --noEmit
+      - name: Prettier (format check)
+        run: npx --no-install prettier --check .
       - uses: dtolnay/rust-toolchain@stable
       - name: Ensure Clippy
         run: rustup component add clippy
       - name: Clippy (Rust lint)
         run: cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings
+      - name: Ensure rustfmt
+        run: rustup component add rustfmt
+      - name: Rustfmt (format check)
+        run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
 
   linux-appimage:
     runs-on: ubuntu-latest

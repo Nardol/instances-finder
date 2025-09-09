@@ -96,7 +96,7 @@ Tests:
 
 ## Intégration Continue
 
-- GitHub Actions: `.github/workflows/build.yml` build Linux (AppImage) et Windows (NSIS), et publie les artefacts.
+- GitHub Actions: `.github/workflows/build.yml` exécute d’abord un job `checks` (ESLint, TypeScript `--noEmit`, Prettier `--check`, Clippy, rustfmt `--check`). Les builds Linux (AppImage + Debian) et Windows (NSIS) ne s’exécutent que si ces checks passent.
 - Release: `.github/workflows/release.yml` joint les artefacts aux tags `v*`. Utilisez `release-draft.yml` pour un lancement manuel.
 
 ## Versionnage & Release

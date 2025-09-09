@@ -8,12 +8,7 @@ XTASK_BIN_WIN := ./xtask/target/release/xtask.exe
 XTASK := $(if $(wildcard $(XTASK_BIN_WIN)),$(XTASK_BIN_WIN),$(if $(wildcard $(XTASK_BIN_POSIX)),$(XTASK_BIN_POSIX),cargo run --manifest-path xtask/Cargo.toml --))
 XTASK_BANNER = @if [ -x ./xtask/target/release/xtask ] || [ -x ./xtask/target/release/xtask.exe ]; then echo "[xtask] Using prebuilt binary"; else echo "[xtask] Using cargo run (no prebuilt binary)"; fi
 
-# Prefer prebuilt xtask binary if available; fallback to cargo run.
-XTASK_BIN_POSIX := ./xtask/target/release/xtask
-XTASK_BIN_WIN := ./xtask/target/release/xtask.exe
-XTASK := $(if $(wildcard $(XTASK_BIN_WIN)),$(XTASK_BIN_WIN),$(if $(wildcard $(XTASK_BIN_POSIX)),$(XTASK_BIN_POSIX),cargo run --manifest-path xtask/Cargo.toml --))
-
-.PHONY: help help-all check check-js check-rust check-js-type check-js-fmt check-rust-fmt ci-checks fix dev build appimage deb linux build-linux cross-prep-win win-exe win-nsis win-zip clean release-tag release-gh fmt fmt-js fmt-rust lint lint-fix clippy clippy-install ensure-cli doctor xtask-release
+.PHONY: help help-all check check-js check-rust check-js-type check-js-fmt check-rust-fmt ci-checks fix dev build appimage deb linux build-linux cross-prep-win win-exe win-nsis win-zip clean clean-xtask clean-deps clean-all release-tag release-gh fmt fmt-js fmt-rust lint lint-fix clippy clippy-install ensure-cli doctor xtask-release
 
 help:
 	@echo "Cibles Make disponibles :"
@@ -46,7 +41,10 @@ help:
 	@echo "  check-rust-fmt - Vérifier formatage Rust (cargo fmt --check)"
 	@echo "  ci-checks      - Réplique locale des checks CI (lint+types+format JS/Rust)"
 	@echo "  fix            - Formatter et corriger (fmt + lint-fix)"
-	@echo "  clean          - Supprimer les artefacts de build"
+	@echo "  clean          - Supprimer dist + src-tauri/target (rapide)"
+	@echo "  clean-xtask    - Supprimer le binaire xtask précompilé (xtask/target)"
+	@echo "  clean-deps     - Supprimer node_modules (re-installation nécessaire)"
+	@echo "  clean-all      - clean + clean-xtask + clean-deps"
 
 help-all: help
 	@echo
@@ -118,7 +116,16 @@ release-gh:
 	$(XTASK) release gh $$VERSION --notes "$$NOTES"
 
 clean:
-	rm -rf dist src-tauri/target
+	$(XTASK_BANNER)
+	$(XTASK) clean
+
+clean-xtask:
+	rm -rf xtask/target
+
+clean-deps:
+	rm -rf node_modules
+
+clean-all: clean clean-xtask clean-deps
 
 fmt: fmt-js fmt-rust
 

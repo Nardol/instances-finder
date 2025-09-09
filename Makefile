@@ -17,8 +17,11 @@ help:
 	@echo "  release-tag    - Create and push git tag VERSION=vX.Y.Z"
 	@echo "  release-gh     - Create draft GitHub release VERSION=vX.Y.Z NOTES=..."
 	@echo "  clean          - Remove build artifacts"
- 	@echo "  clippy         - Run Rust Clippy (lint)"
- 	@echo "  clippy-install - Ensure Clippy component is installed"
+	@echo "  fmt            - Format JS/TS and Rust"
+	@echo "  lint           - Lint JS/TS"
+	@echo "  lint-fix       - Lint JS/TS (auto-fix)"
+	@echo "  clippy         - Run Rust Clippy (lint)"
+	@echo "  clippy-install - Ensure Clippy component is installed"
 
 dev:
 	$(NPM) run tauri:dev

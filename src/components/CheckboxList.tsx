@@ -57,8 +57,7 @@ export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder 
         Utilisez Haut/Bas pour naviguer, Espace pour cocher/décocher. Tab pour quitter la liste.
       </p>
       <ul
-        role="listbox"
-        aria-multiselectable="true"
+        role="group"
         aria-labelledby={listId}
         aria-describedby={hintId}
         className="roving-list"
@@ -67,8 +66,10 @@ export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder 
         {visible.map((it, idx) => (
           <li
             key={it.id}
-            role="option"
-            aria-selected={it.checked}
+            role="checkbox"
+            aria-checked={it.checked}
+            aria-posinset={idx + 1}
+            aria-setsize={visible.length}
             tabIndex={active === idx ? 0 : -1}
             ref={(el) => (refs.current[idx] = el)}
             onFocus={() => setActive(idx)}

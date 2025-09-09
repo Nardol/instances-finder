@@ -67,6 +67,7 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false, langua
         <div className="row">
           <label className="label" htmlFor="size-select">
             {t('wizard.size')}
+            {local.size === 'any' && <span className="badge-muted">{t('wizard.indifferent')}</span>}
           </label>
           <select
             id="size-select"
@@ -83,6 +84,7 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false, langua
         <div className="row">
           <label className="label" htmlFor="moderation-select">
             {t('wizard.moderation')}
+            {local.moderation === 'any' && <span className="badge-muted">{t('wizard.indifferent')}</span>}
           </label>
           <select
             id="moderation-select"
@@ -99,6 +101,7 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false, langua
         <div className="row">
           <label className="label" htmlFor="signups-select">
             {t('wizard.signups')}
+            {local.signups === 'any' && <span className="badge-muted">{t('wizard.indifferent')}</span>}
           </label>
           <select
             id="signups-select"
@@ -115,6 +118,7 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false, langua
           <div className="row">
             <label className="label" htmlFor="region-select">
               {t('wizard.region_experimental')}
+              {local.region === 'any' && <span className="badge-muted">{t('wizard.indifferent')}</span>}
             </label>
             <select
               id="region-select"
@@ -132,6 +136,7 @@ export const Wizard: React.FC<Props> = ({ prefs, onApply, expert = false, langua
         <div className="row">
           <label className="label" htmlFor="nsfw-select">
             {t('wizard.nsfw')}
+            {local.nsfw === 'any' && <span className="badge-muted">{t('wizard.indifferent')}</span>}
           </label>
           <select
             id="nsfw-select"

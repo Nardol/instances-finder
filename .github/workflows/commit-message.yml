@@ -31,7 +31,7 @@ jobs:
         run: |
           set -euo pipefail
           base_ref="origin/${{ github.base_ref }}"
-          git fetch origin "${{ github.base_ref }}" --depth=0
+          git fetch origin "${{ github.base_ref }}" --unshallow || git fetch origin "${{ github.base_ref }}" --depth=1000
           echo "Checking range: ${base_ref}..HEAD"
           mapfile -t subjects < <(git log --format=%s "${base_ref}..HEAD")
           if [[ ${#subjects[@]} -eq 0 ]]; then

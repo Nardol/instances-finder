@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useI18n } from '../i18n';
 import type { Lang } from '../i18n';
 
 type Props = {
@@ -13,6 +14,7 @@ type Props = {
 };
 
 export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChangeLang, expert, onToggleExpert, brailleRefresh, onToggleBrailleRefresh }) => {
+  const { t } = useI18n();
   const backdropRef = useRef<HTMLDivElement | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const lastFocusRef = useRef<HTMLElement | null>(null);
@@ -137,7 +139,7 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose, lang, onChang
                   type="checkbox"
                   checked={brailleRefresh}
                   onChange={(e) => onToggleBrailleRefresh(e.target.checked)}
-                /> Rafraîchir la plage braille lors du changement d’état (peut provoquer une double annonce vocale) — expérimental
+                /> {t('prefs.braille_refresh')}
               </label>
             </div>
           </section>

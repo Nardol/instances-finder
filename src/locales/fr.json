@@ -58,6 +58,9 @@
     "needs_token": "Un jeton Instances.social est requis pour lancer la recherche.",
     "error": "Une erreur est survenue."
   },
+  "prefs": {
+    "braille_refresh": "Rafraîchir la plage braille lors du changement d’état (peut provoquer une double annonce vocale) — expérimental"
+  },
   "token": {
     "title": "Connexion à Instances.social",
     "desc": "Obtenez un jeton d’accès Instances.social pour des résultats complets.",

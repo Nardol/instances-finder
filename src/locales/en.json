@@ -58,6 +58,9 @@
     "needs_token": "An Instances.social token is required to search.",
     "error": "An error occurred."
   },
+  "prefs": {
+    "braille_refresh": "Refresh braille display on state change (may cause double speech) — experimental"
+  },
   "token": {
     "title": "Connect to Instances.social",
     "desc": "Get an access token from Instances.social for full results.",

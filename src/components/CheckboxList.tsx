@@ -22,6 +22,7 @@ export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder,
   const filterId = React.useId();
   const statusId = React.useId();
   const [query, setQuery] = React.useState('');
+  const announceRef = React.useRef<HTMLParagraphElement | null>(null);
   const labels = announcementLabels || { selected: 'selected', notSelected: 'not selected' };
 
   const focusIndex = (idx: number) => {
@@ -46,6 +47,18 @@ export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder,
     return `${it.label} — ${it.checked ? labels.selected : labels.notSelected}`;
   }, [visible, active, labels.selected, labels.notSelected]);
 
+  // Force screen reader announcement even when focus stays on the listbox
+  React.useEffect(() => {
+    const el = announceRef.current;
+    if (!el) return;
+    el.textContent = '';
+    // Delay to ensure DOM mutation is detected
+    const id = window.setTimeout(() => {
+      el.textContent = activeAnnouncement;
+    }, 0);
+    return () => window.clearTimeout(id);
+  }, [activeAnnouncement]);
+
   return (
     <div>
       <div id={listId} className="label" style={{ marginBottom: 4 }}>
@@ -65,13 +78,17 @@ export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder,
       <p id={hintId} className="sr-only">
         Utilisez Haut/Bas pour naviguer, Espace pour cocher/décocher. Tab pour quitter la liste.
       </p>
+      {/* Live status for SR (outside the listbox focus to avoid mode switches) */}
+      <p ref={announceRef} className="sr-only" role="status" aria-live="polite">
+        {activeAnnouncement}
+      </p>
       <ul
         ref={listRef}
         role="listbox"
         aria-multiselectable="true"
         aria-activedescendant={visible[active] ? visible[active].id : undefined}
         aria-labelledby={listId}
-        aria-describedby={`${hintId} ${statusId}`}
+        aria-describedby={hintId}
         tabIndex={0}
         className="roving-list"
         style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: '0.25rem' }}
@@ -104,9 +121,6 @@ export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder,
           }
         }}
       >
-        <p id={statusId} className="sr-only" role="status" aria-live="polite">
-          {activeAnnouncement}
-        </p>
         {visible.map((it, idx) => (
           <li
             key={it.id}

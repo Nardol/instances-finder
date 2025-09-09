@@ -73,6 +73,11 @@ export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder 
             tabIndex={active === idx ? 0 : -1}
             ref={(el) => (refs.current[idx] = el)}
             onFocus={() => setActive(idx)}
+            onClick={(e) => {
+              e.preventDefault();
+              it.onToggle(!it.checked);
+              setActive(idx);
+            }}
             onKeyDown={(e) => {
               switch (e.key) {
                 case 'ArrowDown':
@@ -107,6 +112,7 @@ export const CheckboxList: React.FC<Props> = ({ label, items, filterPlaceholder 
               padding: '0.25rem 0.5rem',
               borderRadius: 6,
               outlineOffset: 2,
+              cursor: 'pointer',
             }}
           >
             <span aria-hidden="true" className="check-icon" style={{ width: 18, textAlign: 'center' }}>

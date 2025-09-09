@@ -212,6 +212,16 @@ button.primary {
   .check-icon { color: #9ca3af; /* gray-400 */ }
 }
 
+/* Roving checkbox list hover */
+.roving-list li[role="checkbox"]:hover {
+  background: rgba(59, 130, 246, 0.12);
+}
+@media (prefers-color-scheme: dark) {
+  .roving-list li[role="checkbox"]:hover {
+    background: rgba(59, 130, 246, 0.18);
+  }
+}
+
 .app-body {
   display: grid;
   grid-template-columns: 220px 1fr;

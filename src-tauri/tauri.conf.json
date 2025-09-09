@@ -33,16 +33,17 @@
     "shortDescription": "Trouver une instance Mastodon accessible.",
     "longDescription": "Outil de bureau pour comparer et choisir des instances Mastodon via l'API instances.social, avec un accent sur l'accessibilité (lecteurs d'écran, navigation clavier).",
     "category": "Utility",
-    "deb": {
-      "depends": [
-        "libwebkit2gtk-4.1-0",
-        "libgtk-3-0",
-        "libayatana-appindicator3-1",
-        "librsvg2-2",
-        "libssl3"
-      ]
+    "linux": {
+      "deb": {
+        "depends": [
+          "libwebkit2gtk-4.1-0",
+          "libgtk-3-0",
+          "libayatana-appindicator3-1",
+          "librsvg2-2",
+          "libssl3"
+        ]
+      }
     },
-    "appimage": {},
     "windows": {
       "webviewInstallMode": { "type": "downloadBootstrapper" }
     }

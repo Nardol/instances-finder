@@ -37,24 +37,18 @@ export const PreferencesModal: React.FC<Props> = ({ open, onClose }) => {
         onClose();
       }
       if (e.key === 'Tab') {
-        const focusables = dialog?.querySelectorAll<HTMLElement>(
+        const list = dialog?.querySelectorAll<HTMLElement>(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
         );
-        if (!focusables || focusables.length === 0) return;
-        const first = focusables[0];
-        const last = focusables[focusables.length - 1];
+        if (!list || list.length === 0) return;
+        const focusables = Array.from(list);
         const active = document.activeElement as HTMLElement | null;
-        if (e.shiftKey) {
-          if (active === first || !dialog?.contains(active)) {
-            e.preventDefault();
-            last.focus();
-          }
-        } else {
-          if (active === last) {
-            e.preventDefault();
-            first.focus();
-          }
-        }
+        let idx = focusables.findIndex((el) => el === active);
+        if (idx === -1) idx = 0;
+        e.preventDefault();
+        const delta = e.shiftKey ? -1 : 1;
+        const next = (idx + delta + focusables.length) % focusables.length;
+        focusables[next].focus();
       }
     };
     const onClickBackdrop = (e: MouseEvent) => {

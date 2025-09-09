@@ -244,6 +244,11 @@ button.primary {
   align-items: center;
 }
 
+/* When modal open, make background inert to pointer events */
+.app[aria-hidden="true"] {
+  pointer-events: none;
+}
+
 /* Modal (Preferences) */
 .modal-backdrop {
   position: fixed;

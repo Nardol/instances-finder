@@ -35,6 +35,7 @@ const App: React.FC = () => {
   const [flash, setFlash] = useState<string | null>(null);
   const [prefsOpen, setPrefsOpen] = useState<boolean>(false);
   const liveRef = useRef<HTMLDivElement | null>(null);
+  const appRef = useRef<HTMLDivElement | null>(null);
   const resultsListRef = useRef<HTMLUListElement | null>(null);
 
   useEffect(() => {
@@ -160,6 +161,17 @@ const App: React.FC = () => {
     return () => window.removeEventListener('app:flash', handler as any);
   }, []);
 
+  // Toggle inert on background when preferences open
+  useEffect(() => {
+    const el = appRef.current;
+    if (!el) return;
+    if (prefsOpen) {
+      el.setAttribute('inert', '');
+    } else {
+      el.removeAttribute('inert');
+    }
+  }, [prefsOpen]);
+
   // React to in-app refresh button (DOM event)
   useEffect(() => {
     const handler = async () => {
@@ -174,7 +186,12 @@ const App: React.FC = () => {
 
   return (
     <AppShell statusText={statusText} flashText={flash}>
-      <div className="app" aria-labelledby="app-title" aria-hidden={prefsOpen}>
+      <div
+        ref={appRef}
+        className="app"
+        aria-labelledby="app-title"
+        aria-hidden={prefsOpen}
+      >
         <Header lang={lang} onChangeLang={setLang} expert={expert} onToggleExpert={setExpert} />
 
         <main id="main" className="main" role="main">

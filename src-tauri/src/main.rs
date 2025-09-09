@@ -2,7 +2,10 @@
 
 mod api;
 
-use api::{clear_instances_cache, clear_token, fetch_instances, fetch_languages, save_token, test_token, token_status, AppState};
+use api::{
+    clear_instances_cache, clear_token, fetch_instances, fetch_languages, save_token, test_token,
+    token_status, AppState,
+};
 use tauri::{AboutMetadata, CustomMenuItem, Menu, MenuItem, Submenu};
 
 fn main() {
@@ -16,10 +19,16 @@ fn main() {
     let quit = MenuItem::Quit;
     let file_menu = Submenu::new(
         "Fichier",
-        Menu::new().add_item(preferences.clone()).add_native_item(quit),
+        Menu::new()
+            .add_item(preferences.clone())
+            .add_native_item(quit),
     );
     let refresh = CustomMenuItem::new("refresh".to_string(), "Actualiser").accelerator(
-        if cfg!(target_os = "macos") { "Cmd+R" } else { "Ctrl+R" },
+        if cfg!(target_os = "macos") {
+            "Cmd+R"
+        } else {
+            "Ctrl+R"
+        },
     );
     let view_menu = Submenu::new(
         "Affichage",
@@ -62,9 +71,7 @@ fn main() {
                     .emit("menu://preferences", serde_json::json!({}));
             }
             "refresh" => {
-                let _ = event
-                    .window()
-                    .emit("menu://refresh", serde_json::json!({}));
+                let _ = event.window().emit("menu://refresh", serde_json::json!({}));
             }
             _ => {}
         })

@@ -2,7 +2,7 @@
 
 NPM := npm
 
-.PHONY: help dev build appimage deb linux cross-prep-win win-exe win-nsis clean release-tag release-gh fmt fmt-js fmt-rust lint lint-fix
+.PHONY: help dev build appimage deb linux cross-prep-win win-exe win-nsis clean release-tag release-gh fmt fmt-js fmt-rust lint lint-fix clippy clippy-install
 
 help:
 	@echo "Targets:"
@@ -17,6 +17,8 @@ help:
 	@echo "  release-tag    - Create and push git tag VERSION=vX.Y.Z"
 	@echo "  release-gh     - Create draft GitHub release VERSION=vX.Y.Z NOTES=..."
 	@echo "  clean          - Remove build artifacts"
+ 	@echo "  clippy         - Run Rust Clippy (lint)"
+ 	@echo "  clippy-install - Ensure Clippy component is installed"
 
 dev:
 	$(NPM) run tauri:dev
@@ -68,3 +70,9 @@ lint:
 
 lint-fix:
 	$(NPM) run lint:fix
+
+clippy-install:
+	rustup component list --installed | grep -q "^clippy" || rustup component add clippy
+
+clippy: clippy-install
+	cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings

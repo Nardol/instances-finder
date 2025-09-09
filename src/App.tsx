@@ -89,9 +89,11 @@ const App: React.FC = () => {
         } catch (_) {
           /* no-op: UI flash is optional */
         }
-        // After results load, focus the listbox container to keep Orca in focus mode
+        // After results load, ask Results to focus-first via its own handler.
+        // This ensures aria-activedescendant points to a rendered option before focus,
+        // which helps Orca stay in focus mode instead of switching to browse mode.
         setTimeout(() => {
-          resultsListRef.current?.focus();
+          window.dispatchEvent(new CustomEvent('results:focus-first'));
         }, 0);
       } catch (e) {
         if (!cancelled) {

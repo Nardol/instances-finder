@@ -87,104 +87,88 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
     }, 0);
   };
 
-  const handleListKeyDown = async (e: React.KeyboardEvent<HTMLUListElement>) => {
+  const handleCellKeyDown = async (
+    e: React.KeyboardEvent<HTMLElement>,
+    rowIndex: number,
+    colIndex: number
+  ) => {
     if (items.length === 0) return;
     const isMod = e.ctrlKey || e.metaKey;
-    // Allow Tab navigation when focus is already inside interactive controls
-    if (e.key === 'Tab' && e.currentTarget !== e.target) {
-      return;
-    }
-    if (e.key === 'Escape') {
-      // When in buttons, Esc should return to current cell
-      e.preventDefault();
-      const idSafe = items[active]?.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
-      const cell = document.getElementById(`cell-${idSafe}-${col}`) as HTMLElement | null;
-      cell?.focus();
-      return;
-    }
-    const colCount = 3;
-    const moveRow = (delta: number) => focusIndex(active + delta);
-    const moveCol = (delta: number) => setCol((c) => Math.max(0, Math.min(colCount - 1, c + delta)));
-    const key = e.key;
     const ctrlAlt = e.ctrlKey && e.altKey; // Orca table navigation
+    const colCount = 3;
 
-    switch (key) {
-      case 'Tab': {
-        // Let Tab flow naturally between focusable elements inside the row.
-        return;
-      }
+    const goTo = (r: number, c: number) => {
+      const nr = Math.max(0, Math.min(items.length - 1, r));
+      const nc = Math.max(0, Math.min(colCount - 1, c));
+      setActive(nr);
+      setCol(nc);
+      setTimeout(() => {
+        const idSafe = items[nr]?.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
+        (document.getElementById(`cell-${idSafe}-${nc}`) as HTMLElement | null)?.focus();
+      }, 0);
+    };
+
+    switch (e.key) {
       case 'ArrowDown':
-        // Move to next row; let Orca Ctrl+Alt+Down pass through
-        if (ctrlAlt) return;
+        if (ctrlAlt) return; // let Orca handle
         e.preventDefault();
-        focusIndex(active + 1);
+        goTo(rowIndex + 1, colIndex);
         break;
       case 'ArrowUp':
         if (ctrlAlt) return;
         e.preventDefault();
-        focusIndex(active - 1);
+        goTo(rowIndex - 1, colIndex);
         break;
       case 'ArrowRight':
-        // Let Orca Ctrl+Alt+Right read next column
         if (ctrlAlt) return;
         e.preventDefault();
-        moveCol(1);
+        goTo(rowIndex, colIndex + 1);
         break;
       case 'ArrowLeft':
         if (ctrlAlt) return;
         e.preventDefault();
-        moveCol(-1);
+        goTo(rowIndex, colIndex - 1);
         break;
       case 'Home':
         e.preventDefault();
         if (e.ctrlKey) {
-          focusIndex(0);
-          setCol(0);
+          goTo(0, 0);
         } else {
-          setCol(0);
-          setTimeout(() => {
-            const idSafe = items[active]?.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
-            document.getElementById(`cell-${idSafe}-0`)?.focus();
-          }, 0);
+          goTo(rowIndex, 0);
         }
         break;
       case 'End':
         e.preventDefault();
         if (e.ctrlKey) {
-          focusIndex(items.length - 1);
-          setCol(colCount - 1);
+          goTo(items.length - 1, colCount - 1);
         } else {
-          setCol(colCount - 1);
-          setTimeout(() => {
-            const idSafe = items[active]?.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
-            document.getElementById(`cell-${idSafe}-${colCount - 1}`)?.focus();
-          }, 0);
+          goTo(rowIndex, colCount - 1);
         }
         break;
       case 'PageDown':
         e.preventDefault();
-        focusIndex(active + 10);
+        goTo(rowIndex + 10, colIndex);
         break;
       case 'PageUp':
         e.preventDefault();
-        focusIndex(active - 10);
+        goTo(rowIndex - 10, colIndex);
         break;
       case 'Enter':
         e.preventDefault();
-        openExternal(`https://${items[active]?.domain}`);
+        openExternal(`https://${items[rowIndex]?.domain}`);
         break;
       case 'o':
       case 'O':
         if (isMod) {
           e.preventDefault();
-          openExternal(`https://${items[active]?.domain}`);
+          openExternal(`https://${items[rowIndex]?.domain}`);
         }
         break;
       case 'c':
       case 'C':
         if (isMod && e.shiftKey) {
           e.preventDefault();
-          const ok = await copyText(`https://${items[active]?.domain}`);
+          const ok = await copyText(`https://${items[rowIndex]?.domain}`);
           if (ok) announcePolite(t('results.copied'));
         }
         break;
@@ -203,11 +187,11 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
         role="grid"
         aria-rowcount={items.length + 1}
         aria-colcount={3}
+        aria-readonly="true"
         aria-label={t('results.list_label', { count: items.length })}
         ref={listRef}
         data-active-col={col}
         tabIndex={0}
-        onKeyDown={handleListKeyDown}
       >
         {/* Header row for screen readers and sighted users */}
         <li role="row" className="grid-header" aria-rowindex={1}>
@@ -242,6 +226,7 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
               aria-selected={active === idx && col === 0}
               className="card-body col-0"
               tabIndex={active === idx && col === 0 ? 0 : -1}
+              onKeyDown={(e) => handleCellKeyDown(e, idx, 0)}
             >
               <h3 id={titleId}>
                 <a
@@ -267,6 +252,7 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
               className="card-body col-1"
               tabIndex={active === idx && col === 1 ? 0 : -1}
               aria-describedby={factsId}
+              onKeyDown={(e) => handleCellKeyDown(e, idx, 1)}
             >
               <p id={factsId}>
                 <span>{it.languages.join(', ').toUpperCase()}</span>
@@ -284,6 +270,7 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
               aria-selected={active === idx && col === 2}
               className="card-actions col-2"
               tabIndex={active === idx && col === 2 ? 0 : -1}
+              onKeyDown={(e) => handleCellKeyDown(e, idx, 2)}
             >
               {active === idx && (
                 <div className="kbd-hint" aria-hidden="true">
@@ -295,6 +282,13 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
                 </div>
               )}
               <button
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') {
+                    e.preventDefault();
+                    const idSafe = it.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
+                    (document.getElementById(`cell-${idSafe}-2`) as HTMLElement | null)?.focus();
+                  }
+                }}
                 onClick={async () => {
                   const ok = await copyText(`https://${it.domain}`);
                   if (ok) {
@@ -306,6 +300,13 @@ export const Results = React.forwardRef<HTMLUListElement, Props>(function Result
                 {t('results.copy')}
               </button>
               <button
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') {
+                    e.preventDefault();
+                    const idSafe = it.domain.replace(/[^a-zA-Z0-9_-]/g, '-');
+                    (document.getElementById(`cell-${idSafe}-2`) as HTMLElement | null)?.focus();
+                  }
+                }}
                 onClick={() => openExternal(`https://${it.domain}`)}
               >
                 {t('results.openBrowser')}

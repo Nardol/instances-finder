@@ -69,7 +69,7 @@ fn main() {
                 }
                 "quit" => {
                     // Graceful app exit
-                    let _ = app.exit(0);
+                    app.exit(0);
                 }
                 _ => {}
             }

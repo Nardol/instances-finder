@@ -1,0 +1,44 @@
+name: dependabot-auto-merge
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, labeled, unlabeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  enable-auto-merge:
+    if: github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Decide auto-merge eligibility
+        id: decide
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          set -euo pipefail
+          echo "head=$HEAD_REF"
+          echo "title=$TITLE"
+          ok="false"
+          case "$HEAD_REF" in
+            *-minor-patch-*) ok="true" ;;
+            *-minor-patch) ok="true" ;;
+            *minor-patch*) ok="true" ;;
+          esac
+          # Fallback heuristic on title if needed
+          if [[ "$ok" != "true" ]]; then
+            if echo "$TITLE" | grep -iqE '\bminor\b|\bpatch\b' && ! echo "$TITLE" | grep -iqE '\bmajor\b'; then
+              ok="true"
+            fi
+          fi
+          echo "ok=$ok" >> "$GITHUB_OUTPUT"
+
+      - name: Enable auto-merge (squash)
+        if: steps.decide.outputs.ok == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr merge ${{ github.event.pull_request.number }} --auto --squash

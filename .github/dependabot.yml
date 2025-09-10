@@ -3,24 +3,66 @@ updates:
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
-      interval: 'weekly'
+      interval: 'daily'
+      time: '04:00'
+      timezone: 'Europe/Paris'
     open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - npm
     groups:
+      # Group all @typescript-eslint/* updates together
       ts-eslint:
         patterns:
           - '@typescript-eslint/*'
+      # Group other updates by type
+      npm-minor-patch:
+        update-types:
+          - 'minor'
+          - 'patch'
+      npm-majors:
+        update-types:
+          - 'major'
 
   - package-ecosystem: 'cargo'
     directory: '/src-tauri'
     schedule:
-      interval: 'weekly'
+      interval: 'daily'
+      time: '04:00'
+      timezone: 'Europe/Paris'
     open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - rust
+      - cargo
+    groups:
+      rust-minor-patch:
+        update-types:
+          - 'minor'
+          - 'patch'
+      rust-majors:
+        update-types:
+          - 'major'
 
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
-      interval: 'weekly'
+      interval: 'daily'
+      time: '04:00'
+      timezone: 'Europe/Paris'
     open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - github-actions
+      - ci
     commit-message:
       prefix: 'ci'
       include: 'scope'
+    groups:
+      gha-minor-patch:
+        update-types:
+          - 'minor'
+          - 'patch'
+      gha-majors:
+        update-types:
+          - 'major'

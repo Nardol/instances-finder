@@ -13,11 +13,44 @@ on:
 
 jobs:
   checks:
+    outputs:
+      ci_duration_seconds: ${{ steps.ci.outputs.duration_seconds }}
+      front_changed: ${{ steps.changes.outputs.front_changed }}
+      tauri_changed: ${{ steps.changes.outputs.tauri_changed }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
+      - name: Inspect protections and rulesets (preflight)
+        id: protections
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          REPO="${GITHUB_REPOSITORY}"
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BRANCH="${{ github.event.pull_request.base.ref }}"
+          else
+            BRANCH="${{ github.ref_name }}"
+          fi
+          echo "Repo: $REPO, Branch: $BRANCH"
+          hdr=( -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" )
+          prot_json=$(curl -sS "https://api.github.com/repos/${REPO}/branches/${BRANCH}/protection" "${hdr[@]}" || echo '{}')
+          rules_json=$(curl -sS "https://api.github.com/repos/${REPO}/rulesets?targets=branch" "${hdr[@]}" || echo '[]')
+          req_checks=$(echo "$prot_json" | jq -r '.required_status_checks.checks[]?.context' 2>/dev/null || true)
+          echo "Required checks (branch protection):"; echo "$req_checks" | sed 's/^/- /' || true
+          echo "\nRulesets (names):"; echo "$rules_json" | jq -r '.[].name' | sed 's/^/- /' || true
+          {
+            echo "## Branch Protections and Rulesets"
+            echo "- Repo: $REPO"
+            echo "- Branch: $BRANCH"
+            echo "\n### Required status checks"
+            if [[ -n "$req_checks" ]]; then echo "$req_checks" | sed 's/^/- /'; else echo "- none"; fi
+            echo "\n### Active rulesets (branch target)"
+            echo "$rules_json" | jq -r '.[].name' | sed 's/^/- /' || echo "- none"
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Detect docs-only changes
         id: changes
         shell: bash
@@ -44,6 +77,33 @@ jobs:
             echo "docs_only=true" >> "$GITHUB_OUTPUT"
           fi
           echo "files_changed=true" >> "$GITHUB_OUTPUT"
+          # Front-end (web) change detection (TS/TSX/CSS/SCSS in src/)
+          web_list=$(grep -E '^src/.*\.(ts|tsx|css|scss)$' files.txt || true)
+          if [[ -n "$web_list" ]]; then
+            echo "front_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "front_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+          # Native (Tauri) change detection (Rust/code/config)
+          tauri_list=$(grep -E '^(src-tauri|xtask)/.*\.(rs|toml|json)$' files.txt || true)
+          if [[ -n "$tauri_list" ]]; then
+            echo "tauri_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "tauri_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+          # Compute ESLint target (TypeScript in src/) and Prettier target (various text files)
+          js_list=$(grep -E '^src/.*\.(ts|tsx)$' files.txt || true)
+          fmt_list=$(grep -E '\\.(ts|tsx|js|jsx|json|css|scss|md|mdx|yml|yaml|html|mjs|cjs)$' files.txt || true)
+          rs_list=$(grep -E '^(src-tauri|xtask)/.*\.rs$' files.txt || true)
+          js_list_spaced=$(echo "$js_list" | tr '\n' ' ' | sed 's/[[:space:]]\+$//')
+          fmt_list_spaced=$(echo "$fmt_list" | tr '\n' ' ' | sed 's/[[:space:]]\+$//')
+          rs_list_spaced=$(echo "$rs_list" | tr '\n' ' ' | sed 's/[[:space:]]\+$//')
+          echo "Changed TS/TSX: ${js_list_spaced}"
+          echo "Changed Prettier files: ${fmt_list_spaced}"
+          echo "Changed Rust files: ${rs_list_spaced}"
+          echo "js_list=${js_list_spaced}" >> "$GITHUB_OUTPUT"
+          echo "fmt_list=${fmt_list_spaced}" >> "$GITHUB_OUTPUT"
+          echo "rs_list=${rs_list_spaced}" >> "$GITHUB_OUTPUT"
       - name: Prepare Tauri dist dir (stub)
         if: steps.changes.outputs.docs_only != 'true'
         run: |
@@ -68,6 +128,16 @@ jobs:
           else
             npm ci || npm install
           fi
+      - name: Restore caches (eslint/prettier/tsc)
+        if: steps.changes.outputs.docs_only != 'true'
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        with:
+          path: |
+            .cache
+            dist/.tsbuildinfo
+          key: tools-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-v1
+          restore-keys: |
+            tools-cache-${{ runner.os }}-
       - uses: dtolnay/rust-toolchain@5d458579430fc14a04a08a1e7d3694f545e91ce6 # stable
         if: steps.changes.outputs.docs_only != 'true'
       - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.0
@@ -80,6 +150,26 @@ jobs:
           # On ubuntu-24.04, install WebKitGTK/JSC 4.1 and libsoup3 for Tauri 2
           sudo apt-get install -y libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev \
             libsoup-3.0-dev libwebkit2gtk-4.1-dev libjavascriptcoregtk-4.1-dev
+      - name: Cache sccache
+        if: steps.changes.outputs.docs_only != 'true'
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        with:
+          path: ~/.cache/sccache
+          key: sccache-${{ runner.os }}-v1
+          restore-keys: |
+            sccache-${{ runner.os }}-
+      - name: Install sccache
+        if: steps.changes.outputs.docs_only != 'true'
+        run: |
+          set -euxo pipefail
+          sudo apt-get update
+          sudo apt-get install -y sccache
+      - name: Configure sccache env
+        if: steps.changes.outputs.docs_only != 'true'
+        run: |
+          echo "RUSTC_WRAPPER=sccache" >> "$GITHUB_ENV"
+          echo "SCCACHE_CACHE_SIZE=1G" >> "$GITHUB_ENV"
+          echo "SCCACHE_DIR=$HOME/.cache/sccache" >> "$GITHUB_ENV"
       - name: Ensure Clippy
         if: steps.changes.outputs.docs_only != 'true'
         run: rustup component add clippy
@@ -89,9 +179,42 @@ jobs:
       - name: Build xtask (release)
         if: steps.changes.outputs.docs_only != 'true'
         run: cargo build --manifest-path xtask/Cargo.toml --release
-      - name: Run all CI checks (xtask)
+      - name: Run CI checks (parallel, timed)
         if: steps.changes.outputs.docs_only != 'true'
-        run: ./xtask/target/release/xtask ci-checks
+        id: ci
+        shell: bash
+        env:
+          CHANGED_JS: ${{ github.event_name == 'pull_request' && steps.changes.outputs.js_list || '' }}
+          CHANGED_FMT: ${{ github.event_name == 'pull_request' && steps.changes.outputs.fmt_list || '' }}
+          CHANGED_RUST: ${{ github.event_name == 'pull_request' && steps.changes.outputs.rs_list || '' }}
+        run: |
+          set -euo pipefail
+          START=$(date +%s)
+          ./xtask/target/release/xtask ci-checks-par | tee ci_checks.log
+          END=$(date +%s)
+          DURATION=$((END-START))
+          echo "duration_seconds=$DURATION" >> "$GITHUB_OUTPUT"
+          {
+            echo "## CI Checks (Parallel)"
+            echo "- Duration: ${DURATION}s"
+            echo
+            echo '\n<details><summary>Log</summary>'
+            echo
+            echo '```'
+            cat ci_checks.log
+            echo '```'
+            echo '</details>'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Changes summary
+        shell: bash
+        run: |
+          {
+            echo "## Change Flags"
+            echo "- Front changed: ${{ steps.changes.outputs.front_changed }}"
+            echo "- Tauri changed: ${{ steps.changes.outputs.tauri_changed }}"
+            echo
+            echo "> Note: These flags only influence optional packaging steps."
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Skip checks (docs-only change)
         if: steps.changes.outputs.docs_only == 'true'
         run: echo "Docs-only change detected; skipping CI checks."
@@ -102,49 +225,56 @@ jobs:
     steps:
       - name: Context
         run: echo "ref=${{ github.ref }}"
+      - name: CI checks duration
+        run: |
+          D="${{ needs.checks.outputs.ci_duration_seconds }}"
+          echo "CI checks duration: ${D:-n/a}s"
       - name: Not a release tag (noop)
         if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         run: echo "Not a v* tag; skipping AppImage build."
+      - name: Skip packaging (no front or Tauri changes)
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && !(needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
+        run: echo "No front/tauri changes detected; skipping packaging in build workflow."
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
         with:
           node-version: 20
           cache: 'npm'
           cache-dependency-path: package-lock.json
       - uses: dtolnay/rust-toolchain@5d458579430fc14a04a08a1e7d3694f545e91ce6 # stable
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
       - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.0
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
       - name: Install system deps (Tauri)
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
         run: |
           set -euxo pipefail
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev \
             libsoup-3.0-dev libwebkit2gtk-4.1-dev libjavascriptcoregtk-4.1-dev
       - name: Install JS deps
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
         run: npm ci || npm install
       - name: Build xtask (release)
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
         run: cargo build --manifest-path xtask/Cargo.toml --release
       - name: Build AppImage (xtask)
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
         run: ./xtask/target/release/xtask build appimage
       - name: Build Debian package (xtask)
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
         run: ./xtask/target/release/xtask build deb
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
         with:
-          name: appimage
+          name: appimage-front-${{ needs.checks.outputs.front_changed }}-tauri-${{ needs.checks.outputs.tauri_changed }}
           path: src-tauri/target/release/bundle/appimage/*.AppImage
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
         with:
-          name: deb
+          name: deb-front-${{ needs.checks.outputs.front_changed }}-tauri-${{ needs.checks.outputs.tauri_changed }}
           path: src-tauri/target/release/bundle/deb/*.deb
 
   windows-nsis:
@@ -153,32 +283,41 @@ jobs:
     steps:
       - name: Context
         run: echo "ref=${{ github.ref }}"
+      - name: CI checks duration
+        shell: pwsh
+        run: |
+          $d = '${{ needs.checks.outputs.ci_duration_seconds }}'
+          if ([string]::IsNullOrEmpty($d)) { $d = 'n/a' }
+          echo "CI checks duration: $d s"
       - name: Not a release tag (noop)
         if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         run: echo "Not a v* tag; skipping Windows NSIS build."
+      - name: Skip packaging (no front or Tauri changes)
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && !(needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
+        run: echo "No front/tauri changes detected; skipping packaging in build workflow."
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
         with:
           node-version: 20
           cache: 'npm'
           cache-dependency-path: package-lock.json
       - uses: dtolnay/rust-toolchain@5d458579430fc14a04a08a1e7d3694f545e91ce6 # stable
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
       - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.0
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
       - name: Install JS deps
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
         run: npm ci || npm install
       - name: Build xtask (release)
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
         run: cargo build --manifest-path xtask/Cargo.toml --release
       - name: Build NSIS installer (xtask)
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
         run: .\\xtask\\target\\release\\xtask.exe build win-nsis
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
         with:
-          name: windows-nsis
+          name: windows-nsis-front-${{ needs.checks.outputs.front_changed }}-tauri-${{ needs.checks.outputs.tauri_changed }}
           path: src-tauri/target/release/bundle/nsis/*.exe

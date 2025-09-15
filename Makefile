@@ -8,7 +8,7 @@ XTASK_BIN_WIN := ./xtask/target/release/xtask.exe
 XTASK := $(if $(wildcard $(XTASK_BIN_WIN)),$(XTASK_BIN_WIN),$(if $(wildcard $(XTASK_BIN_POSIX)),$(XTASK_BIN_POSIX),cargo run --manifest-path xtask/Cargo.toml --))
 XTASK_BANNER = @if [ -x ./xtask/target/release/xtask ] || [ -x ./xtask/target/release/xtask.exe ]; then echo "[xtask] Using prebuilt binary"; else echo "[xtask] Using cargo run (no prebuilt binary)"; fi
 
-.PHONY: help help-all check check-js check-rust check-js-type check-js-fmt check-rust-fmt ci-checks fix dev build appimage deb linux build-linux cross-prep-win win-exe win-nsis win-zip clean clean-xtask clean-deps clean-all release-tag release-gh fmt fmt-js fmt-rust lint lint-fix clippy clippy-install ensure-cli doctor xtask-release setup
+.PHONY: help help-all check check-par check-js check-rust check-js-type check-js-fmt check-rust-fmt ci-checks ci-checks-par bench fix dev build appimage deb linux build-linux cross-prep-win win-exe win-nsis win-zip clean clean-xtask clean-deps clean-all release-tag release-gh fmt fmt-js fmt-rust lint lint-fix clippy clippy-install ensure-cli doctor xtask-release setup
 
 help:
 	@echo "Cibles Make disponibles :"
@@ -34,12 +34,15 @@ help:
 	@echo "  clippy         - Lancer Rust Clippy (lint)"
 	@echo "  clippy-install - Installer Clippy si nécessaire"
 	@echo "  check          - Lancer lint JS/TS + Clippy"
+	@echo "  check-par      - Idem mais en parallèle (plus rapide)"
 	@echo "  check-js       - Lancer lint JS/TS uniquement"
 	@echo "  check-js-type  - Vérifier les types TypeScript (tsc --noEmit)"
 	@echo "  check-js-fmt   - Vérifier le formatage Prettier"
 	@echo "  check-rust     - Lancer Clippy"
 	@echo "  check-rust-fmt - Vérifier formatage Rust (cargo fmt --check)"
 	@echo "  ci-checks      - Réplique locale des checks CI (lint+types+format JS/Rust)"
+	@echo "  ci-checks-par  - Idem en parallèle (plus rapide)"
+	@echo "  bench          - Mesurer seq vs. parallèle (2e run)"
 	@echo "  fix            - Formatter et corriger (fmt + lint-fix)"
 	@echo "  clean          - Supprimer dist + src-tauri/target (rapide)"
 	@echo "  clean-xtask    - Supprimer le binaire xtask précompilé (xtask/target)"
@@ -167,6 +170,10 @@ check:
 	$(XTASK_BANNER)
 	$(XTASK) check
 
+check-par:
+	$(XTASK_BANNER)
+	$(XTASK) check-par
+
 check-js-type:
 	$(XTASK_BANNER)
 	$(XTASK) ts-check
@@ -182,6 +189,16 @@ check-rust-fmt:
 ci-checks:
 	$(XTASK_BANNER)
 	$(XTASK) ci-checks
+
+ci-checks-par:
+	$(XTASK_BANNER)
+	$(XTASK) ci-checks-par
+
+bench:
+	@echo "[bench] Recompiling xtask with latest changes…"
+	cargo build --manifest-path xtask/Cargo.toml --release
+	@echo "[bench] Running benchmark (sequential vs parallel)…"
+	./xtask/target/release/xtask bench
 
 fix:
 	$(XTASK_BANNER)

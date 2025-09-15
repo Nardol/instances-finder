@@ -17,17 +17,105 @@ jobs:
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 20
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
       - uses: dtolnay/rust-toolchain@5d458579430fc14a04a08a1e7d3694f545e91ce6 # stable
+      - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.0
       - name: Install system deps (Tauri)
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.0-dev libgtk-3-dev \
             libayatana-appindicator3-dev librsvg2-dev libsoup2.4-dev \
             libjavascriptcoregtk-4.0-dev
+      - name: Cache sccache
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        with:
+          path: ~/.cache/sccache
+          key: sccache-${{ runner.os }}-v1
+          restore-keys: |
+            sccache-${{ runner.os }}-
+      - name: Install sccache
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sccache
+      - name: Configure sccache env
+        run: |
+          echo "RUSTC_WRAPPER=sccache" >> "$GITHUB_ENV"
+          echo "SCCACHE_CACHE_SIZE=1G" >> "$GITHUB_ENV"
+          echo "SCCACHE_DIR=$HOME/.cache/sccache" >> "$GITHUB_ENV"
+      - name: Restore caches (eslint/prettier/tsc)
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        with:
+          path: |
+            .cache
+            dist/.tsbuildinfo
+          key: tools-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-v1
+          restore-keys: |
+            tools-cache-${{ runner.os }}-
+      - name: Detect changes since previous tag
+        id: diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --tags --force
+          current="${{ github.ref_name }}"; if [[ -z "$current" ]]; then current="${{ github.event.release.tag_name }}"; fi
+          # Find previous tag (not equal to current)
+          prev=$(git tag --sort=-creatordate | grep -E '^v' | awk -v c="$current" '$0!=c {print; exit}')
+          if [[ -z "$prev" ]]; then
+            base=$(git rev-list --max-parents=0 HEAD)
+          else
+            base="refs/tags/$prev"
+          fi
+          echo "Diff base: $base -> refs/tags/$current"
+          git diff --name-only "$base" "refs/tags/$current" > files.txt || true
+          echo "Changed files:"; cat files.txt || true
+          js_list=$(grep -E '^src/.*\.(ts|tsx)$' files.txt || true)
+          fmt_list=$(grep -E '\\.(ts|tsx|js|jsx|json|css|scss|md|mdx|yml|yaml|html|mjs|cjs)$' files.txt || true)
+          rs_list=$(grep -E '^(src-tauri|xtask)/.*\.rs$' files.txt || true)
+          js_list_spaced=$(echo "$js_list" | tr '\n' ' ' | sed 's/[[:space:]]\+$//')
+          fmt_list_spaced=$(echo "$fmt_list" | tr '\n' ' ' | sed 's/[[:space:]]\+$//')
+          rs_list_spaced=$(echo "$rs_list" | tr '\n' ' ' | sed 's/[[:space:]]\+$//')
+          echo "js_list=${js_list_spaced}" >> "$GITHUB_OUTPUT"
+          echo "fmt_list=${fmt_list_spaced}" >> "$GITHUB_OUTPUT"
+          echo "rs_list=${rs_list_spaced}" >> "$GITHUB_OUTPUT"
+          # Front/Tauri change flags for summary
+          if echo "$js_list_spaced" | grep -qE '\\.(ts|tsx|css|scss)( |$)'; then
+            echo "front_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "front_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+          if echo "$rs_list_spaced" | grep -qE '\\.rs( |$)'; then
+            echo "tauri_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "tauri_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Release diff summary
+        shell: bash
+        run: |
+          {
+            echo "## Release Diff Summary"
+            echo "- Front changed: ${{ steps.diff.outputs.front_changed }}"
+            echo "- Tauri changed: ${{ steps.diff.outputs.tauri_changed }}"
+            echo "- Changed TS/TSX: ${{ steps.diff.outputs.js_list }}"
+            echo "- Changed Prettier files: ${{ steps.diff.outputs.fmt_list }}"
+            echo "- Changed Rust files: ${{ steps.diff.outputs.rs_list }}"
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Install JS deps
         run: npm ci || npm install
       - name: Build xtask (release)
         run: cargo build --manifest-path xtask/Cargo.toml --release
+      - name: Run checks (parallel, changes-only)
+        env:
+          CHANGED_JS: ${{ steps.diff.outputs.js_list }}
+          CHANGED_FMT: ${{ steps.diff.outputs.fmt_list }}
+          CHANGED_RUST: ${{ steps.diff.outputs.rs_list }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          START=$(date +%s)
+          ./xtask/target/release/xtask ci-checks-par | tee ci_checks.log
+          END=$(date +%s)
+          echo "Checks took $((END-START))s"
       - name: Build AppImage (xtask)
         run: ./xtask/target/release/xtask build appimage
       - name: Build Debian package (xtask)
@@ -63,11 +151,95 @@ jobs:
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 20
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
       - uses: dtolnay/rust-toolchain@5d458579430fc14a04a08a1e7d3694f545e91ce6 # stable
+      - name: Cache sccache (Windows)
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        with:
+          path: ~\sccache
+          key: sccache-${{ runner.os }}-v1
+          restore-keys: |
+            sccache-${{ runner.os }}-
+      - name: Install sccache (Chocolatey)
+        shell: pwsh
+        run: |
+          choco install sccache -y
+          echo "RUSTC_WRAPPER=sccache" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "SCCACHE_CACHE_SIZE=1G" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "SCCACHE_DIR=$env:USERPROFILE\sccache" | Out-File -FilePath $env:GITHUB_ENV -Append
+      - name: Restore caches (eslint/prettier/tsc)
+        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
+        with:
+          path: |
+            .cache
+            dist/.tsbuildinfo
+          key: tools-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-v1
+          restore-keys: |
+            tools-cache-${{ runner.os }}-
+      - name: Detect changes since previous tag
+        id: diff
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --tags --force
+          current="${{ github.ref_name }}"; if [[ -z "$current" ]]; then current="${{ github.event.release.tag_name }}"; fi
+          prev=$(git tag --sort=-creatordate | grep -E '^v' | awk -v c="$current" '$0!=c {print; exit}')
+          if [[ -z "$prev" ]]; then
+            base=$(git rev-list --max-parents=0 HEAD)
+          else
+            base="refs/tags/$prev"
+          fi
+          echo "Diff base: $base -> refs/tags/$current"
+          git diff --name-only "$base" "refs/tags/$current" > files.txt || true
+          echo "Changed files:"; cat files.txt || true
+          js_list=$(grep -E '^src/.*\.(ts|tsx)$' files.txt || true)
+          fmt_list=$(grep -E '\\.(ts|tsx|js|jsx|json|css|scss|md|mdx|yml|yaml|html|mjs|cjs)$' files.txt || true)
+          rs_list=$(grep -E '^(src-tauri|xtask)/.*\.rs$' files.txt || true)
+          js_list_spaced=$(echo "$js_list" | tr '\n' ' ' | sed 's/[[:space:]]\+$//')
+          fmt_list_spaced=$(echo "$fmt_list" | tr '\n' ' ' | sed 's/[[:space:]]\+$//')
+          rs_list_spaced=$(echo "$rs_list" | tr '\n' ' ' | sed 's/[[:space:]]\+$//')
+          echo "js_list=${js_list_spaced}" >> "$GITHUB_OUTPUT"
+          echo "fmt_list=${fmt_list_spaced}" >> "$GITHUB_OUTPUT"
+          echo "rs_list=${rs_list_spaced}" >> "$GITHUB_OUTPUT"
+          # Front/Tauri change flags for summary
+          if echo "$js_list_spaced" | grep -qE '\\.(ts|tsx|css|scss)( |$)'; then
+            echo "front_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "front_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+          if echo "$rs_list_spaced" | grep -qE '\\.rs( |$)'; then
+            echo "tauri_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "tauri_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Release diff summary
+        shell: bash
+        run: |
+          {
+            echo "## Release Diff Summary"
+            echo "- Front changed: ${{ steps.diff.outputs.front_changed }}"
+            echo "- Tauri changed: ${{ steps.diff.outputs.tauri_changed }}"
+            echo "- Changed TS/TSX: ${{ steps.diff.outputs.js_list }}"
+            echo "- Changed Prettier files: ${{ steps.diff.outputs.fmt_list }}"
+            echo "- Changed Rust files: ${{ steps.diff.outputs.rs_list }}"
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Install JS deps
         run: npm ci || npm install
       - name: Build xtask (release)
         run: cargo build --manifest-path xtask/Cargo.toml --release
+      - name: Run checks (parallel, changes-only)
+        env:
+          CHANGED_JS: ${{ steps.diff.outputs.js_list }}
+          CHANGED_FMT: ${{ steps.diff.outputs.fmt_list }}
+          CHANGED_RUST: ${{ steps.diff.outputs.rs_list }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          START=$(date +%s)
+          ./xtask/target/release/xtask ci-checks-par | tee ci_checks.log
+          END=$(date +%s)
+          echo "Checks took $((END-START))s"
       - name: Build NSIS installer (xtask)
         run: .\\xtask\\target\\release\\xtask.exe build win-nsis
       - name: Determine version (tag)

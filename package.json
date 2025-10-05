@@ -26,7 +26,7 @@
     "cross:build:win:zip": "bash scripts/win-portable-zip.sh",
     "release:tag": "bash scripts/release-tag.sh",
     "release:gh": "bash scripts/gh-create-release.sh",
-    "tauri:build:win:exe": "tauri build --target x86_64-pc-windows-gnu --bundles app",
+    "tauri:build:win:exe": "TAURI_BUNDLE_TARGETS=app tauri build --target x86_64-pc-windows-gnu",
     "tauri:build:win:nsis": "TAURI_BUNDLE_TARGETS=nsis tauri build --target x86_64-pc-windows-gnu",
     "test": "vitest run",
     "gen:i18n:keys": "node scripts/gen-i18n-keys.mjs"

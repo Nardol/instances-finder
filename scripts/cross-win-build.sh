@@ -53,9 +53,9 @@ if [ ! -f "$ICON_ICO" ] || [ "$ICON_PNG" -nt "$ICON_ICO" ]; then
 fi
 
 echo "[cross] Building Tauri bundle: $BUNDLE_TARGET ($TARGET_TRIPLE)"
-# Passer explicitement --bundles pour éviter de dépendre de TAURI_BUNDLE_TARGETS
+# S'appuyer sur TAURI_BUNDLE_TARGETS pour limiter la cible sans utiliser --bundles
 export TAURI_BUNDLE_TARGETS="$BUNDLE_TARGET"
-tauri build --target "$TARGET_TRIPLE" --bundles "$BUNDLE_TARGET"
+tauri build --target "$TARGET_TRIPLE"
 
 echo "[cross] Done. Outputs under src-tauri/target/$TARGET_TRIPLE/release/bundle/"
 
@@ -63,9 +63,9 @@ echo "[cross] Done. Outputs under src-tauri/target/$TARGET_TRIPLE/release/bundle
 # Si le dossier bundle n'existe pas et que l'on vise 'app', on le crée.
 if [ "$BUNDLE_TARGET" = "app" ]; then
   BUNDLE_BASE="src-tauri/target/$TARGET_TRIPLE/release/bundle"
-  EXE_PATH="src-tauri/target/$TARGET_TRIPLE/release/Instances Finder.exe"
   DLL_PATH="src-tauri/target/$TARGET_TRIPLE/release/WebView2Loader.dll"
-  if [ ! -d "$BUNDLE_BASE/app" ] && [ -f "$EXE_PATH" ]; then
+  EXE_PATH="$(find "src-tauri/target/$TARGET_TRIPLE/release" -maxdepth 1 -type f -name '*.exe' | head -n 1)"
+  if [ ! -d "$BUNDLE_BASE/app" ] && [ -n "$EXE_PATH" ]; then
     echo "[cross] Bundler non exécuté; création d'un bundle portable minimal."
     mkdir -p "$BUNDLE_BASE/app"
     cp -f "$EXE_PATH" "$BUNDLE_BASE/app/" || true

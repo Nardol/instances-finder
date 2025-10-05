@@ -11,6 +11,8 @@ pnpm-debug.log*
 src-tauri/target/
 src-tauri/target/**
 src-tauri/.cargo/
+src-tauri/gen/
+src-tauri/gen/**
 xtask/target/
 xtask/target/**
 

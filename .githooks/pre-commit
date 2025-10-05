@@ -5,7 +5,7 @@ set -euo pipefail
 staged=( )
 while IFS= read -r -d '' f; do
   staged+=("$f")
-done < <(git diff --cached --name-only -z)
+done < <(git diff --cached --diff-filter=d --name-only -z)
 
 if [[ ${#staged[@]} -eq 0 ]]; then
   exit 0

@@ -25,3 +25,6 @@ tauri-plugin-clipboard-manager = "2"
 [features]
 default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
+
+[patch.crates-io]
+glib = { path = "../vendor/glib" }

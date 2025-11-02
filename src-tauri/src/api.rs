@@ -5,14 +5,18 @@ use std::{
     time::{Duration, SystemTime},
 };
 
-use instances_social::Client;
 use keyring::Entry;
+use reqwest::{blocking::Client as HttpClient, header::AUTHORIZATION};
+use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use tauri::Manager;
 use thiserror::Error;
 
 const SERVICE: &str = "org.instances.finder";
 const USERNAME: &str = "instances_social_token";
+const API_BASE_URL: &str = "https://instances.social/api/1.0";
+const USER_AGENT: &str = concat!("instances-finder/", env!("CARGO_PKG_VERSION"));
+const HTTP_TIMEOUT_SECS: u64 = 20;
 
 #[derive(Debug, Error)]
 pub enum ApiError {
@@ -54,6 +58,92 @@ struct CacheFile {
     saved_at: u64,
     params: FetchParams,
     items: Vec<JsInstance>,
+}
+
+struct InstancesSocialClient {
+    http: HttpClient,
+    token: String,
+}
+
+impl InstancesSocialClient {
+    fn new(token: &str) -> Result<Self, String> {
+        let http = HttpClient::builder()
+            .user_agent(USER_AGENT)
+            .timeout(Duration::from_secs(HTTP_TIMEOUT_SECS))
+            .build()
+            .map_err(|e| e.to_string())?;
+        Ok(Self {
+            http,
+            token: token.to_string(),
+        })
+    }
+
+    fn sample(&self, count: u64) -> Result<(), String> {
+        let mut query = Vec::new();
+        if count > 0 {
+            query.push(("count", count.to_string()));
+        }
+        self.get::<serde_json::Value>("instances/sample", &query)
+            .map(|_| ())
+    }
+
+    fn list(&self, params: &FetchParams, count: u64) -> Result<ListResponse, String> {
+        let mut query = vec![("count", count.to_string())];
+        if let Some(include_down) = params.include_down {
+            query.push(("include_down", include_down.to_string()));
+        }
+        if let Some(include_closed) = params.include_closed {
+            query.push(("include_closed", include_closed.to_string()));
+        }
+        if let Some(language) = &params.language {
+            if !language.trim().is_empty() {
+                query.push(("language", language.clone()));
+            }
+        }
+        self.get("instances/list", &query)
+    }
+
+    fn get<T>(&self, path: &str, query: &[(&str, String)]) -> Result<T, String>
+    where
+        T: DeserializeOwned,
+    {
+        let url = format!("{API_BASE_URL}/{path}");
+        let mut request = self.http.get(url);
+        if !query.is_empty() {
+            request = request.query(&query);
+        }
+        let response = request
+            .header(AUTHORIZATION, format!("Bearer {}", self.token))
+            .send()
+            .map_err(|e| e.to_string())?;
+
+        let status = response.status();
+        if !status.is_success() {
+            let body = response.text().unwrap_or_default();
+            return Err(format!("instances.social returned {}: {}", status, body));
+        }
+        response.json().map_err(|e| e.to_string())
+    }
+}
+
+#[derive(Debug, Deserialize)]
+struct ListResponse {
+    instances: Vec<Instance>,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+struct Instance {
+    name: String,
+    up: bool,
+    users: String,
+    open_registrations: bool,
+    info: Option<InstanceInfo>,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+struct InstanceInfo {
+    short_description: Option<String>,
+    languages: Option<Vec<String>>,
 }
 
 fn cache_path(app: &tauri::AppHandle) -> PathBuf {
@@ -119,13 +209,8 @@ pub fn test_token(state: tauri::State<'_, AppState>, token: Option<String>) -> R
     let t = token
         .or_else(|| get_token(&state))
         .ok_or_else(|| ApiError::NoToken.to_string())?;
-    let client = Client::new(&t);
-    client
-        .instances()
-        .sample()
-        .count(1)
-        .send()
-        .map_err(|e| e.to_string())?;
+    let client = InstancesSocialClient::new(&t)?;
+    client.sample(1)?;
     Ok(())
 }
 
@@ -162,20 +247,9 @@ pub fn fetch_instances(
     }
 
     let t = get_token(&state).ok_or_else(|| ApiError::NoToken.to_string())?;
-    let client = Client::new(&t);
-    let inst = client.instances();
-    let mut req = inst.list();
-    if let Some(lang) = &params.language {
-        req.language(lang);
-    }
-    if params.include_down == Some(false) {
-        req.include_down(false);
-    }
-    if params.include_closed == Some(false) {
-        req.include_closed(false);
-    }
+    let client = InstancesSocialClient::new(&t)?;
     let max = params.max.unwrap_or(200);
-    let resp = req.count(max as u64).send().map_err(|e| e.to_string())?;
+    let resp = client.list(&params, max as u64)?;
 
     fn map_region_from_domain(domain: &str) -> String {
         let d = domain.to_lowercase();
@@ -296,11 +370,20 @@ pub fn fetch_instances(
 #[tauri::command]
 pub fn fetch_languages(state: tauri::State<'_, AppState>) -> Result<Vec<String>, String> {
     let t = get_token(&state).ok_or_else(|| ApiError::NoToken.to_string())?;
-    let client = Client::new(&t);
-    let inst = client.instances();
-    let mut req = inst.list();
+    let client = InstancesSocialClient::new(&t)?;
     // Fetch a larger sample to discover languages
-    let resp = req.count(500).send().map_err(|e| e.to_string())?;
+    let resp = client.list(
+        &FetchParams {
+            language: None,
+            include_closed: None,
+            include_down: None,
+            max: None,
+            signups: None,
+            region: None,
+            size: None,
+        },
+        500,
+    )?;
     use std::collections::BTreeSet;
     let mut set = BTreeSet::new();
     for i in resp.instances {

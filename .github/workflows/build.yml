@@ -130,7 +130,7 @@ jobs:
           fi
       - name: Restore caches (eslint/prettier/tsc)
         if: steps.changes.outputs.docs_only != 'true'
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        uses: actions/cache@a7833574556fa59680c1b7cb190c1735db73ebf0 # v4
         with:
           path: |
             .cache
@@ -155,7 +155,7 @@ jobs:
             libsoup-3.0-dev libwebkit2gtk-4.1-dev libjavascriptcoregtk-4.1-dev
       - name: Cache sccache
         if: steps.changes.outputs.docs_only != 'true'
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        uses: actions/cache@a7833574556fa59680c1b7cb190c1735db73ebf0 # v4
         with:
           path: ~/.cache/sccache
           key: sccache-${{ runner.os }}-v1

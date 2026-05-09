@@ -13,6 +13,8 @@ on:
 
 jobs:
   checks:
+    permissions:
+      contents: read
     outputs:
       ci_duration_seconds: ${{ steps.ci.outputs.duration_seconds }}
       front_changed: ${{ steps.changes.outputs.front_changed }}
@@ -223,6 +225,8 @@ jobs:
         run: echo "Docs-only change detected; skipping CI checks."
 
   linux-appimage:
+    permissions:
+      contents: read
     runs-on: ubuntu-24.04
     needs: [checks]
     steps:
@@ -281,6 +285,8 @@ jobs:
           path: src-tauri/target/release/bundle/deb/*.deb
 
   windows-nsis:
+    permissions:
+      contents: read
     runs-on: windows-latest
     needs: [checks]
     steps:

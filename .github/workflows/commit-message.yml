@@ -8,6 +8,8 @@ on:
 
 jobs:
   lint-commit-messages:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     # Skip for Dependabot PRs/commits
     if: github.actor != 'dependabot[bot]'

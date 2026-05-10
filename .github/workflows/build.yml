@@ -124,12 +124,7 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Install JS deps
         if: steps.changes.outputs.docs_only != 'true'
-        run: |
-          if [[ "${{ github.actor }}" == "dependabot[bot]" ]]; then
-            npm ci --legacy-peer-deps || npm install --legacy-peer-deps
-          else
-            npm ci || npm install
-          fi
+        run: npm ci
       - name: Restore caches (eslint/prettier/tsc)
         if: steps.changes.outputs.docs_only != 'true'
         uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v4

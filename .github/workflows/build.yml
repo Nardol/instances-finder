@@ -137,7 +137,7 @@ jobs:
             tools-cache-${{ runner.os }}-
       - uses: dtolnay/rust-toolchain@5d458579430fc14a04a08a1e7d3694f545e91ce6 # stable
         if: steps.changes.outputs.docs_only != 'true'
-      - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
         if: steps.changes.outputs.docs_only != 'true'
         with:
           workspaces: |
@@ -247,7 +247,7 @@ jobs:
           cache-dependency-path: package-lock.json
       - uses: dtolnay/rust-toolchain@5d458579430fc14a04a08a1e7d3694f545e91ce6 # stable
         if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
-      - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
         if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
       - name: Install system deps (Tauri)
         if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
@@ -309,7 +309,7 @@ jobs:
           cache-dependency-path: package-lock.json
       - uses: dtolnay/rust-toolchain@5d458579430fc14a04a08a1e7d3694f545e91ce6 # stable
         if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
-      - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
         if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
       - name: Install JS deps
         if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}

@@ -21,7 +21,7 @@ jobs:
       tauri_changed: ${{ steps.changes.outputs.tauri_changed }}
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
       - name: Inspect protections and rulesets (preflight)
@@ -117,7 +117,7 @@ jobs:
         shell: bash
         run: bash scripts/check-forbidden-unicode.sh
 
-      - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 20
           cache: 'npm'
@@ -127,7 +127,7 @@ jobs:
         run: npm ci
       - name: Restore caches (eslint/prettier/tsc)
         if: steps.changes.outputs.docs_only != 'true'
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v4
         with:
           path: |
             .cache
@@ -152,7 +152,7 @@ jobs:
             libsoup-3.0-dev libwebkit2gtk-4.1-dev libjavascriptcoregtk-4.1-dev
       - name: Cache sccache
         if: steps.changes.outputs.docs_only != 'true'
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v4
         with:
           path: ~/.cache/sccache
           key: sccache-${{ runner.os }}-v1
@@ -237,9 +237,9 @@ jobs:
       - name: Skip packaging (no front or Tauri changes)
         if: ${{ startsWith(github.ref, 'refs/tags/v') && !(needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
         run: echo "No front/tauri changes detected; skipping packaging in build workflow."
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
-      - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
         with:
           node-version: 20
@@ -268,12 +268,12 @@ jobs:
       - name: Build Debian package (xtask)
         if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
         run: ./xtask/target/release/xtask build deb
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
         with:
           name: appimage-front-${{ needs.checks.outputs.front_changed }}-tauri-${{ needs.checks.outputs.tauri_changed }}
           path: src-tauri/target/release/bundle/appimage/*.AppImage
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
         with:
           name: deb-front-${{ needs.checks.outputs.front_changed }}-tauri-${{ needs.checks.outputs.tauri_changed }}
@@ -299,9 +299,9 @@ jobs:
       - name: Skip packaging (no front or Tauri changes)
         if: ${{ startsWith(github.ref, 'refs/tags/v') && !(needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
         run: echo "No front/tauri changes detected; skipping packaging in build workflow."
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
-      - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
         with:
           node-version: 20
@@ -320,7 +320,7 @@ jobs:
       - name: Build NSIS installer (xtask)
         if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
         run: .\\xtask\\target\\release\\xtask.exe build win-nsis
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ startsWith(github.ref, 'refs/tags/v') && (needs.checks.outputs.front_changed == 'true' || needs.checks.outputs.tauri_changed == 'true') }}
         with:
           name: windows-nsis-front-${{ needs.checks.outputs.front_changed }}-tauri-${{ needs.checks.outputs.tauri_changed }}

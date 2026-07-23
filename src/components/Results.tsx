@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { Instance } from '../types';
 import { useI18n } from '../i18n';
+import { openExternal } from '../lib/open-external';
 
 function isValidDomain(domain: string): boolean {
   const d = domain.trim().toLowerCase();
@@ -43,15 +44,6 @@ async function copyText(text: string): Promise<boolean> {
   const ok = document.execCommand('copy');
   document.body.removeChild(ta);
   return ok;
-}
-
-async function openExternal(url: string): Promise<void> {
-  try {
-    const { open } = await import('@tauri-apps/plugin-shell');
-    await open(url);
-  } catch {
-    window.open(url, '_blank', 'noopener,noreferrer');
-  }
 }
 
 type Props = { items: Instance[] };

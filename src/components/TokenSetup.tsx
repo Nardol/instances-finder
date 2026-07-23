@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useI18n } from '../i18n';
 import { tokenStatus, testToken, saveToken } from '../lib/api';
-import { open } from '@tauri-apps/plugin-shell';
+import { openExternal } from '../lib/open-external';
 
 type Props = { onReady: () => void };
 
@@ -46,7 +46,10 @@ export const TokenSetup: React.FC<Props> = ({ onReady }) => {
       <h2 id="token-title">{t('token.title')}</h2>
       <p>{t('token.desc')}</p>
       <div className="row">
-        <button type="button" onClick={() => open('https://instances.social/api/token')}>
+        <button
+          type="button"
+          onClick={() => void openExternal('https://instances.social/api/token')}
+        >
           {t('token.get')}
         </button>
       </div>

@@ -1,0 +1,95 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ forgejo.workflow }}-${{ forgejo.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: https://data.forgejo.org/actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: https://data.forgejo.org/actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Set up Rust
+        uses: https://github.com/dtolnay/rust-toolchain@5d458579430fc14a04a08a1e7d3694f545e91ce6 # stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Restore Rust cache
+        uses: https://github.com/Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
+        with:
+          workspaces: |
+            src-tauri -> target
+            xtask -> target
+
+      - name: Install system dependencies
+        run: |
+          set -euxo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            libayatana-appindicator3-dev \
+            libgtk-3-dev \
+            libjavascriptcoregtk-4.1-dev \
+            librsvg2-dev \
+            libsoup-3.0-dev \
+            libwebkit2gtk-4.1-dev
+
+      - name: Install JavaScript dependencies
+        run: npm ci
+
+      - name: Prepare Tauri frontend stub
+        run: |
+          mkdir -p dist
+          test -f dist/index.html || echo "<!doctype html><title>stub</title>" > dist/index.html
+
+      - name: Build xtask
+        run: cargo build --manifest-path xtask/Cargo.toml --release
+
+      - name: Run repository checks
+        run: ./xtask/target/release/xtask ci-checks-par
+
+      - name: Run tests
+        run: npm test
+
+      - name: Validate commit messages
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${FORGEJO_EVENT_NAME}" == "pull_request" ]]; then
+            base_ref="origin/${FORGEJO_BASE_REF}"
+            git fetch origin "${FORGEJO_BASE_REF}" --depth=1000
+            mapfile -t subjects < <(git log --format=%s "${base_ref}..HEAD")
+          else
+            mapfile -t subjects < <(git log --format=%s -n 1 "${FORGEJO_SHA}")
+          fi
+
+          if [[ ${#subjects[@]} -eq 0 ]]; then
+            echo "No commit message to check."
+            exit 0
+          fi
+
+          for subject in "${subjects[@]}"; do
+            printf '%s\n' "$subject" | bash scripts/validate-commit-msg.sh
+          done

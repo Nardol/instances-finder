@@ -64,7 +64,7 @@ Note transparence: la base du code a été produite par un assistant IA. Merci d
 
 - `make dev`, `make appimage`, `make deb`, `make linux`
 - `make cross-prep-win`, `make win-exe`, `make win-nsis`
-- `make release-tag VERSION=vX.Y.Z`, `make release-gh VERSION=vX.Y.Z NOTES="..."`
+- `make release-tag VERSION=vX.Y.Z` pour créer et pousser un tag de release.
 
 ## Branches & Commits
 
@@ -132,12 +132,13 @@ Tests:
 
 ## Intégration Continue
 
-- GitHub Actions: `.github/workflows/build.yml` exécute d’abord un job `checks` (ESLint, TypeScript `--noEmit`, Prettier `--check`, Clippy, rustfmt `--check`).
+- Forgejo Actions: `.forgejo/workflows/ci.yml` exécute le job `checks` (ESLint, TypeScript `--noEmit`, Prettier `--check`, Clippy, rustfmt `--check` et tests).
 - Optimisations:
-  - “Docs-only”: si seulement des fichiers `.md` changent, les checks sont ignorés (log explicite) et les jobs de packaging ne tournent pas.
-  - Packaging: ne s’exécute que sur les tags `v*` (pas sur les PR ni sur les pushes vers `main`).
-  - Cache: npm et Rust mis en cache; exécutions concurrentes annulées automatiquement.
-- Release: `.github/workflows/release.yml` joint les artefacts aux tags `v*`. Utilisez `release-draft.yml` pour un lancement manuel.
+  - les caches npm et Rust réduisent les téléchargements et recompilations;
+  - les exécutions concurrentes d’une même branche sont annulées automatiquement;
+  - le packaging ne s’exécute que sur les tags `v*`.
+- Release: `.forgejo/workflows/release.yml` crée d’abord une release brouillon, charge tous les artefacts Linux et Windows, puis la publie.
+- Après la migration, lancez manuellement ce workflow une première fois depuis `main`: il construit et conserve les artefacts de prévalidation sans créer de release.
 
 ## Versionnage & Release
 

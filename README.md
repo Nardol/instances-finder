@@ -181,8 +181,8 @@ Limites / compromis:
 
 ## Releases
 
-- Via tags (CI): `npm run release:tag -- v0.1.0` (crée un tag et déclenche le workflow de release qui attache l’AppImage et l’installeur NSIS).
-- Via GitHub CLI (brouillon): `npm run release:gh -- v0.1.0 "Notes de version"` (crée une release brouillon; le workflow “release” y attache les artefacts).
+- Via tags (CI): `npm run release:tag -- v0.1.0` crée un tag et déclenche le workflow Forgejo qui publie l’AppImage, le paquet Debian, l’archive Windows portable et l’installeur NSIS.
+- Les tags doivent suivre SemVer avec le préfixe `v`. Un suffixe comme `-beta.1` produit automatiquement une pré-version.
 
 ### Makefile (raccourcis)
 

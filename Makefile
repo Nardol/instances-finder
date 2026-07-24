@@ -8,7 +8,7 @@ XTASK_BIN_WIN := ./xtask/target/release/xtask.exe
 XTASK := $(if $(wildcard $(XTASK_BIN_WIN)),$(XTASK_BIN_WIN),$(if $(wildcard $(XTASK_BIN_POSIX)),$(XTASK_BIN_POSIX),cargo run --manifest-path xtask/Cargo.toml --))
 XTASK_BANNER = @if [ -x ./xtask/target/release/xtask ] || [ -x ./xtask/target/release/xtask.exe ]; then echo "[xtask] Using prebuilt binary"; else echo "[xtask] Using cargo run (no prebuilt binary)"; fi
 
-.PHONY: help help-all check check-par check-js check-rust check-js-type check-js-fmt check-rust-fmt ci-checks ci-checks-par bench fix dev build appimage deb linux build-linux cross-prep-win win-exe win-nsis win-zip clean clean-xtask clean-deps clean-all release-tag release-gh fmt fmt-js fmt-rust lint lint-fix clippy clippy-install ensure-cli doctor xtask-release setup
+.PHONY: help help-all check check-par check-js check-rust check-js-type check-js-fmt check-rust-fmt ci-checks ci-checks-par bench fix dev build appimage deb linux build-linux cross-prep-win win-exe win-nsis win-zip clean clean-xtask clean-deps clean-all release-tag fmt fmt-js fmt-rust lint lint-fix clippy clippy-install ensure-cli doctor xtask-release setup
 
 help:
 	@echo "Cibles Make disponibles :"
@@ -27,7 +27,6 @@ help:
 	@echo "  win-nsis       - Cross-build Windows (installeur NSIS)"
 	@echo "  win-zip        - Créer une archive .zip portable Windows (mac/Linux)"
 	@echo "  release-tag    - Créer et pousser un tag VERSION=vX.Y.Z"
-	@echo "  release-gh     - Créer une release GitHub brouillon VERSION=vX.Y.Z NOTES=..."
 	@echo "  fmt            - Formater JS/TS et Rust"
 	@echo "  lint           - Linter JS/TS"
 	@echo "  lint-fix       - Linter JS/TS (auto-fix)"
@@ -65,7 +64,6 @@ help-all: help
 	@echo "  cross:build:win:exe - Cross-build Windows (.exe)"
 	@echo "  cross:build:win:nsis- Cross-build Windows (NSIS)"
 	@echo "  release:tag         - Créer et pousser un tag"
-	@echo "  release:gh          - Créer une release GitHub (brouillon)"
 	@echo "  lint, lint:fix      - ESLint (JS/TS)"
 	@echo "  fmt, fmt:js, fmt:rust - Formatage"
 
@@ -112,12 +110,6 @@ release-tag:
 	@if [ -z "$$VERSION" ]; then echo "Set VERSION=vX.Y.Z"; exit 1; fi
 	$(XTASK_BANNER)
 	$(XTASK) release tag $$VERSION
-
-# Usage: make release-gh VERSION=v0.1.0 NOTES="..."
-release-gh:
-	@if [ -z "$$VERSION" ]; then echo "Set VERSION=vX.Y.Z"; exit 1; fi
-	$(XTASK_BANNER)
-	$(XTASK) release gh $$VERSION --notes "$$NOTES"
 
 clean:
 	$(XTASK_BANNER)

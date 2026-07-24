@@ -117,12 +117,6 @@ enum FmtWhich {
 enum ReleaseAction {
     /// Create and push a git tag vX.Y.Z (VERSION)
     Tag { version: Option<String> },
-    /// Create a GitHub draft release (VERSION and NOTES)
-    Gh {
-        version: Option<String>,
-        #[arg(long)]
-        notes: Option<String>,
-    },
 }
 
 fn main() -> Result<()> {
@@ -843,15 +837,6 @@ fn release_cmd(action: ReleaseAction) -> Result<()> {
                 .or_else(|| env::var("VERSION").ok())
                 .ok_or_else(|| anyhow!("Set VERSION or pass -- version"))?;
             npm_run("release:tag", &["--", &ver])
-        }
-        ReleaseAction::Gh { version, notes } => {
-            let ver = version
-                .or_else(|| env::var("VERSION").ok())
-                .ok_or_else(|| anyhow!("Set VERSION or pass -- version"))?;
-            let nts = notes
-                .or_else(|| env::var("NOTES").ok())
-                .unwrap_or_else(|| String::from("Release draft"));
-            npm_run("release:gh", &["--", &ver, &nts])
         }
     }
 }
